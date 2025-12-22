@@ -1,65 +1,174 @@
-import Image from "next/image";
+import { getActiveAnnouncements } from '@/actions/announcements';
+import { getLocalIp } from '@/utils/getLocalIp';
+import Link from 'next/link';
+import { Dumbbell, Package, Info, AlertTriangle, QrCode, Hammer, Truck } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { AnnouncementCarousel } from '@/components/dashboard/AnnouncementCarousel';
+import { MaintenanceList } from '@/components/maintenance/MaintenanceList';
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+export const dynamic = 'force-dynamic'; // Ensure IP and DB data is fresh
+
+export default async function Dashboard() {
+    const announcements = await getActiveAnnouncements();
+    const localIp = getLocalIp();
+    const appUrl = `http://${localIp}:3000`;
+
+    return (
+        <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
+            <div className="max-w-7xl mx-auto">
+                {/* Header / QR Section */}
+                <header className="bg-gym-gray rounded-3xl p-6 mb-8 border border-white/5 flex flex-col md:flex-row items-center justify-between shadow-lg gap-6">
+                    <div>
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-2 text-center md:text-left">
+                            Condominio OS
+                        </h1>
+                        <p className="text-gray-400 text-sm max-w-[200px] text-center md:text-left mx-auto md:mx-0">
+                            Escanea para llevar el sistema en tu móvil.
+                        </p>
+                        <div className="mt-2 text-[10px] font-mono text-gray-600 bg-black/30 px-2 py-1 rounded w-fit mx-auto md:mx-0">
+                            {appUrl}
+                        </div>
+                    </div>
+                    <div className="bg-white p-2 rounded-xl shrink-0">
+                        <QRCode value={appUrl} size={80} />
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left: Announcements & Maintenance (1 Col) */}
+                    <section className="space-y-8 lg:col-span-1 h-fit">
+                        {/* Announcements */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Info className="text-blue-400" size={20} />
+                                <h2 className="text-lg font-bold uppercase tracking-wide">Cartelera</h2>
+                            </div>
+
+                            {announcements.length === 0 ? (
+                                <div className="bg-gym-gray rounded-2xl p-6 text-center border border-white/5">
+                                    <p className="text-gray-500 text-sm">No hay anuncios activos.</p>
+                                </div>
+                            ) : (
+                                <AnnouncementCarousel announcements={announcements} />
+                            )}
+                        </div>
+
+                        {/* Maintenance Widget Removed - Moved to separate module */}
+                    </section>
+
+                    {/* Right: Modules Navigation (2 Cols) */}
+                    <section className="space-y-4 lg:col-span-2">
+                        <div className="flex items-center gap-2 mb-2">
+                            <QrCode className="text-gym-primary" size={20} />
+                            <h2 className="text-lg font-bold uppercase tracking-wide">Módulos</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Gym Card */}
+                            <Link href="/gym" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-gym-primary/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Dumbbell size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-gym-primary text-black flex items-center justify-center shadow-[0_0_20px_rgba(204,255,0,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Dumbbell size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Gimnasio</h3>
+                                    <p className="text-sm text-gray-400">Rutinas, Música & Nutrición</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-gym-primary text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Ingresar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
+                            {/* Buzon Card */}
+                            <Link href="/buzon" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-blue-400/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Package size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Package size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Buzón</h3>
+                                    <p className="text-sm text-gray-400">Consulta tu paquetería</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-blue-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Consultar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
+                            {/* SUM Card */}
+                            <Link href="/sum" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-purple-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <QrCode size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <QrCode size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">SUM</h3>
+                                    <p className="text-sm text-gray-400">Reserva el salón</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-purple-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Reservar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
+                            {/* Pedidos Card */}
+                            <Link href="/pedidos" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-green-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Truck size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Truck size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Pedidos</h3>
+                                    <p className="text-sm text-gray-400">Agua, Soda y más</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-green-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Solicitar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
+                            {/* Maintenance Card */}
+                            <Link href="/mantenimiento" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-orange-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Hammer size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Hammer size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Mantenimiento</h3>
+                                    <p className="text-sm text-gray-400">Estado del edificio</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-orange-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Ver Estado <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
+                            {/* Reportes Card */}
+                            <Link href="/reportes" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-yellow-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <AlertTriangle size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-yellow-500 text-black flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <AlertTriangle size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Reportes</h3>
+                                    <p className="text-sm text-gray-400">Reportar incidencias</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-yellow-500 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Reportar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    );
 }
