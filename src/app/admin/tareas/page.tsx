@@ -7,7 +7,9 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 
-export default function MaintenanceAdminPage() {
+import { Suspense } from 'react';
+
+function MaintenanceAdminContent() {
     const [columns, setColumns] = useState<{ todo: any[], inProgress: any[], done: any[] }>({ todo: [], inProgress: [], done: [] });
     const [loading, setLoading] = useState(true);
 
@@ -236,5 +238,13 @@ export default function MaintenanceAdminPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function MaintenanceAdminPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">Cargando...</div>}>
+            <MaintenanceAdminContent />
+        </Suspense>
     );
 }
