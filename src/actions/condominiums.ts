@@ -33,11 +33,11 @@ export async function createCondominium(data: { name: string; address: string; p
         const newCondo = new Condominium(data);
         await newCondo.save();
         
-        // Revalidate the dashboard page to show the new condo
-        const { revalidatePath } = await import('next/cache');
-        revalidatePath('/admin/super');
+        // Commenting out revalidatePath to debug 500 error
+        // const { revalidatePath } = await import('next/cache');
+        // revalidatePath('/admin/super');
 
-        return { success: true, data: JSON.parse(JSON.stringify(newCondo)) };
+        return { success: true };
     } catch (error: any) {
         console.error('Error creating condominium:', error);
         return { success: false, error: error.message || 'Error creating condominium' };
