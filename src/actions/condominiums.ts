@@ -17,16 +17,26 @@ export async function getCondominiums() {
 }
 
 export async function createCondominium(data: { name: string; address: string; plan: string }) {
-    await dbConnect();
-    const session = await auth();
+    try {
+        await dbConnect();
+        const session = await auth();
 
-    if (session?.user?.role !== 'SUPER_ADMIN') {
-        throw new Error('Unauthorized');
+        if (session?.user?.role !== 'SUPER_ADMIN') {
+            return { success: false, error: 'Unauthorized' };
+        }
+
+        const newCondo = new Condominium(data);
+        await newCondo.save();
+        
+        // Revalidate the dashboard page to show the new condo
+        const { revalidatePath } = await import('next/cache');
+        revalidatePath('/admin/super');
+
+        return { success: true, data: JSON.parse(JSON.stringify(newCondo)) };
+    } catch (error: any) {
+        console.error('Error creating condominium:', error);
+        return { success: false, error: error.message || 'Error creating condominium' };
     }
-
-    const newCondo = new Condominium(data);
-    await newCondo.save();
-    return JSON.parse(JSON.stringify(newCondo));
 }
 
 export async function getSuperAdminStats() {

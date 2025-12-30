@@ -19,10 +19,16 @@ export function CreateCondominiumModal() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await createCondominium(formData);
-            setIsOpen(false);
-            setFormData({ name: '', address: '', plan: 'Free' });
-            router.refresh();
+            const result = await createCondominium(formData);
+            
+            if (result.success) {
+                setIsOpen(false);
+                setFormData({ name: '', address: '', plan: 'Free' });
+                router.refresh();
+            } else {
+                console.error('Error creating condominium:', result.error);
+                alert('Error al crear el condominio: ' + result.error);
+            }
         } catch (error) {
             console.error('Error creating condominium:', error);
             alert('Error al crear el condominio');
