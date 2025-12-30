@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
@@ -9,8 +9,14 @@ export const metadata: Metadata = {
   title: "GymHub Local",
   description: "Tu compañero de entrenamiento inteligente",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#ccff00",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
