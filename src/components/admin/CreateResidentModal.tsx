@@ -5,7 +5,11 @@ import { createResident } from '@/actions/users';
 import { Plus, X, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export function CreateResidentModal() {
+interface CreateResidentModalProps {
+    onSuccess?: () => void;
+}
+
+export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -23,6 +27,7 @@ export function CreateResidentModal() {
             await createResident(formData);
             setIsOpen(false);
             setFormData({ name: '', email: '', unitNumber: '', role: 'OWNER' });
+            if (onSuccess) onSuccess();
             router.refresh();
         } catch (error) {
             console.error('Error creating resident:', error);
