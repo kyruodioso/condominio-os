@@ -1,6 +1,6 @@
 
-import dbConnect from '../src/lib/dbConnect';
-import User from '../src/models/User';
+import dbConnect from '../src/lib/dbConnect.ts';
+import User from '../src/models/User.ts';
 import bcrypt from 'bcryptjs';
 
 const createSuperAdmin = async () => {
