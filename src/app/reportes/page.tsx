@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { createReport } from '@/actions/reports';
-import { AlertTriangle, Send, Lock, Home, CheckCircle, AlertCircle } from 'lucide-react';
+import { AlertTriangle, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function ReportesPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
     const [formData, setFormData] = useState({
-        unitNumber: '',
-        pin: '',
         title: '',
         description: '',
         priority: 'medium'
@@ -18,6 +18,12 @@ export default function ReportesPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/login');
+        }
+    }, [status, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,8 +36,6 @@ export default function ReportesPage() {
         if (res.success) {
             setSuccess(true);
             setFormData({
-                unitNumber: '',
-                pin: '',
                 title: '',
                 description: '',
                 priority: 'medium'
@@ -50,6 +54,18 @@ export default function ReportesPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    if (status === 'loading') {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+                <Loader2 size={48} className="animate-spin text-yellow-500" />
+            </div>
+        );
+    }
+
+    if (!session) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
             <header className="mb-8 flex items-center justify-between">
@@ -67,6 +83,11 @@ export default function ReportesPage() {
                         </div>
                         <h2 className="text-xl font-bold text-white">Reportar un Problema</h2>
                         <p className="text-gray-400 text-sm mt-1">Notifica a la administración sobre incidencias</p>
+                        {session.user?.email && (
+                            <p className="text-gym-primary text-xs mt-2 font-bold">
+                                Reportando como: {session.user.email}
+                            </p>
+                        )}
                     </div>
 
                     {success ? (
@@ -77,40 +98,6 @@ export default function ReportesPage() {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block pl-2">Unidad</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            name="unitNumber"
-                                            placeholder="Ej: 4B"
-                                            value={formData.unitNumber}
-                                            onChange={handleChange}
-                                            required
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 pl-10 text-white placeholder:text-gray-600 focus:border-yellow-500 outline-none transition-all uppercase font-bold"
-                                        />
-                                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block pl-2">PIN</label>
-                                    <div className="relative">
-                                        <input
-                                            type="password"
-                                            name="pin"
-                                            placeholder="****"
-                                            maxLength={4}
-                                            value={formData.pin}
-                                            onChange={handleChange}
-                                            required
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 pl-10 text-white placeholder:text-gray-600 focus:border-yellow-500 outline-none transition-all font-mono"
-                                        />
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                                    </div>
-                                </div>
-                            </div>
-
                             <div>
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block pl-2">Asunto</label>
                                 <input
@@ -164,7 +151,10 @@ export default function ReportesPage() {
                                 className="w-full bg-yellow-500 text-black font-bold py-4 rounded-xl hover:bg-yellow-400 transition-colors disabled:opacity-50 shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
                             >
                                 {loading ? (
-                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                    <>
+                                        <Loader2 size={20} className="animate-spin" />
+                                        Enviando...
+                                    </>
                                 ) : (
                                     <>
                                         <Send size={20} />

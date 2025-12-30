@@ -18,6 +18,11 @@ const AnnouncementSchema = new Schema({
         type: Date,
         required: true,
     },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

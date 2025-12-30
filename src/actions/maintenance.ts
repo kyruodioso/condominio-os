@@ -3,22 +3,29 @@
 import dbConnect from '@/lib/dbConnect';
 import MaintenanceTask from '@/models/MaintenanceTask';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
 
 export async function createTask(formData: FormData) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        throw new Error('No condominium ID found. User must be associated with a condominium.');
+    }
 
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const priority = formData.get('priority') as string;
     const scheduledDateStr = formData.get('scheduledDate') as string;
 
-    console.log('Creating task:', { title, priority, scheduledDateStr });
+    console.log('Creating task:', { title, priority, scheduledDateStr, condominiumId: session.user.condominiumId });
 
     try {
         const newTask = await MaintenanceTask.create({
             title,
             description,
             priority,
+            condominiumId: session.user.condominiumId,
             scheduledDate: scheduledDateStr ? new Date(scheduledDateStr) : undefined,
         });
         console.log('Task created successfully:', newTask._id);
@@ -68,13 +75,19 @@ export async function deleteTask(id: string) {
 
 export async function getDailyTasks() {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return { todo: [], inProgress: [], done: [] };
+    }
 
     try {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
-        console.log('Fetching daily tasks...');
+        console.log('Fetching daily tasks for condominium:', session.user.condominiumId);
         const tasks = await MaintenanceTask.find({
+            condominiumId: session.user.condominiumId,
             $or: [
                 { status: { $in: ['Pendiente', 'En Progreso'] } },
                 { status: 'Finalizada', completedAt: { $gte: startOfDay } }
@@ -106,8 +119,15 @@ export async function getDailyTasks() {
 
 export async function getWeeklyTasks(startDate: Date, endDate: Date) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
     try {
         const tasks = await MaintenanceTask.find({
+            condominiumId: session.user.condominiumId,
             scheduledDate: {
                 $gte: startDate,
                 $lte: endDate
@@ -129,8 +149,17 @@ export async function getWeeklyTasks(startDate: Date, endDate: Date) {
 
 export async function getAllTasks() {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
     try {
-        const tasks = await MaintenanceTask.find({}).sort({ createdAt: -1 }).lean();
+        const tasks = await MaintenanceTask.find({ 
+            condominiumId: session.user.condominiumId 
+        }).sort({ createdAt: -1 }).lean();
+        
         return tasks.map((task: any) => ({
             ...task,
             _id: task._id.toString(),
@@ -150,12 +179,19 @@ export async function getPublicTasks() {
 
 export async function getMonthlyTasks(year: number, month: number) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
     try {
         // Month is 0-indexed in JS Date, but let's assume input is 0-indexed too for consistency
         const startDate = new Date(year, month, 1);
         const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
         const tasks = await MaintenanceTask.find({
+            condominiumId: session.user.condominiumId,
             scheduledDate: {
                 $gte: startDate,
                 $lte: endDate

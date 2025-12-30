@@ -3,17 +3,30 @@
 import dbConnect from '@/lib/dbConnect';
 import Unit from '@/models/Unit';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
 
 export async function getUnits() {
     await dbConnect();
-    const units = await Unit.find({}).sort({ number: 1 }).lean();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
+    const units = await Unit.find({ condominiumId: session.user.condominiumId.toString() }).sort({ number: 1 }).lean();
     return units.map((u: any) => ({ ...u, _id: u._id.toString() }));
 }
 
 export async function createUnit(data: { number: string; accessPin: string; contactName?: string }) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
     try {
-        await Unit.create(data);
+        await Unit.create({ ...data, condominiumId: session.user.condominiumId.toString() });
         revalidatePath('/admin/units');
         return { success: true };
     } catch (error: any) {

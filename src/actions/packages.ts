@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/dbConnect';
 import Package from '@/models/Package';
+import { auth } from '@/auth';
 
 import Unit from '@/models/Unit';
 
@@ -39,10 +40,16 @@ export async function getPackagesByUnit(unitNum: string, pin: string) {
 
 export async function addPackage(data: { unit: string; recipientName: string }) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        throw new Error('Unauthorized');
+    }
 
     const newPackage = await Package.create({
         unit: data.unit,
-        recipientName: data.recipientName
+        recipientName: data.recipientName,
+        condominiumId: session.user.condominiumId
     });
 
     return JSON.parse(JSON.stringify(newPackage));

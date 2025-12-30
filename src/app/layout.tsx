@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ClientLayout from "@/components/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -20,15 +21,17 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className={`${inter.variable} font-sans bg-gym-black text-white antialiased pb-28 selection:bg-gym-primary selection:text-black`}>
-        <main className="min-h-screen relative z-10">
-          {children}
-        </main>
+        <ClientLayout>
+          <main className="min-h-screen relative z-10 pt-16">
+            {children}
+          </main>
 
-        {/* Background Ambient Glow */}
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gym-primary/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gym-secondary/5 rounded-full blur-[100px]" />
-        </div>
+          {/* Background Ambient Glow */}
+          <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gym-primary/5 rounded-full blur-[100px]" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gym-secondary/5 rounded-full blur-[100px]" />
+          </div>
+        </ClientLayout>
       </body>
     </html>
   );

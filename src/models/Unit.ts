@@ -10,9 +10,7 @@ const UnitSchema = new Schema({
     },
     accessPin: {
         type: String,
-        required: true,
-        minlength: 4,
-        maxlength: 4,
+        required: false, // PIN is now obsolete
     },
     contactName: {
         type: String,
@@ -20,6 +18,11 @@ const UnitSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
+    },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
     },
 });
 

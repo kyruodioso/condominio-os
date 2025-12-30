@@ -31,6 +31,11 @@ const SupplierOrderSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
 });
 
 const SupplierOrder = models.SupplierOrder || model('SupplierOrder', SupplierOrderSchema);

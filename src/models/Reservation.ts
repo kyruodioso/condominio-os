@@ -19,10 +19,15 @@ const ReservationSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
 });
 
-// Prevent double booking
-ReservationSchema.index({ date: 1, timeSlot: 1 }, { unique: true });
+// Prevent double booking within the same condominium
+ReservationSchema.index({ condominiumId: 1, date: 1, timeSlot: 1 }, { unique: true });
 
 const Reservation = models.Reservation || model('Reservation', ReservationSchema);
 

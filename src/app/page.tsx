@@ -1,17 +1,40 @@
 import { getActiveAnnouncements } from '@/actions/announcements';
 import { getLocalIp } from '@/utils/getLocalIp';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Dumbbell, Package, Info, AlertTriangle, QrCode, Hammer, Truck } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { AnnouncementCarousel } from '@/components/dashboard/AnnouncementCarousel';
 import { MaintenanceList } from '@/components/maintenance/MaintenanceList';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export const dynamic = 'force-dynamic'; // Ensure IP and DB data is fresh
 
 export default async function Dashboard() {
+    const session = await auth();
+
+    if (!session) {
+        redirect('/login');
+    }
+
+    if (session?.user?.role === 'SUPER_ADMIN') {
+        redirect('/admin/super');
+    }
+
+    if (session?.user?.role === 'ADMIN') {
+        redirect('/admin/condo');
+    }
+
     const announcements = await getActiveAnnouncements();
     const localIp = getLocalIp();
     const appUrl = `http://${localIp}:3000`;
+    
+    // Fetch Condo Name
+    const { getCondominiumName } = await import('@/actions/condominiums');
+    const condoName = session?.user?.condominiumId 
+        ? await getCondominiumName(session.user.condominiumId) 
+        : 'Condominio OS';
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
@@ -20,7 +43,7 @@ export default async function Dashboard() {
                 <header className="bg-gym-gray rounded-3xl p-6 mb-8 border border-white/5 flex flex-col md:flex-row items-center justify-between shadow-lg gap-6">
                     <div>
                         <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-2 text-center md:text-left">
-                            Condominio OS
+                            {condoName}
                         </h1>
                         <p className="text-gray-400 text-sm max-w-[200px] text-center md:text-left mx-auto md:mx-0">
                             Escanea para llevar el sistema en tu móvil.
@@ -29,8 +52,9 @@ export default async function Dashboard() {
                             {appUrl}
                         </div>
                     </div>
-                    <div className="bg-white p-2 rounded-xl shrink-0">
+                    <div className="bg-white p-2 rounded-xl shrink-0 flex flex-col items-center gap-2">
                         <QRCode value={appUrl} size={80} />
+                        <LogoutButton />
                     </div>
                 </header>
 

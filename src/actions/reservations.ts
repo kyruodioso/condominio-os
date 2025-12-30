@@ -4,11 +4,17 @@ import dbConnect from '@/lib/dbConnect';
 import Reservation from '@/models/Reservation';
 import Unit from '@/models/Unit';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/auth';
 
 export async function getReservations(startDate?: string, endDate?: string) {
     await dbConnect();
+    const session = await auth();
 
-    const query: any = {};
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
+    const query: any = { condominiumId: session.user.condominiumId };
     if (startDate && endDate) {
         query.date = { $gte: startDate, $lte: endDate };
     }
@@ -38,8 +44,12 @@ export async function bookSum(data: { unitId: string; pin: string; date: string;
         return { success: false, error: 'PIN incorrecto' };
     }
 
-    // 2. Check availability
-    const existing = await Reservation.findOne({ date: data.date, timeSlot: data.timeSlot });
+    // 2. Check availability (only within the same condominium)
+    const existing = await Reservation.findOne({ 
+        condominiumId: unit.condominiumId,
+        date: data.date, 
+        timeSlot: data.timeSlot 
+    });
     if (existing) {
         return { success: false, error: 'Turno ya reservado' };
     }
@@ -48,6 +58,7 @@ export async function bookSum(data: { unitId: string; pin: string; date: string;
     try {
         await Reservation.create({
             unit: unit._id,
+            condominiumId: unit.condominiumId,
             date: data.date,
             timeSlot: data.timeSlot
         });

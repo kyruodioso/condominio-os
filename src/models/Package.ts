@@ -19,6 +19,11 @@ const PackageSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
 });
 
 const Package = models.Package || model('Package', PackageSchema);

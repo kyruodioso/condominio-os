@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Condominio OS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            margin-left: 10px;
+        }
+        .super-admin { background-color: #e74c3c; }
+        .admin { background-color: #3498db; }
+        .owner { background-color: #9b59b6; }
+        .tenant { background-color: #f1c40f; color: #333; }
+
+        @media print {
+            body {
+                padding: 0;
+                font-size: 12pt;
+            }
+            a {
+                text-decoration: none;
+                color: #000;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ddd; text-align: center;">
+        <p><strong>Para guardar como PDF:</strong> Presiona <kbd>Ctrl + P</kbd> (o <kbd>Cmd + P</kbd>) y selecciona "Guardar como PDF" en el destino.</p>
+    </div>
+
+    <h1>Documentación de la Plataforma Condominio OS</h1>
+
+    <h2>1. Visión General</h2>
+    <p><strong>Condominio OS</strong> es una plataforma SaaS (Software as a Service) multi-inquilino diseñada para la gestión integral de condominios y edificios residenciales. Permite a múltiples condominios operar de forma independiente dentro de una misma infraestructura, garantizando la privacidad y seguridad de los datos.</p>
+
+    <h2>2. Roles de Usuario y Jerarquía</h2>
+    <p>El sistema cuenta con cuatro niveles de acceso, cada uno con permisos específicos:</p>
+
+    <h3>👑 Super Admin <span class="role-badge super-admin">Global</span></h3>
+    <ul>
+        <li><strong>Alcance:</strong> Global (Toda la plataforma).</li>
+        <li><strong>Responsabilidades:</strong>
+            <ul>
+                <li>Crear y gestionar Condominios.</li>
+                <li>Crear Administradores de Condominio.</li>
+                <li>Ver estadísticas globales de la plataforma.</li>
+            </ul>
+        </li>
+        <li><strong>Acceso:</strong> <code>/admin/super</code></li>
+    </ul>
+
+    <h3>🛡️ Admin de Condominio <span class="role-badge admin">Local</span></h3>
+    <ul>
+        <li><strong>Alcance:</strong> Local (Su condominio específico).</li>
+        <li><strong>Responsabilidades:</strong>
+            <ul>
+                <li>Gestionar Unidades (Departamentos).</li>
+                <li>Gestionar Residentes (Propietarios e Inquilinos).</li>
+                <li>Publicar Anuncios y Noticias.</li>
+                <li>Gestionar Paquetería y Mantenimiento.</li>
+            </ul>
+        </li>
+        <li><strong>Acceso:</strong> <code>/admin/condo</code></li>
+    </ul>
+
+    <h3>🏠 Propietario (Owner) <span class="role-badge owner">Personal</span></h3>
+    <ul>
+        <li><strong>Alcance:</strong> Personal (Su unidad y áreas comunes).</li>
+        <li><strong>Capacidades:</strong>
+            <ul>
+                <li>Ver anuncios del edificio.</li>
+                <li>Recibir notificaciones de paquetería.</li>
+                <li>Reservar áreas comunes (SUM, Gimnasio).</li>
+                <li>Generar reportes de mantenimiento.</li>
+            </ul>
+        </li>
+        <li><strong>Acceso:</strong> <code>/</code> (Dashboard Principal)</li>
+    </ul>
+
+    <h3>👤 Inquilino (Tenant) <span class="role-badge tenant">Personal</span></h3>
+    <ul>
+        <li><strong>Alcance:</strong> Personal (Similar al Propietario, con restricciones configurables).</li>
+        <li><strong>Capacidades:</strong>
+            <ul>
+                <li>Ver anuncios.</li>
+                <li>Recibir paquetería.</li>
+                <li>Reservar áreas comunes.</li>
+            </ul>
+        </li>
+        <li><strong>Acceso:</strong> <code>/</code> (Dashboard Principal)</li>
+    </ul>
+
+    <h2>3. Flujos de Trabajo Principales</h2>
+
+    <h3>A. Gestión de Condominios (Super Admin)</h3>
+    <ol>
+        <li><strong>Crear Condominio:</strong>
+            <ul>
+                <li>Ir al Dashboard de Super Admin.</li>
+                <li>Click en "Nuevo Condominio".</li>
+                <li>Ingresar Nombre, Dirección y Plan (Free, Pro, Enterprise).</li>
+            </ul>
+        </li>
+        <li><strong>Asignar Administrador:</strong>
+            <ul>
+                <li>Seleccionar un condominio de la lista ("Administrar").</li>
+                <li>En la sección "Administradores", click en "Nuevo Admin".</li>
+                <li>Ingresar Nombre y Email. El sistema genera una contraseña por defecto.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>B. Configuración del Edificio (Admin de Condominio)</h3>
+    <ol>
+        <li><strong>Crear Unidades:</strong>
+            <ul>
+                <li>Ir a "Gestión de Unidades".</li>
+                <li>Registrar los departamentos (ej: 1A, 2B) y sus PINs de acceso.</li>
+            </ul>
+        </li>
+        <li><strong>Registrar Residentes:</strong>
+            <ul>
+                <li>Ir a "Usuarios" -> "Nuevo Usuario".</li>
+                <li>Ingresar datos del residente y asignar su Unidad y Rol.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>C. Operación Diaria</h3>
+    <ul>
+        <li><strong>Paquetería:</strong> El personal de seguridad o administración registra paquetes entrantes dirigidos a una unidad. El residente ve la notificación en su buzón.</li>
+        <li><strong>Anuncios:</strong> El administrador publica noticias (cortes de agua, reuniones) que aparecen en el carrusel principal de los residentes.</li>
+    </ul>
+
+    <h2>4. Arquitectura Técnica</h2>
+
+    <h3>Multi-tenancy (Multi-inquilino)</h3>
+    <p>La plataforma utiliza una arquitectura de <strong>Base de Datos Compartida con Aislamiento Lógico</strong>.</p>
+    <ul>
+        <li><strong>Modelo de Datos:</strong> Todos los registros (Usuarios, Unidades, Paquetes, etc.) tienen un campo <code>condominiumId</code>.</li>
+        <li><strong>Seguridad:</strong> Las consultas a la base de datos siempre filtran por <code>condominiumId</code> basado en la sesión del usuario autenticado, asegurando que un condominio nunca vea datos de otro.</li>
+    </ul>
+
+    <h3>Tecnologías Clave</h3>
+    <ul>
+        <li><strong>Frontend:</strong> Next.js 14 (App Router), Tailwind CSS, Lucide Icons.</li>
+        <li><strong>Backend:</strong> Server Actions de Next.js.</li>
+        <li><strong>Base de Datos:</strong> MongoDB (Mongoose ODM).</li>
+        <li><strong>Autenticación:</strong> NextAuth.js v5 (Sesiones seguras con roles y scope de condominio).</li>
+    </ul>
+
+    <h2>5. Credenciales de Acceso Iniciales</h2>
+    <ul>
+        <li><strong>Super Admin:</strong>
+            <ul>
+                <li>Email: <code>superadmin@condominioos.com</code></li>
+                <li>Password: <code>supersecretpassword</code></li>
+            </ul>
+        </li>
+        <li><strong>Usuarios Nuevos:</strong>
+            <ul>
+                <li>Password por defecto: <code>123456</code> (Se recomienda cambiar al primer inicio de sesión).</li>
+            </ul>
+        </li>
+    </ul>
+</body>
+</html>

@@ -26,6 +26,11 @@ const MaintenanceTaskSchema: Schema = new Schema({
     createdAt: { type: Date, default: Date.now },
     scheduledDate: { type: Date },
     completedAt: { type: Date },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
 });
 
 // Removed pre-save hook to avoid potential conflicts/errors. 

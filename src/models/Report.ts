@@ -33,6 +33,19 @@ const ReportSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'MaintenanceTask',
     },
+    condominiumId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Condominium',
+        required: true,
+    },
+    unitId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Unit',
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    },
 });
 
 const Report = models.Report || model('Report', ReportSchema);

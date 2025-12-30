@@ -2,12 +2,19 @@
 
 import dbConnect from '@/lib/dbConnect';
 import Announcement from '@/models/Announcement';
+import { auth } from '@/auth';
 
 export async function getActiveAnnouncements() {
     await dbConnect();
+    const session = await auth();
 
-    // Find announcements that haven't expired yet
+    if (!session?.user?.condominiumId) {
+        return [];
+    }
+
+    // Find announcements that haven't expired yet and belong to the user's condominium
     const announcements = await Announcement.find({
+        condominiumId: session.user.condominiumId,
         expiresAt: { $gte: new Date() }
     })
         .sort({ createdAt: -1 })
@@ -25,6 +32,15 @@ export async function getActiveAnnouncements() {
 
 export async function createAnnouncement(data: { title: string; message: string; type: 'Info' | 'Alerta'; daysToLive: number }) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        throw new Error('No condominium ID found. User must be associated with a condominium.');
+    }
+
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+        throw new Error('Unauthorized. Only admins can create announcements.');
+    }
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + data.daysToLive);
@@ -33,6 +49,7 @@ export async function createAnnouncement(data: { title: string; message: string;
         title: data.title,
         message: data.message,
         type: data.type,
+        condominiumId: session.user.condominiumId,
         expiresAt
     });
 
