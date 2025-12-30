@@ -39,7 +39,7 @@ const createSuperAdmin = async () => {
 
     } catch (error) {
         console.error('Error:', error);
-    } else {
+    } finally {
         process.exit();
     }
 };
