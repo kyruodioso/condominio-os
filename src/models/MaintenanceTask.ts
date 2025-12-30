@@ -8,6 +8,7 @@ export interface IMaintenanceTask extends Document {
     createdAt: Date;
     scheduledDate?: Date;
     completedAt?: Date;
+    condominiumId: mongoose.Types.ObjectId;
 }
 
 const MaintenanceTaskSchema: Schema = new Schema({
