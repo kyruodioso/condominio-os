@@ -6,6 +6,8 @@ import { Building2, Plus, Users } from 'lucide-react';
 import { CreateCondominiumModal } from '@/components/admin/CreateCondominiumModal';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SuperAdminDashboard() {
     const session = await auth();
 
@@ -41,14 +43,14 @@ export default async function SuperAdminDashboard() {
                             <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest">Condominios</h3>
                             <Building2 className="text-gym-primary" />
                         </div>
-                        <p className="text-4xl font-black text-white">{stats.totalCondos}</p>
+                        <p className="text-4xl font-black text-white">{stats?.totalCondos || 0}</p>
                     </div>
                     <div className="bg-gym-gray p-6 rounded-3xl border border-white/5">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest">Total Usuarios</h3>
                             <Users className="text-blue-400" />
                         </div>
-                        <p className="text-4xl font-black text-white">{stats.totalUsers}</p>
+                        <p className="text-4xl font-black text-white">{stats?.totalUsers || 0}</p>
                     </div>
                 </div>
 
@@ -58,7 +60,7 @@ export default async function SuperAdminDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {condominiums.map((condo: any) => (
+                    {Array.isArray(condominiums) && condominiums.map((condo: any) => (
                         <div key={condo._id} className="bg-gym-gray p-6 rounded-3xl border border-white/5 hover:border-white/20 transition-all group">
                             <div className="flex justify-between items-start mb-4">
                                 <div>
