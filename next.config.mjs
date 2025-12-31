@@ -8,6 +8,11 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['179.43.121.225:8080', 'localhost:3000'],
+    },
+  },
 };
 
 export default nextConfig;
