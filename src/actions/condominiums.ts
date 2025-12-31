@@ -22,6 +22,10 @@ export async function getCondominiums() {
 }
 
 export async function createCondominium(data: { name: string; address: string; plan: string }) {
+    console.log('createCondominium action called with:', data);
+    return { success: true };
+    
+    /*
     try {
         await dbConnect();
         const session = await auth();
@@ -42,6 +46,7 @@ export async function createCondominium(data: { name: string; address: string; p
         console.error('Error creating condominium:', error);
         return { success: false, error: error.message || 'Error creating condominium' };
     }
+    */
 }
 
 export async function getSuperAdminStats() {
