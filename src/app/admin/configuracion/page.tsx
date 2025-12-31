@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Clock, MessageSquare } from 'lucide-react';
+import { Save, Loader2, Clock, MessageSquare, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
+import Link from 'next/link';
 
 export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -63,11 +64,16 @@ export default function AdminSettingsPage() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
             <div className="max-w-3xl mx-auto">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
-                        Configuración
-                    </h1>
-                    <p className="text-gray-400 text-sm">Preferencias de disponibilidad y respuestas</p>
+                <header className="mb-8 flex items-center gap-4">
+                    <Link href="/admin" className="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-gray-400 hover:text-white">
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <div>
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+                            Configuración
+                        </h1>
+                        <p className="text-gray-400 text-sm">Preferencias de disponibilidad y respuestas</p>
+                    </div>
                 </header>
 
                 <div className="space-y-6">
