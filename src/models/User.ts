@@ -34,6 +34,9 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    lastActive: {
+        type: Date,
+    },
 });
 
 const User = models.User || model('User', UserSchema);

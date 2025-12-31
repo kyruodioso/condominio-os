@@ -44,22 +44,40 @@ export async function GET(req: Request) {
 
         // Poblar la información de la unidad (Nombre/Número)
         // Como aggregate devuelve objetos planos, hacemos un populate manual o una segunda consulta
+        // Poblar la información de la unidad
         const populatedConversations = await Unit.populate(conversations, {
             path: '_id',
-            select: 'number contactName', // Ajusta estos campos según tu modelo Unit
+            select: 'number contactName condominiumId',
             model: Unit
         });
 
+        // Obtener usuarios activos recientemente (últimos 2 minutos)
+        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+        const activeUsers = await import('@/models/User').then(mod => mod.default.find({
+            lastActive: { $gt: twoMinutesAgo },
+            role: { $in: ['OWNER', 'TENANT'] }
+        }).select('unitNumber condominiumId'));
+
+        // Crear un mapa de unidades activas para búsqueda rápida
+        // Clave: condominiumId_unitNumber
+        const activeUnitsMap = new Set(activeUsers.map((u: any) => `${u.condominiumId}_${u.unitNumber}`));
+
         // Formatear la respuesta para el frontend
-        const result = populatedConversations.map((c: any) => ({
-            unitId: c._id._id,
-            unitNumber: c._id.number || 'Sin N°',
-            contactName: c._id.contactName || 'Vecino',
-            lastMessage: c.lastMessage,
-            lastMessageAt: c.lastMessageAt,
-            unreadCount: c.unreadCount,
-            lastSender: c.lastSender
-        }));
+        const result = populatedConversations.map((c: any) => {
+            const unit = c._id;
+            const isOnline = unit ? activeUnitsMap.has(`${unit.condominiumId}_${unit.number}`) : false;
+
+            return {
+                unitId: unit?._id,
+                unitNumber: unit?.number || 'Sin N°',
+                contactName: unit?.contactName || 'Vecino',
+                lastMessage: c.lastMessage,
+                lastMessageAt: c.lastMessageAt,
+                unreadCount: c.unreadCount,
+                lastSender: c.lastSender,
+                isOnline: isOnline
+            };
+        });
 
         return NextResponse.json(result);
     } catch (error) {

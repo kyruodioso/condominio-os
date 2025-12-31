@@ -17,11 +17,12 @@ interface ChatInterfaceProps {
     unitId: string; // ID de la unidad con la que se chatea
     currentUserRole: 'ADMIN' | 'USER'; // Rol del usuario actual viendo el chat
     title?: string; // Título opcional (ej: "Unidad 101")
+    isOnline?: boolean; // Estado de conexión real
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function ChatInterface({ unitId, currentUserRole, title }: ChatInterfaceProps) {
+export default function ChatInterface({ unitId, currentUserRole, title, isOnline }: ChatInterfaceProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -90,10 +91,12 @@ export default function ChatInterface({ unitId, currentUserRole, title }: ChatIn
                 <h3 className="font-bold text-white uppercase tracking-wide">
                     {title || 'Chat'}
                 </h3>
-                <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span className="text-xs text-gray-400">En línea</span>
-                </div>
+                {isOnline && (
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs text-gray-400">En línea</span>
+                    </div>
+                )}
             </div>
 
             {/* Messages Area */}

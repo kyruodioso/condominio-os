@@ -9,7 +9,7 @@ import clsx from 'clsx';
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AdminChatLayout() {
-    const [selectedUnit, setSelectedUnit] = useState<{ id: string; name: string } | null>(null);
+    const [selectedUnit, setSelectedUnit] = useState<{ id: string; name: string; isOnline?: boolean } | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Polling de conversaciones cada 5 segundos
@@ -48,7 +48,11 @@ export default function AdminChatLayout() {
                     {filteredConversations?.map((conv: any) => (
                         <button
                             key={conv.unitId}
-                            onClick={() => setSelectedUnit({ id: conv.unitId, name: `Unidad ${conv.unitNumber} - ${conv.contactName}` })}
+                            onClick={() => setSelectedUnit({ 
+                                id: conv.unitId, 
+                                name: `Unidad ${conv.unitNumber} - ${conv.contactName}`,
+                                isOnline: conv.isOnline 
+                            })}
                             className={clsx(
                                 "w-full p-4 rounded-xl flex items-start gap-3 transition-all text-left group",
                                 selectedUnit?.id === conv.unitId
@@ -57,10 +61,13 @@ export default function AdminChatLayout() {
                             )}
                         >
                             <div className={clsx(
-                                "p-2 rounded-full shrink-0",
+                                "p-2 rounded-full shrink-0 relative",
                                 selectedUnit?.id === conv.unitId ? "bg-black/10" : "bg-white/5"
                             )}>
                                 <User size={20} />
+                                {conv.isOnline && (
+                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#1a1a1a] rounded-full" title="En línea" />
+                                )}
                             </div>
                             
                             <div className="flex-1 min-w-0">
@@ -99,6 +106,7 @@ export default function AdminChatLayout() {
                         unitId={selectedUnit.id}
                         currentUserRole="ADMIN"
                         title={selectedUnit.name}
+                        isOnline={selectedUnit.isOnline}
                     />
                 ) : (
                     <div className="h-full bg-gym-gray rounded-3xl border border-white/5 flex flex-col items-center justify-center text-gray-500">
