@@ -226,6 +226,10 @@ export default function UnifiedAdminPage() {
                                 <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
                                 <span className="font-bold text-sm">Mensajes</span>
                             </Link>
+                            <Link href="/directorio" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
+                                <span className="font-bold text-sm">Directorio</span>
+                            </Link>
                             <Link href="/admin/configuracion" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
                                 <Settings size={20} className="group-hover:text-purple-500 transition-colors" />
                                 <span className="font-bold text-sm">Configuración</span>
