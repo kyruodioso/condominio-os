@@ -22,38 +22,28 @@ export async function getCondominiums() {
 }
 
 export async function createCondominium(data: { name: string; address: string; plan: string }) {
-    console.log('--- Starting createCondominium ---');
-    console.log('Data received:', data);
-
     try {
         await dbConnect();
         const session = await auth();
-        console.log('Session checked:', session?.user?.email);
 
         if (session?.user?.role !== 'SUPER_ADMIN') {
-            console.log('Unauthorized access attempt');
             return { success: false, error: 'Unauthorized' };
         }
 
         const newCondo = new Condominium(data);
         await newCondo.save();
-        console.log('Condominium saved successfully:', newCondo._id);
         
         // Try to revalidate, but don't crash if it fails
-        /*
         try {
             const { revalidatePath } = await import('next/cache');
             revalidatePath('/admin/super');
-            console.log('Revalidation successful');
         } catch (revalError) {
             console.error('Revalidation failed (non-critical):', revalError);
         }
-        */
-        console.log('Skipping revalidation to prevent 500 error');
 
-        return { success: true };
+        return { success: true, data: JSON.parse(JSON.stringify(newCondo)) };
     } catch (error: any) {
-        console.error('CRITICAL Error creating condominium:', error);
+        console.error('Error creating condominium:', error);
         return { success: false, error: error.message || 'Error creating condominium' };
     }
 }
