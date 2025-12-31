@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { Info, AlertTriangle, ChevronLeft, ChevronRight, Trash2, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
