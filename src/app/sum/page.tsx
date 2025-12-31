@@ -1,22 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getUnits } from '@/actions/units';
 import { getReservations, bookSum } from '@/actions/reservations';
-import { Calendar as CalendarIcon, Clock, Check, X, Lock } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useSession } from 'next-auth/react';
 
 export default function SumPage() {
+    const { data: session } = useSession();
     const [selectedDate, setSelectedDate] = useState<string>('');
     const [reservations, setReservations] = useState<any[]>([]);
-    const [units, setUnits] = useState<any[]>([]);
 
     // Modal State
     const [showModal, setShowModal] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState('');
-    const [selectedUnit, setSelectedUnit] = useState('');
-    const [pin, setPin] = useState('');
     const [bookingStatus, setBookingStatus] = useState('');
     const [isBooking, setIsBooking] = useState(false);
 
@@ -38,13 +36,8 @@ export default function SumPage() {
         const future = new Date();
         future.setDate(future.getDate() + 30);
 
-        const [resData, unitsData] = await Promise.all([
-            getReservations(today, future.toISOString().split('T')[0]),
-            getUnits()
-        ]);
-
+        const resData = await getReservations(today, future.toISOString().split('T')[0]);
         setReservations(resData);
-        setUnits(unitsData);
     };
 
     const isSlotTaken = (date: string, slot: string) => {
@@ -56,7 +49,6 @@ export default function SumPage() {
         setSelectedSlot(slot);
         setShowModal(true);
         setBookingStatus('');
-        setPin('');
     };
 
     const handleBook = async (e: React.FormEvent) => {
@@ -65,8 +57,6 @@ export default function SumPage() {
         setBookingStatus('Validando...');
 
         const res = await bookSum({
-            unitId: selectedUnit,
-            pin,
             date: selectedDate,
             timeSlot: selectedSlot
         });
@@ -89,7 +79,11 @@ export default function SumPage() {
                 <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm font-bold uppercase tracking-wider">
                     ← Volver
                 </Link>
-                <h1 className="text-2xl font-black italic uppercase tracking-tighter text-purple-500">Reserva SUM</h1>
+                <div className="text-right">
+                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-purple-500">Reserva SUM</h1>
+                    {/* @ts-ignore */}
+                    <p className="text-xs text-gray-400">Unidad {session?.user?.unitNumber || '...'}</p>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -109,7 +103,6 @@ export default function SumPage() {
                             // Check occupancy for indicators
                             const lunchTaken = isSlotTaken(date, 'Almuerzo');
                             const dinnerTaken = isSlotTaken(date, 'Cena');
-                            const fullyBooked = lunchTaken && dinnerTaken;
 
                             return (
                                 <button
@@ -209,34 +202,10 @@ export default function SumPage() {
                             </div>
                         ) : (
                             <form onSubmit={handleBook} className="space-y-4">
-                                <div>
-                                    <label className="text-xs text-gray-500 font-bold uppercase ml-2">Tu Unidad</label>
-                                    <select
-                                        required
-                                        value={selectedUnit}
-                                        onChange={(e) => setSelectedUnit(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-purple-500"
-                                    >
-                                        <option value="">Selecciona...</option>
-                                        {units.map(u => (
-                                            <option key={u._id} value={u._id}>{u.number}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 font-bold uppercase ml-2">PIN de Seguridad</label>
-                                    <div className="relative">
-                                        <input
-                                            type="password"
-                                            required
-                                            maxLength={4}
-                                            placeholder="****"
-                                            value={pin}
-                                            onChange={(e) => setPin(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-3 pl-10 text-white outline-none focus:border-purple-500 tracking-widest font-mono"
-                                        />
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                                    </div>
+                                <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-500/20 mb-4">
+                                    <p className="text-sm text-purple-200">
+                                        Estás reservando para la <span className="font-bold text-white">Unidad {/* @ts-ignore */}{session?.user?.unitNumber}</span>.
+                                    </p>
                                 </div>
 
                                 {bookingStatus && bookingStatus.includes('Error') && (

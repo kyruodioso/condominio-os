@@ -31,25 +31,33 @@ export async function getReservations(startDate?: string, endDate?: string) {
     }));
 }
 
-export async function bookSum(data: { unitId: string; pin: string; date: string; timeSlot: string }) {
+export async function bookSum(data: { date: string; timeSlot: string }) {
     await dbConnect();
+    const session = await auth();
 
-    // 1. Validate Unit and PIN
-    const unit = await Unit.findById(data.unitId);
-    if (!unit) {
-        return { success: false, error: 'Unidad no encontrada' };
+    if (!session?.user) {
+        return { success: false, error: 'No autorizado' };
     }
 
-    if (unit.accessPin !== data.pin) {
-        return { success: false, error: 'PIN incorrecto' };
+    // @ts-ignore
+    const unitId = session.user.unitId;
+    // @ts-ignore
+    const condominiumId = session.user.condominiumId;
+
+    if (!unitId || !condominiumId) {
+        return { success: false, error: 'No se encontró información de tu unidad' };
     }
 
-    // 2. Check availability (only within the same condominium)
+    // 1. Validate Unit (Optional check, mainly to get the object if needed, but we have IDs)
+    // We trust the session here.
+
+    // 2. Check availability
     const existing = await Reservation.findOne({ 
-        condominiumId: unit.condominiumId,
+        condominiumId: condominiumId,
         date: data.date, 
         timeSlot: data.timeSlot 
     });
+    
     if (existing) {
         return { success: false, error: 'Turno ya reservado' };
     }
@@ -57,8 +65,8 @@ export async function bookSum(data: { unitId: string; pin: string; date: string;
     // 3. Create Reservation
     try {
         await Reservation.create({
-            unit: unit._id,
-            condominiumId: unit.condominiumId,
+            unit: unitId,
+            condominiumId: condominiumId,
             date: data.date,
             timeSlot: data.timeSlot
         });
