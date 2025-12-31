@@ -22,10 +22,6 @@ export async function getCondominiums() {
 }
 
 export async function createCondominium(data: { name: string; address: string; plan: string }) {
-    console.log('createCondominium action called with:', data);
-    return { success: true };
-    
-    /*
     try {
         await dbConnect();
         const session = await auth();
@@ -37,16 +33,15 @@ export async function createCondominium(data: { name: string; address: string; p
         const newCondo = new Condominium(data);
         await newCondo.save();
         
-        // Commenting out revalidatePath to debug 500 error
-        // const { revalidatePath } = await import('next/cache');
-        // revalidatePath('/admin/super');
+        // Revalidate the dashboard page to show the new condo
+        const { revalidatePath } = await import('next/cache');
+        revalidatePath('/admin/super');
 
-        return { success: true };
+        return { success: true, data: JSON.parse(JSON.stringify(newCondo)) };
     } catch (error: any) {
         console.error('Error creating condominium:', error);
         return { success: false, error: error.message || 'Error creating condominium' };
     }
-    */
 }
 
 export async function getSuperAdminStats() {
