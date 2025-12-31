@@ -19,8 +19,12 @@ export default async function CondoUsersPage() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
             <div className="max-w-7xl mx-auto">
-                <Link href="/admin/condo" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm font-bold uppercase tracking-widest">
-                    <ArrowLeft size={16} /> Volver al Panel
+                {/* Back Button */}
+                <Link 
+                    href="/admin" 
+                    className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm font-bold uppercase tracking-widest"
+                >
+                    <ArrowLeft size={16} /> Volver
                 </Link>
 
                 <header className="flex justify-between items-center mb-8">

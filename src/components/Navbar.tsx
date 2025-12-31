@@ -19,7 +19,7 @@ export default function Navbar() {
     // Determine dashboard URL based on role
     const getDashboardUrl = () => {
         if (session.user.role === 'SUPER_ADMIN') return '/admin/super';
-        if (session.user.role === 'ADMIN') return '/admin/condo';
+        if (session.user.role === 'ADMIN') return '/admin';
         return '/';
     };
 

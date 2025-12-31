@@ -23,7 +23,7 @@ export default async function Dashboard() {
     }
 
     if (session?.user?.role === 'ADMIN') {
-        redirect('/admin/condo');
+        redirect('/admin');
     }
 
     const announcements = await getActiveAnnouncements();

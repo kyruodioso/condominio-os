@@ -16,7 +16,7 @@ export default async function ProvidersPage() {
             <div className="max-w-7xl mx-auto">
                 {/* Back Button */}
                 <Link 
-                    href="/admin/condo" 
+                    href="/admin" 
                     className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm font-bold uppercase tracking-widest"
                 >
                     <ArrowLeft size={16} /> Volver

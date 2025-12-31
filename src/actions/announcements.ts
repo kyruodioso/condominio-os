@@ -73,5 +73,5 @@ export async function deleteAnnouncement(id: string) {
     // Revalidate paths where announcements might be shown
     const { revalidatePath } = await import('next/cache');
     revalidatePath('/');
-    revalidatePath('/admin/condo');
+    revalidatePath('/admin');
 }
