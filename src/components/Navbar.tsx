@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { LogoutButton } from '@/components/auth/LogoutButton';
-import { User, Lock, Home } from 'lucide-react';
+import { User, Lock, Home, Truck } from 'lucide-react';
 import { useState } from 'react';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
 import Link from 'next/link';
@@ -70,6 +70,20 @@ export default function Navbar() {
                             >
                                 <Home size={18} className="text-gray-400 group-hover:text-gym-primary transition-colors" />
                             </Link>
+                            
+                            {/* Directorio Button - Only for residents */}
+                            {(session.user.role === 'OWNER' || session.user.role === 'TENANT') && (
+                                <Link
+                                    href="/directorio"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-lg transition-colors border border-cyan-500/20 hover:border-cyan-500/50 group"
+                                    title="Directorio de Proveedores"
+                                >
+                                    <Truck size={16} className="text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+                                    <span className="text-xs font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors uppercase tracking-wider">
+                                        Directorio
+                                    </span>
+                                </Link>
+                            )}
                             
                             {/* Change Password Button */}
                             <button
