@@ -9,13 +9,17 @@ declare module "next-auth" {
       /** The user's role. */
       role: string
       /** The user's condominium ID. */
+      /** The user's condominium ID. */
       condominiumId?: string
+      /** The user's unit ID (if resident). */
+      unitId?: string
     } & DefaultSession["user"]
   }
 
   interface User {
     role: string
     condominiumId?: string
+    unitId?: string
   }
 }
 
@@ -23,5 +27,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: string
     condominiumId?: string
+    unitId?: string
   }
 }

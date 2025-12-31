@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
+import Unit from '@/models/Unit';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -32,6 +33,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw new Error("Invalid credentials.");
                 }
 
+                // Si es un residente (tiene unitNumber y condominiumId), buscamos su Unit ID
+                if (user.unitNumber && user.condominiumId) {
+                    const unit = await Unit.findOne({
+                        condominiumId: user.condominiumId,
+                        number: user.unitNumber
+                    });
+                    if (unit) {
+                        // Asignamos el ID de la unidad al objeto usuario para pasarlo al token
+                        user.unitId = unit._id.toString();
+                    }
+                }
+
                 return user;
             },
         }),
@@ -47,6 +60,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.role = user.role;
                 // @ts-ignore
                 token.condominiumId = user.condominiumId?.toString();
+                // @ts-ignore
+                if (user.unitId) token.unitId = user.unitId;
             }
             return token;
         },
@@ -58,6 +73,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.role = token.role;
                 // @ts-ignore
                 session.user.condominiumId = token.condominiumId?.toString();
+                // @ts-ignore
+                if (token.unitId) session.user.unitId = token.unitId;
             }
             return session;
         },
