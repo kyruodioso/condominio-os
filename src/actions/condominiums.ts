@@ -40,6 +40,7 @@ export async function createCondominium(data: { name: string; address: string; p
         console.log('Condominium saved successfully:', newCondo._id);
         
         // Try to revalidate, but don't crash if it fails
+        /*
         try {
             const { revalidatePath } = await import('next/cache');
             revalidatePath('/admin/super');
@@ -47,6 +48,8 @@ export async function createCondominium(data: { name: string; address: string; p
         } catch (revalError) {
             console.error('Revalidation failed (non-critical):', revalError);
         }
+        */
+        console.log('Skipping revalidation to prevent 500 error');
 
         return { success: true };
     } catch (error: any) {
