@@ -189,6 +189,23 @@ export default async function Dashboard() {
                                     Reportar <span className="ml-2">→</span>
                                 </div>
                             </Link>
+
+                            {/* Directorio Card */}
+                            <Link href="/directorio" className="group bg-gym-gray p-8 rounded-3xl border border-white/5 hover:border-cyan-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Truck size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-cyan-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Truck size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Directorio</h3>
+                                    <p className="text-sm text-gray-400">Proveedores y Servicios</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-cyan-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Consultar <span className="ml-2">→</span>
+                                </div>
+                            </Link>
                         </div>
                     </section>
                 </div>
