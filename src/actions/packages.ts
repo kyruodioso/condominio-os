@@ -6,25 +6,34 @@ import { auth } from '@/auth';
 
 import Unit from '@/models/Unit';
 
-export async function getPackagesByUnit(unitNum: string, pin: string) {
+export async function getPackagesByUnit() {
     await dbConnect();
+    const session = await auth();
 
-    // 1. Verify Unit & PIN
-    const unit = await Unit.findOne({ number: unitNum.toUpperCase().trim() });
-
-    if (!unit) {
-        return { error: 'Unidad no encontrada' };
+    if (!session?.user) {
+        return { error: 'No autorizado' };
     }
 
-    if (unit.accessPin !== pin) {
-        return { error: 'PIN incorrecto' };
+    // @ts-ignore
+    const unitNumber = session.user.unitNumber;
+    // @ts-ignore
+    const condominiumId = session.user.condominiumId;
+
+    if (!unitNumber) {
+        return { error: 'No se encontró información de tu unidad' };
     }
 
     // 2. Fetch Packages
-    const packages = await Package.find({
-        unit: unitNum.toUpperCase().trim(),
+    const query: any = {
+        unit: unitNumber.toUpperCase().trim(),
         isPickedUp: false
-    })
+    };
+
+    if (condominiumId) {
+        query.condominiumId = condominiumId;
+    }
+
+    const packages = await Package.find(query)
         .sort({ entryDate: -1 })
         .lean();
 
