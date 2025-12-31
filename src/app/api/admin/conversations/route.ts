@@ -4,6 +4,8 @@ import Message from '@/models/Message';
 import Unit from '@/models/Unit'; // Asegúrate de que este modelo exista y esté exportado correctamente
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
     try {
         await dbConnect();
