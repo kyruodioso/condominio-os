@@ -13,6 +13,7 @@ declare module "next-auth" {
       condominiumId?: string
       /** The user's unit ID (if resident). */
       unitId?: string
+      unitNumber?: string
     } & DefaultSession["user"]
   }
 
@@ -20,6 +21,7 @@ declare module "next-auth" {
     role: string
     condominiumId?: string
     unitId?: string
+    unitNumber?: string
   }
 }
 
@@ -28,5 +30,6 @@ declare module "next-auth/jwt" {
     role: string
     condominiumId?: string
     unitId?: string
+    unitNumber?: string
   }
 }

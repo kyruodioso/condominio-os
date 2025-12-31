@@ -28,19 +28,30 @@ export async function authenticateUnit(unitNumber: string, pin: string) {
     };
 }
 
+import { auth } from '@/auth';
+
+// ... (verifyCredentials y authenticateUnit se mantienen igual por compatibilidad o se pueden ignorar si ya no se usan)
+
 export async function createOrder(data: { unitId: string; provider: string; product: string; quantity: number; pin?: string }) {
     await dbConnect();
+    const session = await auth();
 
-    // If PIN is provided, verify it (Resident view)
-    // Note: data.unitId is passed here. If we want to verify by ID we need a different helper or just trust the ID if we already authenticated.
-    // However, for extra security in server action, we should verify ownership.
-    // But `verifyCredentials` now uses Number.
-    // Let's just fetch the unit by ID to verify PIN if provided.
-
-    if (data.pin) {
+    // Validación: Si hay sesión, verificamos que el usuario pertenezca a la unidad o sea admin
+    if (session?.user) {
+        // @ts-ignore
+        const sessionUnitId = session.user.unitId;
+        const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
+        
+        if (!isAdmin && sessionUnitId !== data.unitId) {
+            return { success: false, error: 'No tienes permiso para esta unidad' };
+        }
+    } else if (data.pin) {
+        // Fallback para modo sin sesión (si se mantiene)
         const unit = await Unit.findById(data.unitId);
         if (!unit) return { success: false, error: 'Unidad no encontrada' };
         if (unit.accessPin !== data.pin) return { success: false, error: 'PIN incorrecto' };
+    } else {
+        return { success: false, error: 'No autorizado' };
     }
 
     try {
@@ -90,11 +101,24 @@ export async function getPendingOrders() {
     }
 }
 
-export async function getUnitOrders(unitId: string, pin: string) {
-    // Verify by ID for this one since we have the ID from state
+export async function getUnitOrders(unitId: string, pin?: string) {
     await dbConnect();
-    const unit = await Unit.findById(unitId);
-    if (!unit || unit.accessPin !== pin) return [];
+    const session = await auth();
+
+    if (session?.user) {
+        // @ts-ignore
+        const sessionUnitId = session.user.unitId;
+        const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
+        
+        if (!isAdmin && sessionUnitId !== unitId) {
+            return [];
+        }
+    } else if (pin) {
+        const unit = await Unit.findById(unitId);
+        if (!unit || unit.accessPin !== pin) return [];
+    } else {
+        return [];
+    }
 
     try {
         const orders = await SupplierOrder.find({ unitId, status: 'Pendiente' })
@@ -112,10 +136,24 @@ export async function getUnitOrders(unitId: string, pin: string) {
     }
 }
 
-export async function deleteOrder(orderId: string, unitId: string, pin: string) {
+export async function deleteOrder(orderId: string, unitId: string, pin?: string) {
     await dbConnect();
-    const unit = await Unit.findById(unitId);
-    if (!unit || unit.accessPin !== pin) return { success: false, error: 'Credenciales inválidas' };
+    const session = await auth();
+
+    if (session?.user) {
+        // @ts-ignore
+        const sessionUnitId = session.user.unitId;
+        const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
+        
+        if (!isAdmin && sessionUnitId !== unitId) {
+            return { success: false, error: 'No autorizado' };
+        }
+    } else if (pin) {
+        const unit = await Unit.findById(unitId);
+        if (!unit || unit.accessPin !== pin) return { success: false, error: 'Credenciales inválidas' };
+    } else {
+        return { success: false, error: 'No autorizado' };
+    }
 
     try {
         const order = await SupplierOrder.findOne({ _id: orderId, unitId });

@@ -62,6 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.condominiumId = user.condominiumId?.toString();
                 // @ts-ignore
                 if (user.unitId) token.unitId = user.unitId;
+                // @ts-ignore
+                if (user.unitNumber) token.unitNumber = user.unitNumber;
             }
             return token;
         },
@@ -75,6 +77,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.condominiumId = token.condominiumId?.toString();
                 // @ts-ignore
                 if (token.unitId) session.user.unitId = token.unitId;
+                // @ts-ignore
+                if (token.unitNumber) session.user.unitNumber = token.unitNumber;
             }
             return session;
         },
