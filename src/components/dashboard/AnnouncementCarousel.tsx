@@ -1,8 +1,9 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { Info, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Info, AlertTriangle, ChevronLeft, ChevronRight, Trash2, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
+import { useSession } from 'next-auth/react';
+import { deleteAnnouncement } from '@/actions/announcements';
+import { useRouter } from 'next/navigation';
 
 interface Announcement {
     _id: string;
@@ -13,9 +14,12 @@ interface Announcement {
 }
 
 export const AnnouncementCarousel = ({ announcements }: { announcements: Announcement[] }) => {
+    const { data: session } = useSession();
+    const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    // Auto-rotate every 5 seconds if there's more than one announcement
+    // Auto-rotate every 8 seconds if there's more than one announcement
     useEffect(() => {
         if (announcements.length <= 1) return;
 
@@ -34,6 +38,24 @@ export const AnnouncementCarousel = ({ announcements }: { announcements: Announc
         setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm('¿Eliminar este anuncio?')) return;
+        setIsDeleting(true);
+        try {
+            await deleteAnnouncement(id);
+            router.refresh();
+            // Si borramos el último, ajustamos el índice
+            if (currentIndex >= announcements.length - 1) {
+                setCurrentIndex(Math.max(0, announcements.length - 2));
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error al eliminar');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     if (announcements.length === 0) {
         return (
             <div className="bg-gym-gray rounded-2xl p-8 text-center border border-white/5 flex flex-col items-center justify-center h-full min-h-[200px]">
@@ -44,7 +66,12 @@ export const AnnouncementCarousel = ({ announcements }: { announcements: Announc
     }
 
     const current = announcements[currentIndex];
+    // Safety check in case current is undefined during re-renders/deletions
+    if (!current) return null;
+
     const isAlert = current.type === 'Alerta';
+    // @ts-ignore
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
 
     return (
         <div className="relative h-full min-h-[250px] group">
@@ -70,9 +97,22 @@ export const AnnouncementCarousel = ({ announcements }: { announcements: Announc
                         {isAlert ? <AlertTriangle size={12} /> : <Info size={12} />}
                         {current.type}
                     </span>
-                    <span className="text-xs text-gray-500 font-mono">
-                        {new Date(current.createdAt).toLocaleDateString()}
-                    </span>
+                    
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 font-mono">
+                            {new Date(current.createdAt).toLocaleDateString()}
+                        </span>
+                        {isAdmin && (
+                            <button
+                                onClick={() => handleDelete(current._id)}
+                                disabled={isDeleting}
+                                className="p-1.5 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
+                                title="Eliminar anuncio"
+                            >
+                                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Content */}
@@ -108,13 +148,13 @@ export const AnnouncementCarousel = ({ announcements }: { announcements: Announc
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm border border-white/10"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm border border-white/10 z-20"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm border border-white/10"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm border border-white/10 z-20"
                     >
                         <ChevronRight size={20} />
                     </button>

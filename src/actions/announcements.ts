@@ -55,3 +55,23 @@ export async function createAnnouncement(data: { title: string; message: string;
 
     return JSON.parse(JSON.stringify(newAnnouncement));
 }
+
+export async function deleteAnnouncement(id: string) {
+    await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        throw new Error('Unauthorized');
+    }
+
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+        throw new Error('Unauthorized');
+    }
+
+    await Announcement.findByIdAndDelete(id);
+    
+    // Revalidate paths where announcements might be shown
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/');
+    revalidatePath('/admin/condo');
+}
