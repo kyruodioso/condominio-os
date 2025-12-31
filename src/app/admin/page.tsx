@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { addPackage } from '@/actions/packages';
-import { createAnnouncement } from '@/actions/announcements';
+import { createAnnouncement, getActiveAnnouncements, deleteAnnouncement } from '@/actions/announcements';
 import { getReservations } from '@/actions/reservations';
 import { getDashboardStats } from '@/actions/dashboard';
 import UsersManagement from '@/components/admin/UsersManagement';
@@ -41,6 +41,7 @@ export default function UnifiedAdminPage() {
     const [annTitle, setAnnTitle] = useState('');
     const [annMsg, setAnnMsg] = useState('');
     const [annType, setAnnType] = useState<'Info' | 'Alerta'>('Info');
+    const [announcements, setAnnouncements] = useState<any[]>([]);
 
 
     // --- Effects ---
@@ -54,6 +55,7 @@ export default function UnifiedAdminPage() {
     useEffect(() => {
         loadStats();
         if (activeTab === 'reservas') loadReservations();
+        if (activeTab === 'cartelera') loadAnnouncements();
         setStatusMsg(null);
     }, [activeTab]);
 
@@ -76,6 +78,11 @@ export default function UnifiedAdminPage() {
         setLoadingData(false);
     };
 
+    const loadAnnouncements = async () => {
+        const data = await getActiveAnnouncements();
+        setAnnouncements(data);
+    };
+
     // --- Handlers ---
     const handleAddPackage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -92,6 +99,18 @@ export default function UnifiedAdminPage() {
         showStatus('Anuncio publicado correctamente', 'success');
         setAnnTitle('');
         setAnnMsg('');
+        loadAnnouncements();
+    };
+
+    const handleDeleteAnnouncement = async (id: string) => {
+        if (!confirm('¿Eliminar este anuncio?')) return;
+        try {
+            await deleteAnnouncement(id);
+            showStatus('Anuncio eliminado', 'success');
+            loadAnnouncements();
+        } catch (error) {
+            showStatus('Error al eliminar', 'error');
+        }
     };
 
     // --- Render Helpers ---
@@ -369,6 +388,56 @@ export default function UnifiedAdminPage() {
                                             Publicar Anuncio
                                         </button>
                                     </form>
+
+                                    {/* Anuncios Actuales */}
+                                    {announcements.length > 0 && (
+                                        <div className="mt-8 pt-8 border-t border-white/10">
+                                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                                <Bell size={20} className="text-yellow-500" />
+                                                Anuncios Activos
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {announcements.map((ann) => (
+                                                    <div 
+                                                        key={ann._id} 
+                                                        className={clsx(
+                                                            "p-4 rounded-2xl border transition-all",
+                                                            ann.type === 'Alerta' 
+                                                                ? "bg-red-500/5 border-red-500/20" 
+                                                                : "bg-blue-500/5 border-blue-500/20"
+                                                        )}
+                                                    >
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <span className={clsx(
+                                                                        "text-xs font-bold px-2 py-1 rounded uppercase",
+                                                                        ann.type === 'Alerta' 
+                                                                            ? "bg-red-500/20 text-red-400" 
+                                                                            : "bg-blue-500/20 text-blue-400"
+                                                                    )}>
+                                                                        {ann.type}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {new Date(ann.createdAt).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                                <h4 className="font-bold text-white mb-1">{ann.title}</h4>
+                                                                <p className="text-sm text-gray-400 line-clamp-2">{ann.message}</p>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleDeleteAnnouncement(ann._id)}
+                                                                className="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
+                                                                title="Eliminar"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
