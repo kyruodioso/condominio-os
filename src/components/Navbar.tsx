@@ -2,9 +2,10 @@
 
 import { useSession } from 'next-auth/react';
 import { LogoutButton } from '@/components/auth/LogoutButton';
-import { User, Lock } from 'lucide-react';
+import { User, Lock, Home } from 'lucide-react';
 import { useState } from 'react';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
+import Link from 'next/link';
 
 export default function Navbar() {
     const { data: session, status } = useSession();
@@ -15,18 +16,25 @@ export default function Navbar() {
         return null;
     }
 
+    // Determine dashboard URL based on role
+    const getDashboardUrl = () => {
+        if (session.user.role === 'SUPER_ADMIN') return '/admin/super';
+        if (session.user.role === 'ADMIN') return '/admin/condo';
+        return '/';
+    };
+
     return (
         <>
             <nav className="fixed top-0 left-0 right-0 bg-gym-gray/95 backdrop-blur-md border-b border-white/10 z-40">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Left side - App name/logo */}
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gym-primary rounded-xl flex items-center justify-center text-black font-black text-lg shadow-[0_0_15px_rgba(204,255,0,0.3)]">
+                        <Link href={getDashboardUrl()} className="flex items-center gap-3 group cursor-pointer">
+                            <div className="w-10 h-10 bg-gym-primary rounded-xl flex items-center justify-center text-black font-black text-lg shadow-[0_0_15px_rgba(204,255,0,0.3)] group-hover:scale-110 transition-transform">
                                 C
                             </div>
                             <div>
-                                <h1 className="text-sm font-black italic uppercase tracking-tighter text-white">
+                                <h1 className="text-sm font-black italic uppercase tracking-tighter text-white group-hover:text-gym-primary transition-colors">
                                     Condominio OS
                                 </h1>
                                 <p className="text-xs text-gray-400">
@@ -36,7 +44,7 @@ export default function Navbar() {
                                     {session.user.role === 'TENANT' && 'Inquilino'}
                                 </p>
                             </div>
-                        </div>
+                        </Link>
 
                         {/* Right side - User info and actions */}
                         <div className="flex items-center gap-3">
@@ -53,6 +61,15 @@ export default function Navbar() {
                                     </p>
                                 </div>
                             </div>
+                            
+                            {/* Home Button */}
+                            <Link
+                                href={getDashboardUrl()}
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 hover:border-gym-primary/50 group"
+                                title="Panel Principal"
+                            >
+                                <Home size={18} className="text-gray-400 group-hover:text-gym-primary transition-colors" />
+                            </Link>
                             
                             {/* Change Password Button */}
                             <button
