@@ -71,8 +71,8 @@ export default function Navbar() {
                                 <Home size={18} className="text-gray-400 group-hover:text-gym-primary transition-colors" />
                             </Link>
                             
-                            {/* Directorio Button - Only for residents */}
-                            {(session.user.role === 'OWNER' || session.user.role === 'TENANT') && (
+                            {/* Directorio Button - For residents and admins */}
+                            {(session.user.role === 'OWNER' || session.user.role === 'TENANT' || session.user.role === 'ADMIN') && (
                                 <Link
                                     href="/directorio"
                                     className="hidden sm:flex items-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-lg transition-colors border border-cyan-500/20 hover:border-cyan-500/50 group"
