@@ -6,6 +6,7 @@ import { User, Lock, Home, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
 import Link from 'next/link';
+import Tooltip from '@/components/ui/Tooltip';
 
 export default function Navbar() {
     const { data: session, status } = useSession();
@@ -38,7 +39,7 @@ export default function Navbar() {
                                 <h1 className="text-sm font-black italic uppercase tracking-tighter text-white group-hover:text-gym-primary transition-colors">
                                     Condominio OS
                                 </h1>
-                                <p className="text-xs text-gray-400">
+                                <p className="text-xs text-gray-300">
                                     {session.user.role === 'SUPER_ADMIN' && 'Super Administrador'}
                                     {session.user.role === 'ADMIN' && 'Administrador'}
                                     {session.user.role === 'OWNER' && 'Propietario'}
@@ -57,29 +58,31 @@ export default function Navbar() {
                                     <p className="text-sm font-bold text-white leading-tight">
                                         {session.user.email?.split('@')[0] || 'Usuario'}
                                     </p>
-                                    <p className="text-xs text-gray-400 leading-tight">
+                                    <p className="text-xs text-gray-300 leading-tight">
                                         {session.user.email}
                                     </p>
                                 </div>
                             </div>
                             
-                            {/* Home Button */}
-                            <Link
-                                href={getDashboardUrl()}
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 hover:border-gym-primary/50 group"
-                                title="Panel Principal"
-                            >
-                                <Home size={18} className="text-gray-400 group-hover:text-gym-primary transition-colors" />
-                            </Link>
+                            {/* Home Button with Tooltip */}
+                            <Tooltip content="Panel Principal">
+                                <Link
+                                    href={getDashboardUrl()}
+                                    className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 hover:border-gym-primary/50 group"
+                                >
+                                    <Home size={18} className="text-gray-300 group-hover:text-gym-primary transition-colors" />
+                                </Link>
+                            </Tooltip>
                             
-                            {/* Change Password Button */}
-                            <button
-                                onClick={() => setShowChangePassword(true)}
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 hover:border-gym-primary/50 group"
-                                title="Cambiar contraseña"
-                            >
-                                <Lock size={18} className="text-gray-400 group-hover:text-gym-primary transition-colors" />
-                            </button>
+                            {/* Change Password Button with Tooltip */}
+                            <Tooltip content="Cambiar Contraseña">
+                                <button
+                                    onClick={() => setShowChangePassword(true)}
+                                    className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 hover:border-gym-primary/50 group"
+                                >
+                                    <Lock size={18} className="text-gray-300 group-hover:text-gym-primary transition-colors" />
+                                </button>
+                            </Tooltip>
 
                             <LogoutButton />
                         </div>
@@ -87,7 +90,7 @@ export default function Navbar() {
                         {/* Mobile menu button */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                            className="md:hidden p-3 min-w-[44px] min-h-[44px] rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
                         >
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
