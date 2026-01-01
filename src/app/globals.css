@@ -53,6 +53,28 @@ button, a, input, select, textarea {
   transition: all 0.2s ease-in-out;
 }
 
+/* Active states for better click feedback */
+button:not(:disabled):active,
+.btn:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+a:active {
+  opacity: 0.8;
+}
+
+/* Improved focus for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #ccff00;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
 /* Loading animation */
 @keyframes shimmer {
   0% {
