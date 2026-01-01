@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { getProviders } from '@/actions/providers';
-import { Truck, Phone, Mail, MapPin, Package2, Search, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { Truck, Phone, Mail, MapPin, Package2, Search } from 'lucide-react';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonGrid } from '@/components/ui/LoadingSpinner';
 
 export default function DirectorioPublic() {
     const [providers, setProviders] = useState<any[]>([]);
@@ -29,17 +31,19 @@ export default function DirectorioPublic() {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
-            <header className="mb-8 flex items-center justify-between">
-                <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm font-bold uppercase tracking-wider">
-                    ← Volver
-                </Link>
-                <div className="text-right">
-                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-green-500">Directorio</h1>
-                    <p className="text-xs text-gray-400">Proveedores y Servicios</p>
-                </div>
-            </header>
-
             <div className="max-w-7xl mx-auto">
+                {/* Breadcrumbs */}
+                <Breadcrumbs items={[
+                    { label: 'Directorio' }
+                ]} />
+
+                <header className="mb-8">
+                    <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600 mb-2">
+                        Directorio
+                    </h1>
+                    <p className="text-gray-300 text-sm">Proveedores y Servicios Recomendados</p>
+                </header>
+
                 {/* Search Bar */}
                 <div className="mb-6">
                     <div className="relative">
@@ -49,40 +53,42 @@ export default function DirectorioPublic() {
                             placeholder="Buscar proveedor o servicio..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-gym-gray border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white text-sm focus:outline-none focus:border-green-500 transition-colors"
+                            className="w-full bg-gym-gray border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors"
                         />
                     </div>
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <Loader2 size={48} className="animate-spin text-green-500" />
-                    </div>
-                ) : filteredProviders.length === 0 ? (
-                    <div className="bg-gym-gray rounded-3xl p-12 border border-white/5 text-center">
-                        <Truck size={64} className="mx-auto mb-4 text-gray-600" />
-                        <h3 className="text-xl font-bold text-gray-400 mb-2">
-                            {searchTerm ? 'No se encontraron resultados' : 'No hay proveedores disponibles'}
-                        </h3>
-                        <p className="text-gray-500">
-                            {searchTerm ? 'Intenta con otro término de búsqueda' : 'Pronto habrá servicios disponibles'}
-                        </p>
-                    </div>
+                    <SkeletonGrid cols={3} rows={2} />
+                ) : filteredProviders.length === 0 && !searchTerm ? (
+                    <EmptyState
+                        icon={Truck}
+                        title="Directorio en construcción"
+                        description="El administrador está agregando proveedores de confianza. Pronto verás el listado completo de servicios recomendados para el condominio."
+                        iconColor="text-cyan-500"
+                    />
+                ) : filteredProviders.length === 0 && searchTerm ? (
+                    <EmptyState
+                        icon={Search}
+                        title="No se encontraron resultados"
+                        description={`Tu búsqueda "${searchTerm}" no coincide con ningún proveedor disponible. Intenta con otro término.`}
+                        iconColor="text-gray-500"
+                    />
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredProviders.map((provider) => (
                             <div
                                 key={provider._id}
                                 onClick={() => setSelectedProvider(provider)}
-                                className="bg-gym-gray rounded-3xl p-6 border border-white/5 hover:border-green-500/30 transition-all cursor-pointer group"
+                                className="bg-gym-gray rounded-3xl p-6 border border-white/5 hover:border-cyan-500/30 transition-all cursor-pointer group"
                             >
                                 {/* Provider Header */}
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
-                                        <Truck className="text-green-500" size={28} />
+                                    <div className="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center group-hover:bg-cyan-500/20 transition-colors">
+                                        <Truck className="text-cyan-500" size={28} />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-white text-lg group-hover:text-green-400 transition-colors">
+                                        <h3 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">
                                             {provider.name}
                                         </h3>
                                         {provider.description && (
@@ -101,7 +107,7 @@ export default function DirectorioPublic() {
 
                                 {/* Products Count */}
                                 {provider.products && provider.products.length > 0 && (
-                                    <div className="flex items-center gap-2 text-green-400 text-sm mt-3 pt-3 border-t border-white/5">
+                                    <div className="flex items-center gap-2 text-cyan-400 text-sm mt-3 pt-3 border-t border-white/5">
                                         <Package2 size={14} />
                                         <span className="font-bold">{provider.products.length} producto(s) disponible(s)</span>
                                     </div>
@@ -109,8 +115,7 @@ export default function DirectorioPublic() {
                             </div>
                         ))}
                     </div>
-                )}
-            </div>
+                )}           </div>
 
             {/* Provider Detail Modal */}
             {selectedProvider && (
