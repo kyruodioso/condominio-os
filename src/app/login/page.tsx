@@ -3,46 +3,74 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Dumbbell } from 'lucide-react';
+import { Dumbbell, Mail, Lock } from 'lucide-react';
+import FormField from '@/components/ui/FormField';
+import { useForm } from '@/hooks/useForm';
+import { validators, composeValidators } from '@/utils/validation';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const router = useRouter();
+    const [serverError, setServerError] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
+    const form = useForm<LoginFormValues>({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validate: (values) => {
+            const errors: Partial<Record<keyof LoginFormValues, string>> = {};
+            
+            const emailError = composeValidators(
+                validators.required,
+                validators.email
+            )(values.email);
+            if (emailError) errors.email = emailError;
+            
+            const passwordError = composeValidators(
+                validators.required,
+                validators.minLength(6)
+            )(values.password);
+            if (passwordError) errors.password = passwordError;
+            
+            return errors;
+        },
+        onSubmit: async (values) => {
+            setServerError('');
 
-        try {
-            const result = await signIn('credentials', {
-                email,
-                password,
-                redirect: false,
-            });
+            try {
+                const result = await signIn('credentials', {
+                    email: values.email,
+                    password: values.password,
+                    redirect: false,
+                });
 
-            if (result?.error) {
-                setError('Credenciales inválidas');
-            } else {
-                // Fetch session to determine redirect
-                const sessionRes = await fetch('/api/auth/session');
-                const session = await sessionRes.json();
-                
-                // Redirect based on role
-                if (session?.user?.role === 'SUPER_ADMIN') {
-                    router.push('/admin/super');
-                } else if (session?.user?.role === 'ADMIN') {
-                    router.push('/admin');
+                if (result?.error) {
+                    setServerError('Email o contraseña incorrectos. Por favor, verifica tus credenciales.');
                 } else {
-                    router.push('/');
+                    // Fetch session to determine redirect
+                    const sessionRes = await fetch('/api/auth/session');
+                    const session = await sessionRes.json();
+                    
+                    // Redirect based on role
+                    if (session?.user?.role === 'SUPER_ADMIN') {
+                        router.push('/admin/super');
+                    } else if (session?.user?.role === 'ADMIN') {
+                        router.push('/admin');
+                    } else {
+                        router.push('/');
+                    }
+                    router.refresh();
                 }
-                router.refresh();
+            } catch (err) {
+                setServerError('Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.');
             }
-        } catch (err) {
-            setError('Ocurrió un error al iniciar sesión');
-        }
-    };
+        },
+    });
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
@@ -57,46 +85,52 @@ export default function LoginPage() {
                     <p className="text-gray-400 text-sm mt-2">Inicia sesión para continuar</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-xl text-center">
-                            {error}
+                <form onSubmit={form.handleSubmit} className="space-y-6">
+                    {serverError && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl">
+                            {serverError}
                         </div>
                     )}
 
-                    <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-gym-primary transition-colors"
-                            placeholder="admin@ejemplo.com"
-                            required
-                        />
-                    </div>
+                    <FormField
+                        label="Email"
+                        name="email"
+                        type="email"
+                        value={form.values.email}
+                        onChange={form.handleChange('email')}
+                        onBlur={form.handleBlur('email')}
+                        error={form.errors.email}
+                        touched={form.touched.email}
+                        required
+                        placeholder="admin@ejemplo.com"
+                        autoComplete="email"
+                        icon={Mail}
+                        showSuccess
+                    />
 
-                    <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
-                            Contraseña
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-gym-primary transition-colors"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
+                    <FormField
+                        label="Contraseña"
+                        name="password"
+                        type="password"
+                        value={form.values.password}
+                        onChange={form.handleChange('password')}
+                        onBlur={form.handleBlur('password')}
+                        error={form.errors.password}
+                        touched={form.touched.password}
+                        required
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        icon={Lock}
+                        hint="Mínimo 6 caracteres"
+                        showSuccess
+                    />
 
                     <button
                         type="submit"
-                        className="w-full bg-gym-primary text-black font-bold uppercase tracking-widest py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(204,255,0,0.2)]"
+                        disabled={form.isSubmitting}
+                        className="w-full bg-gym-primary text-black font-bold uppercase tracking-widest py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(204,255,0,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                        Ingresar
+                        {form.isSubmitting ? 'Iniciando sesión...' : 'Ingresar'}
                     </button>
                 </form>
             </div>
