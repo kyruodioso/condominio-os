@@ -8,6 +8,8 @@ import { createAnnouncement, getActiveAnnouncements, deleteAnnouncement } from '
 import { getReservations } from '@/actions/reservations';
 import { getDashboardStats } from '@/actions/dashboard';
 import UsersManagement from '@/components/admin/UsersManagement';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonList } from '@/components/ui/LoadingSpinner';
 import {
     Package, Megaphone, Users, Calendar,
     Plus, Trash2, Key, User, Search, CheckCircle, AlertCircle, Hammer, Truck, AlertTriangle,
@@ -79,8 +81,10 @@ export default function UnifiedAdminPage() {
     };
 
     const loadAnnouncements = async () => {
+        setLoadingData(true);
         const data = await getActiveAnnouncements();
         setAnnouncements(data);
+        setLoadingData(false);
     };
 
     // --- Handlers ---
@@ -394,12 +398,22 @@ export default function UnifiedAdminPage() {
                                     </form>
 
                                     {/* Anuncios Actuales */}
-                                    {announcements.length > 0 && (
-                                        <div className="mt-8 pt-8 border-t border-white/10">
-                                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                                <Bell size={20} className="text-yellow-500" />
-                                                Anuncios Activos
-                                            </h3>
+                                    <div className="mt-8 pt-8 border-t border-white/10">
+                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                            <Bell size={20} className="text-yellow-500" />
+                                            Anuncios Activos
+                                        </h3>
+                                        
+                                        {loadingData ? (
+                                            <SkeletonList items={3} />
+                                        ) : announcements.length === 0 ? (
+                                            <EmptyState
+                                                icon={Megaphone}
+                                                title="Cartelera vacía"
+                                                description="Publicá noticias, alertas o información importante para que todos los residentes estén al tanto. Los anuncios aparecerán en el dashboard."
+                                                iconColor="text-yellow-500"
+                                            />
+                                        ) : (
                                             <div className="space-y-3">
                                                 {announcements.map((ann) => (
                                                     <div 
@@ -440,8 +454,8 @@ export default function UnifiedAdminPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}
