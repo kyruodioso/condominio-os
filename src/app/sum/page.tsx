@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getReservations, bookSum } from '@/actions/reservations';
 import { Calendar as CalendarIcon, Clock, Check, X } from 'lucide-react';
-import Link from 'next/link';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
 
@@ -75,16 +75,21 @@ export default function SumPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
-            <header className="mb-8 flex items-center justify-between">
-                <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm font-bold uppercase tracking-wider">
-                    ← Volver
-                </Link>
-                <div className="text-right">
-                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-purple-500">Reserva SUM</h1>
-                    {/* @ts-ignore */}
-                    <p className="text-xs text-gray-400">Unidad {session?.user?.unitNumber || '...'}</p>
-                </div>
-            </header>
+            <div className="max-w-6xl mx-auto">
+                {/* Breadcrumbs */}
+                <Breadcrumbs items={[
+                    { label: 'SUM' }
+                ]} />
+
+                <header className="mb-8">
+                    <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
+                        Salón de Usos Múltiples
+                    </h1>
+                    <p className="text-gray-300 text-sm">
+                        {/* @ts-ignore */}
+                        Reservas para Unidad {session?.user?.unitNumber || '...'}
+                    </p>
+                </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 {/* Calendar Column */}
@@ -224,6 +229,7 @@ export default function SumPage() {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }
