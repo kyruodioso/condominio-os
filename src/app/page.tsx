@@ -45,10 +45,10 @@ export default async function Dashboard() {
                         <h1 className="text-2xl sm:text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-2">
                             {condoName}
                         </h1>
-                        <p className="text-gray-400 text-xs sm:text-sm max-w-full sm:max-w-[200px] mx-auto sm:mx-0 hidden sm:block">
+                        <p className="text-gray-300 text-xs sm:text-sm max-w-full sm:max-w-[200px] mx-auto sm:mx-0 hidden sm:block">
                             Escanea para llevar el sistema en tu móvil.
                         </p>
-                        <div className="mt-2 text-[10px] font-mono text-gray-600 bg-black/30 px-2 py-1 rounded w-fit mx-auto sm:mx-0 hidden sm:block">
+                        <div className="mt-2 text-[10px] font-mono text-gray-500 bg-black/30 px-2 py-1 rounded w-fit mx-auto sm:mx-0 hidden sm:block">
                             {appUrl}
                         </div>
                     </div>
@@ -107,7 +107,7 @@ export default async function Dashboard() {
                                         <Dumbbell size={32} className="hidden lg:block" />
                                     </div>
                                     <h3 className="font-bold text-base sm:text-xl lg:text-2xl text-white mb-1">Gimnasio</h3>
-                                    <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Rutinas, Música & Nutrición</p>
+                                    <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">Rutinas, Música & Nutrición</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-gym-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Ingresar <span className="ml-1 sm:ml-2">→</span>
