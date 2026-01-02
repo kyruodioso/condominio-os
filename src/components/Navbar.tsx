@@ -7,14 +7,16 @@ import { useState } from 'react';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
 import Link from 'next/link';
 import Tooltip from '@/components/ui/Tooltip';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
     const { data: session, status } = useSession();
+    const pathname = usePathname();
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Don't show navbar on login page or if not authenticated
-    if (status === 'loading' || !session || typeof window !== 'undefined' && window.location.pathname === '/login') {
+    if (status === 'loading' || !session || pathname === '/login') {
         return null;
     }
 
