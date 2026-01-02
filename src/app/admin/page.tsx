@@ -241,7 +241,7 @@ export default function UnifiedAdminPage() {
                     </div>
 
                     {/* Desktop Sidebar / Navigation */}
-                    <div className="hidden lg:block lg:col-span-3 space-y-4">
+                    <div className="hidden lg:block lg:col-span-3 space-y-4 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
