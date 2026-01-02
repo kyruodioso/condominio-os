@@ -181,7 +181,7 @@ export default function UnifiedAdminPage() {
     }
 
     return (
-        <div className="h-screen bg-[#0a0a0a] text-white overflow-hidden flex flex-col">
+        <div className="h-[calc(100vh-4rem)] bg-[#0a0a0a] text-white overflow-hidden flex flex-col">
             <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full p-6">
                 <header className="flex-none mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -241,7 +241,7 @@ export default function UnifiedAdminPage() {
                     </div>
 
                     {/* Desktop Sidebar / Navigation - Fixed width, h-full, scrollable */}
-                    <div className="hidden lg:block w-80 flex-none h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar space-y-4 pb-10">
+                    <div className="hidden lg:block w-80 flex-none h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-4 pb-10">
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
@@ -281,7 +281,7 @@ export default function UnifiedAdminPage() {
                     </div>
 
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
-                    <div className="flex-1 h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-20">
+                    <div className="flex-1 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-20">
                         
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
