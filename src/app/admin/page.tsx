@@ -118,27 +118,36 @@ export default function UnifiedAdminPage() {
     };
 
     // --- Render Helpers ---
-    const NavButton = ({ id, icon: Icon, label, description }: any) => (
+    const NavButton = ({ id, icon: Icon, label, description, mobile }: any) => (
         <button
             onClick={() => setActiveTab(id)}
             className={clsx(
-                "flex flex-col items-start p-4 rounded-2xl transition-all w-full text-left border",
+                "flex items-center transition-all text-left border",
+                mobile 
+                    ? "flex-col justify-center p-3 rounded-xl min-w-[80px] snap-start" 
+                    : "flex-col items-start p-4 rounded-2xl w-full",
                 activeTab === id
                     ? "bg-gym-primary text-black border-gym-primary shadow-lg shadow-gym-primary/20"
                     : "bg-black/20 text-gray-400 border-white/5 hover:bg-white/5 hover:border-white/10"
             )}
         >
             <div className={clsx(
-                "p-2 rounded-xl mb-3",
+                "rounded-xl mb-2 flex items-center justify-center",
+                mobile ? "p-1.5" : "p-2 mb-3",
                 activeTab === id ? "bg-black/10" : "bg-white/5"
             )}>
-                <Icon size={24} />
+                <Icon size={mobile ? 20 : 24} />
             </div>
-            <span className="font-bold uppercase tracking-wide text-sm">{label}</span>
             <span className={clsx(
-                "text-xs mt-1",
-                activeTab === id ? "text-black/60" : "text-gray-600"
-            )}>{description}</span>
+                "font-bold uppercase tracking-wide",
+                mobile ? "text-[10px] text-center leading-tight" : "text-sm"
+            )}>{label}</span>
+            {!mobile && (
+                <span className={clsx(
+                    "text-xs mt-1",
+                    activeTab === id ? "text-black/60" : "text-gray-600"
+                )}>{description}</span>
+            )}
         </button>
     );
 
@@ -201,8 +210,38 @@ export default function UnifiedAdminPage() {
                 {/* Main Grid Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
-                    {/* Left Sidebar / Navigation */}
-                    <div className="lg:col-span-3 space-y-4">
+                    {/* Mobile Navigation (Horizontal Scroll) */}
+                    <div className="lg:hidden col-span-1 space-y-4 mb-4">
+                        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x">
+                            <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" mobile />
+                            <NavButton id="buzon" icon={Package} label="Paquetería" mobile />
+                            <NavButton id="cartelera" icon={Megaphone} label="Cartelera" mobile />
+                            <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
+                            <NavButton id="reservas" icon={Calendar} label="Reservas" mobile />
+                        </div>
+                        
+                        {/* Quick Links Dropdown or Horizontal List for Mobile */}
+                        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
+                            <Link href="/admin/tareas" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                <Hammer size={14} /> Mantenimiento
+                            </Link>
+                            <Link href="/admin/reportes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                <AlertTriangle size={14} /> Reportes
+                            </Link>
+                            <Link href="/admin/pedidos/lista" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                <Truck size={14} /> Pedidos
+                            </Link>
+                            <Link href="/admin/mensajes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                <MessageSquare size={14} /> Mensajes
+                            </Link>
+                             <Link href="/directorio" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                <Truck size={14} /> Directorio
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Desktop Sidebar / Navigation */}
+                    <div className="hidden lg:block lg:col-span-3 space-y-4">
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
