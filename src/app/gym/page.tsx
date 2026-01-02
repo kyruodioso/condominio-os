@@ -7,7 +7,7 @@ import { BMIChart } from '@/components/user/BMIChart';
 import Link from 'next/link';
 import { ArrowRight, Dumbbell, Utensils } from 'lucide-react';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function Home() {
   const { hasProfile } = useUserStore();
