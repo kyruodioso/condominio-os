@@ -181,9 +181,9 @@ export default function UnifiedAdminPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
-            <div className="max-w-7xl mx-auto">
-                <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="h-screen bg-[#0a0a0a] text-white overflow-hidden flex flex-col">
+            <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full p-6">
+                <header className="flex-none mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gym-primary to-yellow-600 flex items-center justify-center text-black font-bold shadow-lg shadow-gym-primary/20">
                             <LayoutDashboard size={24} />
@@ -207,11 +207,11 @@ export default function UnifiedAdminPage() {
                     )}
                 </header>
 
-                {/* Main Grid Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Main Grid Layout - Flex-1 to fill remaining height */}
+                <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
-                    {/* Mobile Navigation (Horizontal Scroll) */}
-                    <div className="lg:hidden col-span-1 space-y-4 mb-4">
+                    {/* Mobile Navigation (Horizontal Scroll) - Flex-none */}
+                    <div className="lg:hidden col-span-1 flex-none mb-4">
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x">
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" mobile />
                             <NavButton id="buzon" icon={Package} label="Paquetería" mobile />
@@ -240,8 +240,8 @@ export default function UnifiedAdminPage() {
                         </div>
                     </div>
 
-                    {/* Desktop Sidebar / Navigation */}
-                    <div className="hidden lg:block lg:col-span-3 space-y-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto pr-2 custom-scrollbar">
+                    {/* Desktop Sidebar / Navigation - h-full overflow-y-auto */}
+                    <div className="hidden lg:block lg:col-span-3 space-y-4 h-full overflow-y-auto pr-2 custom-scrollbar">
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
@@ -280,8 +280,8 @@ export default function UnifiedAdminPage() {
                         </div>
                     </div>
 
-                    {/* Main Content Area */}
-                    <div className="lg:col-span-9 space-y-6 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar">
+                    {/* Main Content Area - h-full overflow-y-auto */}
+                    <div className="lg:col-span-9 space-y-6 h-full overflow-y-auto pr-2 custom-scrollbar">
                         
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
@@ -555,5 +555,4 @@ export default function UnifiedAdminPage() {
                 </div>
             </div>
         </div>
-    );
-}
+    );}
