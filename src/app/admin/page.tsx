@@ -207,11 +207,11 @@ export default function UnifiedAdminPage() {
                     )}
                 </header>
 
-                {/* Main Grid Layout - Flex-1 to fill remaining height */}
-                <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Main Layout - Flex for Desktop to ensure proper height handling */}
+                <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-8">
                     
                     {/* Mobile Navigation (Horizontal Scroll) - Flex-none */}
-                    <div className="lg:hidden col-span-1 flex-none mb-4">
+                    <div className="lg:hidden flex-none mb-4 space-y-4">
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x">
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" mobile />
                             <NavButton id="buzon" icon={Package} label="Paquetería" mobile />
@@ -240,8 +240,8 @@ export default function UnifiedAdminPage() {
                         </div>
                     </div>
 
-                    {/* Desktop Sidebar / Navigation - h-full overflow-y-auto */}
-                    <div className="hidden lg:block lg:col-span-3 space-y-4 h-full overflow-y-auto pr-2 custom-scrollbar">
+                    {/* Desktop Sidebar / Navigation - Fixed width, h-full, scrollable */}
+                    <div className="hidden lg:block w-80 flex-none h-full overflow-y-auto pr-2 custom-scrollbar space-y-4 pb-10">
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
@@ -280,8 +280,8 @@ export default function UnifiedAdminPage() {
                         </div>
                     </div>
 
-                    {/* Main Content Area - h-full overflow-y-auto */}
-                    <div className="lg:col-span-9 space-y-6 h-full overflow-y-auto pr-2 custom-scrollbar">
+                    {/* Main Content Area - Flex-1, h-full, scrollable */}
+                    <div className="flex-1 h-full overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-20">
                         
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
@@ -552,7 +552,6 @@ export default function UnifiedAdminPage() {
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
+                </div>            </div>
         </div>
     );}
