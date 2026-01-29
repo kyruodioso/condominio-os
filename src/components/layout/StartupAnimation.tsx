@@ -1,11 +1,16 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function StartupAnimation() {
+    const { data: session } = useSession();
     const [isVisible, setIsVisible] = useState(true);
     const [shouldRender, setShouldRender] = useState(true);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Get user name from session or email
+    const userName = session?.user?.name || session?.user?.email?.split('@')[0];
 
     useEffect(() => {
         // Attempt to play sound with a slight delay to ensure DOM is ready
@@ -65,7 +70,9 @@ export default function StartupAnimation() {
                 {/* Logo Animation */}
                 <div className="relative group perspective-1000">
                     <div className="w-32 h-32 bg-gym-primary rounded-[2rem] flex items-center justify-center shadow-[0_0_60px_rgba(204,255,0,0.6)] animate-[bounce_3s_infinite]">
-                        <span className="text-black font-black text-7xl select-none">C</span>
+                        <span className="text-black font-black text-7xl select-none">
+                            {userName ? userName.charAt(0).toUpperCase() : 'C'}
+                        </span>
                     </div>
                     {/* Reflection/Shine */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent rounded-[2rem] pointer-events-none" />
@@ -73,18 +80,20 @@ export default function StartupAnimation() {
 
                 {/* Text Animation */}
                 <div className="text-center space-y-4">
-                    <h1 className="text-5xl font-black italic uppercase tracking-tighter text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] overflow-hidden">
-                        <span className="inline-block animate-[slideUp_0.8s_ease-out_forwards]">Consorcios</span>
-                        <span className="text-gym-primary ml-4 inline-block animate-[slideUp_0.8s_ease-out_0.2s_forwards]">LITE</span>
+                    <h1 className="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] overflow-hidden">
+                        <span className="block text-2xl sm:text-3xl text-gray-400 mb-2 animate-[slideUp_0.8s_ease-out_forwards]">Bienvenido,</span>
+                        <span className="block text-gym-primary animate-[slideUp_0.8s_ease-out_0.2s_forwards]">
+                            {userName || 'Usuario'}
+                        </span>
                     </h1>
 
                     {/* Loading Bar / Status */}
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 mt-8">
                         <div className="h-1 w-48 bg-gray-800 rounded-full overflow-hidden">
                             <div className="h-full bg-gym-primary w-full animate-[progress_3s_ease-in-out_forwards] origin-left" />
                         </div>
                         <p className="text-gray-400 text-xs tracking-[0.2em] uppercase font-medium animate-pulse">
-                            Iniciando Sistema...
+                            Cargando tu panel...
                         </p>
                     </div>
                 </div>
