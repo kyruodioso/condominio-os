@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
         await writeFile(filePath, buffer);
 
-        const fileUrl = `/uploads/audio/${filename}`;
+        const fileUrl = `/api/stream/audio/${filename}`;
 
         return NextResponse.json({ url: fileUrl });
     } catch (error) {
