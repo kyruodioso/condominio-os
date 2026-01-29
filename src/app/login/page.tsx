@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Dumbbell, Mail, Lock } from 'lucide-react';
+import { Building2, Mail, Lock } from 'lucide-react';
 import FormField from '@/components/ui/FormField';
 import { useForm } from '@/hooks/useForm';
 import { validators, composeValidators } from '@/utils/validation';
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div className="bg-gym-gray p-8 rounded-3xl border border-white/5 w-full max-w-md shadow-2xl">
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 bg-gym-primary rounded-full flex items-center justify-center mx-auto mb-4 text-black shadow-[0_0_20px_rgba(204,255,0,0.3)]">
-                        <Dumbbell size={32} />
+                        <Building2 size={32} />
                     </div>
                     <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">
                         Consorcios LITE
