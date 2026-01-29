@@ -181,7 +181,7 @@ export default function UnifiedAdminPage() {
     }
 
     return (
-        <div className="h-[calc(100vh-4rem)] bg-[#0a0a0a] text-white overflow-hidden flex flex-col">
+        <div className="bg-[#0a0a0a] text-white flex flex-col min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
             <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full p-6">
                 <header className="flex-none mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -208,7 +208,7 @@ export default function UnifiedAdminPage() {
                 </header>
 
                 {/* Main Layout - Flex for Desktop to ensure proper height handling */}
-                <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-8">
+                <div className="flex-1 flex flex-col lg:min-h-0 lg:flex-row gap-8">
 
                     {/* Mobile Navigation (Horizontal Scroll) - Flex-none */}
                     <div className="lg:hidden flex-none mb-4 space-y-4">
@@ -281,7 +281,7 @@ export default function UnifiedAdminPage() {
                     </div>
 
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
-                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-32 lg:pb-20 lg:h-[calc(100vh-220px)]">
+                    <div className="flex-1 space-y-6 pb-20 lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar lg:pb-20 lg:h-[calc(100vh-220px)]">
 
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
