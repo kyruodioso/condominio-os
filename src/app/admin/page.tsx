@@ -281,7 +281,7 @@ export default function UnifiedAdminPage() {
                     </div>
 
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
-                    <div className="flex-1 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-20">
+                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-32 lg:pb-20 lg:h-[calc(100vh-220px)]">
 
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
