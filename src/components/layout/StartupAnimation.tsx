@@ -2,15 +2,32 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 
 export default function StartupAnimation() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const pathname = usePathname();
     const [isVisible, setIsVisible] = useState(true);
     const [shouldRender, setShouldRender] = useState(true);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Get user name from session or email
     const userName = session?.user?.name || session?.user?.email?.split('@')[0];
+
+    // Don't show validation if on login page or not authenticated (and finished loading)
+    const isLoginPage = pathname === '/login' || pathname?.startsWith('/login/');
+
+    // If we are on login page, strictly don't render
+    if (isLoginPage) return null;
+
+    // If we are unauthenticated (and not loading), don't render
+    if (status === 'unauthenticated') return null;
+
+    // Optional: If you want to wait for the name to be ready before showing "User", you might wait on loading,
+    // but usually we want to cover the loading screen, so we render even if loading.
+    // However, if we render while loading on the LOGIN page, it would flash. 
+    // But we already checked isLoginPage above.
+
 
     useEffect(() => {
         // Attempt to play sound with a slight delay to ensure DOM is ready
