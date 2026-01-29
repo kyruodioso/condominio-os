@@ -2,22 +2,24 @@
 
 import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Mic, StopCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface Message {
     _id: string;
     sender: 'ADMIN' | 'USER';
-    content: string;
+    content?: string;
+    type: 'text' | 'audio';
+    fileUrl?: string;
     createdAt: string;
     isRead: boolean;
 }
 
 interface ChatInterfaceProps {
-    unitId: string; // ID de la unidad con la que se chatea
-    currentUserRole: 'ADMIN' | 'USER'; // Rol del usuario actual viendo el chat
-    title?: string; // Título opcional (ej: "Unidad 101")
-    isOnline?: boolean; // Estado de conexión real
+    unitId: string;
+    currentUserRole: 'ADMIN' | 'USER';
+    title?: string;
+    isOnline?: boolean;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -25,23 +27,22 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function ChatInterface({ unitId, currentUserRole, title, isOnline }: ChatInterfaceProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Polling cada 1 segundo para "tiempo real"
     const { data: messages, error, mutate } = useSWR<Message[]>(
         unitId ? `/api/messages?unitId=${unitId}` : null,
         fetcher,
         { refreshInterval: 1000 }
     );
 
-    // Auto-scroll al fondo cuando llegan mensajes nuevos
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages]);
 
-    // Marcar como leídos al abrir o recibir nuevos mensajes
     useEffect(() => {
         if (messages && messages.length > 0) {
             const hasUnread = messages.some(m => !m.isRead && m.sender !== currentUserRole);
@@ -55,8 +56,8 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
         }
     }, [messages, unitId, currentUserRole]);
 
-    const handleSendMessage = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSendMessage = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!newMessage.trim() || isSending) return;
 
         setIsSending(true);
@@ -67,15 +68,86 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                 body: JSON.stringify({
                     content: newMessage,
                     unitId: unitId,
+                    type: 'text'
                 }),
             });
 
             if (res.ok) {
                 setNewMessage('');
-                mutate(); // Refrescar mensajes inmediatamente
+                mutate();
             }
         } catch (error) {
             console.error('Error sending message:', error);
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            const chunks: Blob[] = [];
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                await sendAudioMessage(blob);
+                stream.getTracks().forEach(track => track.stop()); // Stop mic
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+        } catch (err) {
+            console.error('Error accessing microphone:', err);
+            alert('No se pudo acceder al micrófono');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        }
+    };
+
+    const sendAudioMessage = async (audioBlob: Blob) => {
+        setIsSending(true);
+        try {
+            // 1. Upload Audio
+            const formData = new FormData();
+            formData.append('file', audioBlob, 'audio.webm');
+
+            const uploadRes = await fetch('/api/upload/audio', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!uploadRes.ok) throw new Error('Upload failed');
+            const { url } = await uploadRes.json();
+
+            // 2. Send Message with URL
+            const res = await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    unitId: unitId,
+                    type: 'audio',
+                    fileUrl: url,
+                    content: 'Mensaje de voz' // Fallback text
+                }),
+            });
+
+            if (res.ok) {
+                mutate();
+            }
+        } catch (error) {
+            console.error('Error sending audio:', error);
+            alert('Error al enviar audio');
         } finally {
             setIsSending(false);
         }
@@ -106,7 +178,7 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                         No hay mensajes aún. ¡Inicia la conversación!
                     </div>
                 )}
-                
+
                 {messages?.map((msg) => {
                     const isMe = msg.sender === currentUserRole;
                     return (
@@ -125,7 +197,11 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                                         : "bg-gray-700 text-white rounded-tl-none"
                                 )}
                             >
-                                {msg.content}
+                                {msg.type === 'audio' && msg.fileUrl ? (
+                                    <audio controls src={msg.fileUrl} className="max-w-[200px] h-8" />
+                                ) : (
+                                    msg.content
+                                )}
                             </div>
                             <span className="text-[10px] text-gray-500 mt-1 px-1">
                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -142,7 +218,7 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-gray-800 border-t border-white/5 flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-4 bg-gray-800 border-t border-white/5 flex gap-2 items-center">
                 <input
                     type="text"
                     value={newMessage}
@@ -150,13 +226,28 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                     placeholder="Escribe un mensaje..."
                     className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-gym-primary transition-colors"
                 />
-                <button
-                    type="submit"
-                    disabled={isSending || !newMessage.trim()}
-                    className="bg-gym-primary text-black p-2 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isSending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
-                </button>
+
+                {newMessage.trim() ? (
+                    <button
+                        type="submit"
+                        disabled={isSending}
+                        className="bg-gym-primary text-black p-2 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={isRecording ? stopRecording : startRecording}
+                        disabled={isSending}
+                        className={clsx(
+                            "p-2 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                            isRecording ? "bg-red-500 text-white animate-pulse" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        )}
+                    >
+                        {isRecording ? <StopCircle size={20} /> : <Mic size={20} />}
+                    </button>
+                )}
             </form>
         </div>
     );

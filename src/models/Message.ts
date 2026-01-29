@@ -13,8 +13,17 @@ const MessageSchema = new Schema({
     },
     content: {
         type: String,
-        required: true,
+        required: false, // Optional for audio messages
         trim: true,
+    },
+    type: {
+        type: String,
+        enum: ['text', 'audio'],
+        default: 'text',
+    },
+    fileUrl: {
+        type: String, // URL for audio file
+        required: false,
     },
     isRead: {
         type: Boolean,

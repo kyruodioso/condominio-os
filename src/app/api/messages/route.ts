@@ -25,17 +25,17 @@ export async function GET(req: Request) {
             // NOTA: Necesitamos obtener el unitId del usuario. 
             // Si el session.user no tiene unitId directo, habría que buscarlo.
             // Asumiré por ahora que session.user.unitId existe o lo buscamos.
-            
+
             // Opción A: session.user.unitId (si lo agregamos al token)
             // Opción B: Buscar Unit donde residents.userId == session.user.id
-            
+
             // Usaremos el unitId pasado por parametro PERO validaremos que le pertenezca
             // O mejor, busquemos la unidad asociada al usuario.
-            
+
             // Por simplicidad y seguridad, asumiré que el frontend del usuario manda su unitId
             // y aquí deberíamos validarlo. Para este MVP, confiaremos en el session.user.condominiumId 
             // y buscaremos la unidad del usuario si es necesario.
-            
+
             // *FIX*: Para simplificar, asumiré que el usuario pasa su unitId y validamos que sea suyo.
             // O mejor aún, si el usuario es USER, buscamos mensajes donde unitId sea el suyo.
             // Pero espera, el modelo Message tiene `unitId`.
@@ -61,10 +61,10 @@ export async function POST(req: Request) {
         if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await req.json();
-        const { content, unitId } = body;
+        const { content, unitId, type = 'text', fileUrl } = body;
 
-        if (!content || !unitId) {
-            return NextResponse.json({ error: 'Missing content or unitId' }, { status: 400 });
+        if ((!content && !fileUrl) || !unitId) {
+            return NextResponse.json({ error: 'Missing content/file or unitId' }, { status: 400 });
         }
 
         let senderRole = 'USER';
@@ -76,6 +76,8 @@ export async function POST(req: Request) {
             sender: senderRole,
             unitId,
             content,
+            type,
+            fileUrl,
             isRead: false,
         });
 
@@ -89,17 +91,17 @@ export async function POST(req: Request) {
                 if (settings && settings.isAutoReplyEnabled) {
                     const now = new Date();
                     const currentDay = now.getDay(); // 0-6
-                    
+
                     // Ajuste de hora: Asegurarnos de usar la hora local del servidor o una zona específica
                     // Aquí usamos la hora del objeto Date que es UTC en muchos entornos serverless, 
                     // pero en un VPS local (Raspberry) suele ser la hora del sistema.
                     // Para ser robustos, parseamos las horas de settings (HH:mm)
-                    
+
                     const currentTime = now.getHours() * 60 + now.getMinutes();
-                    
+
                     const [startH, startM] = settings.adminWorkHours.start.split(':').map(Number);
                     const startTime = startH * 60 + startM;
-                    
+
                     const [endH, endM] = settings.adminWorkHours.end.split(':').map(Number);
                     const endTime = endH * 60 + endM;
 
@@ -145,7 +147,7 @@ export async function PATCH(req: Request) {
 
         // Si soy admin, marco como leídos los mensajes del USER en esa unidad
         // Si soy user, marco como leídos los mensajes del ADMIN en mi unidad
-        
+
         let targetSender = 'ADMIN'; // Si soy user, leo los de admin
         if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') {
             targetSender = 'USER'; // Si soy admin, leo los de user
