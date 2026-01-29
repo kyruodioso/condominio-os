@@ -17,12 +17,6 @@ export default function StartupAnimation() {
     // Don't show validation if on login page or not authenticated (and finished loading)
     const isLoginPage = pathname === '/login' || pathname?.startsWith('/login/');
 
-    // If we are on login page, strictly don't render
-    if (isLoginPage) return null;
-
-    // If we are unauthenticated (and not loading), don't render
-    if (status === 'unauthenticated') return null;
-
     // Optional: If you want to wait for the name to be ready before showing "User", you might wait on loading,
     // but usually we want to cover the loading screen, so we render even if loading.
     // However, if we render while loading on the LOGIN page, it would flash. 
@@ -30,6 +24,9 @@ export default function StartupAnimation() {
 
 
     useEffect(() => {
+        // If we shouldn't show it, don't run effects
+        if (isLoginPage || status === 'unauthenticated') return;
+
         // Attempt to play sound with a slight delay to ensure DOM is ready
         const playSound = async () => {
             if (audioRef.current) {
@@ -70,7 +67,13 @@ export default function StartupAnimation() {
             clearTimeout(fadeTimer);
             clearTimeout(removeTimer);
         };
-    }, []);
+    }, [isLoginPage, status]);
+
+    // If we are on login page, strictly don't render
+    if (isLoginPage) return null;
+
+    // If we are unauthenticated (and not loading), don't render
+    if (status === 'unauthenticated') return null;
 
     if (!shouldRender) return null;
 
