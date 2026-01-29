@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import useSWR from 'swr';
 import { MessageCircle, X, Minimize2, Maximize2 } from 'lucide-react';
 import ChatInterface from '@/components/chat/ChatInterface';
@@ -44,6 +45,9 @@ export default function FloatingChatWidget() {
     // No mostrar en rutas de admin para evitar duplicidad, aunque el layout debería controlar esto
     // if (window.location.pathname.startsWith('/admin')) return null; 
 
+    const pathname = usePathname();
+    const isGymPage = pathname?.startsWith('/gym');
+
     return (
         <>
             {/* Botón Flotante */}
@@ -53,7 +57,8 @@ export default function FloatingChatWidget() {
                     setIsMinimized(false);
                 }}
                 className={clsx(
-                    "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95",
+                    "fixed right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95",
+                    isGymPage ? "bottom-24" : "bottom-6",
                     isOpen && !isMinimized ? "opacity-0 pointer-events-none scale-0" : "bg-gym-primary opacity-100 scale-100"
                 )}
             >
@@ -92,13 +97,13 @@ export default function FloatingChatWidget() {
                             <span className="font-bold text-sm uppercase">Administración</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <button 
+                            <button
                                 onClick={() => setIsMinimized(true)}
                                 className="p-1 hover:bg-black/10 rounded"
                             >
                                 <Minimize2 size={16} />
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setIsOpen(false)}
                                 className="p-1 hover:bg-black/10 rounded"
                             >
@@ -112,10 +117,10 @@ export default function FloatingChatWidget() {
                         {/* Pasamos un prop especial para ocultar el header interno del ChatInterface si quisiéramos, 
                             pero por ahora lo dejamos tal cual o lo ajustamos con CSS */}
                         <div className="absolute inset-0 pb-0">
-                            <ChatInterface 
-                                unitId={unitId} 
-                                currentUserRole="USER" 
-                                // Opcional: Podrías modificar ChatInterface para aceptar un prop `hideHeader`
+                            <ChatInterface
+                                unitId={unitId}
+                                currentUserRole="USER"
+                            // Opcional: Podrías modificar ChatInterface para aceptar un prop `hideHeader`
                             />
                         </div>
                     </div>
