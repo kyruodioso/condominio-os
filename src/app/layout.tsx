@@ -6,8 +6,8 @@ import ClientLayout from "@/components/ClientLayout";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "GymHub Local",
-  description: "Tu compañero de entrenamiento inteligente",
+  title: "Consorcios LITE",
+  description: "Gestión inteligente de consorcios",
   manifest: "/manifest.json",
 };
 

@@ -39,7 +39,7 @@ export default function Navbar() {
                             </div>
                             <div className="hidden sm:block">
                                 <h1 className="text-sm font-black italic uppercase tracking-tighter text-white group-hover:text-gym-primary transition-colors">
-                                    Condominio OS
+                                    Consorcios LITE
                                 </h1>
                                 <p className="text-xs text-gray-300">
                                     {session.user.role === 'SUPER_ADMIN' && 'Super Administrador'}
@@ -65,7 +65,7 @@ export default function Navbar() {
                                     </p>
                                 </div>
                             </div>
-                            
+
                             {/* Home Button with Tooltip */}
                             <Tooltip content="Panel Principal">
                                 <Link
@@ -75,7 +75,7 @@ export default function Navbar() {
                                     <Home size={18} className="text-gray-300 group-hover:text-gym-primary transition-colors" />
                                 </Link>
                             </Tooltip>
-                            
+
                             {/* Change Password Button with Tooltip */}
                             <Tooltip content="Cambiar Contraseña">
                                 <button

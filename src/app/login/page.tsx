@@ -9,8 +9,8 @@ import { useForm } from '@/hooks/useForm';
 import { validators, composeValidators } from '@/utils/validation';
 
 interface LoginFormValues {
-  email: string;
-  password: string;
+    email: string;
+    password: string;
 }
 
 export default function LoginPage() {
@@ -24,19 +24,19 @@ export default function LoginPage() {
         },
         validate: (values) => {
             const errors: Partial<Record<keyof LoginFormValues, string>> = {};
-            
+
             const emailError = composeValidators(
                 validators.required,
                 validators.email
             )(values.email);
             if (emailError) errors.email = emailError;
-            
+
             const passwordError = composeValidators(
                 validators.required,
                 validators.minLength(6)
             )(values.password);
             if (passwordError) errors.password = passwordError;
-            
+
             return errors;
         },
         onSubmit: async (values) => {
@@ -55,7 +55,7 @@ export default function LoginPage() {
                     // Fetch session to determine redirect
                     const sessionRes = await fetch('/api/auth/session');
                     const session = await sessionRes.json();
-                    
+
                     // Redirect based on role
                     if (session?.user?.role === 'SUPER_ADMIN') {
                         router.push('/admin/super');
@@ -80,7 +80,7 @@ export default function LoginPage() {
                         <Dumbbell size={32} />
                     </div>
                     <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">
-                        Condominio OS
+                        Consorcios LITE
                     </h1>
                     <p className="text-gray-400 text-sm mt-2">Inicia sesión para continuar</p>
                 </div>

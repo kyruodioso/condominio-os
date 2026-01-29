@@ -29,12 +29,12 @@ export default async function Dashboard() {
     const announcements = await getActiveAnnouncements();
     const localIp = getLocalIp();
     const appUrl = `http://${localIp}:3000`;
-    
+
     // Fetch Condo Name
     const { getCondominiumName } = await import('@/actions/condominiums');
-    const condoName = session?.user?.condominiumId 
-        ? await getCondominiumName(session.user.condominiumId) 
-        : 'Condominio OS';
+    const condoName = session?.user?.condominiumId
+        ? await getCondominiumName(session.user.condominiumId)
+        : 'Consorcios LITE';
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-3 sm:p-6 pb-24">
