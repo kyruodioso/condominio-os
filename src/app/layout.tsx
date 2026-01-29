@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
+import StartupAnimation from "@/components/layout/StartupAnimation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="es" className="dark">
       <body className={`${inter.variable} font-sans bg-gym-black text-white antialiased selection:bg-gym-primary selection:text-white`}>
         <ClientLayout>
+          <StartupAnimation />
           <main className="min-h-screen relative z-10 pt-16">
             {children}
           </main>
