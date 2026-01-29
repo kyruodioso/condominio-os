@@ -41,7 +41,7 @@ export async function createOrder(data: { unitId: string; provider: string; prod
         // @ts-ignore
         const sessionUnitId = session.user.unitId;
         const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
-        
+
         if (!isAdmin && sessionUnitId !== data.unitId) {
             return { success: false, error: 'No tienes permiso para esta unidad' };
         }
@@ -55,8 +55,13 @@ export async function createOrder(data: { unitId: string; provider: string; prod
     }
 
     try {
+        // Fetch unit to get condominiumId
+        const unit = await Unit.findById(data.unitId);
+        if (!unit) return { success: false, error: 'Unidad no encontrada' };
+
         await SupplierOrder.create({
             unitId: data.unitId,
+            condominiumId: unit.condominiumId,
             provider: data.provider,
             product: data.product,
             quantity: data.quantity,
@@ -109,7 +114,7 @@ export async function getUnitOrders(unitId: string, pin?: string) {
         // @ts-ignore
         const sessionUnitId = session.user.unitId;
         const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
-        
+
         if (!isAdmin && sessionUnitId !== unitId) {
             return [];
         }
@@ -144,7 +149,7 @@ export async function deleteOrder(orderId: string, unitId: string, pin?: string)
         // @ts-ignore
         const sessionUnitId = session.user.unitId;
         const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
-        
+
         if (!isAdmin && sessionUnitId !== unitId) {
             return { success: false, error: 'No autorizado' };
         }
