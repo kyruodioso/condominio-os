@@ -36,7 +36,7 @@ const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const createSuperAdmin = async () => {
     try {
         if (!process.env.MONGODB_URI) {
-            throw new Error('MONGODB_URI no está definida en .env.local');
+            throw new Error('MONGODB_URI no está definida. Asegúrate de tener un archivo .env o .env.local con la variable MONGODB_URI.');
         }
 
         await mongoose.connect(process.env.MONGODB_URI);
