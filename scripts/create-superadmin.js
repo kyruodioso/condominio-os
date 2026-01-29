@@ -1,7 +1,22 @@
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-require('dotenv').config({ path: '.env.local' });
+const fs = require('fs');
+const path = require('path');
+
+// Try to load environment variables
+try {
+    const dotenv = require('dotenv');
+    // Check for .env.local first, then .env
+    if (fs.existsSync(path.resolve(process.cwd(), '.env.local'))) {
+        dotenv.config({ path: '.env.local' });
+    } else if (fs.existsSync(path.resolve(process.cwd(), '.env'))) {
+        dotenv.config({ path: '.env' });
+    } else {
+        dotenv.config(); // default
+    }
+} catch (e) {
+    console.warn('dotenv not found, relying on system environment variables.');
+}
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
