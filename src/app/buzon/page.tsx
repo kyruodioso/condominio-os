@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getPackagesByUnit } from '@/actions/packages';
-import { Package, AlertCircle } from 'lucide-react';
+import { getPackagesByUnit, markAsPickedUp } from '@/actions/packages';
+import { Package, AlertCircle, Check } from 'lucide-react';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import EmptyState from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/LoadingSpinner';
@@ -31,6 +31,18 @@ export default function BuzonPage() {
         }
 
         setLoading(false);
+    };
+
+    const handlePickup = async (id: string) => {
+        if (!confirm('¿Confirmas que ya retiraste este paquete?')) return;
+
+        try {
+            await markAsPickedUp(id);
+            // Optimistic update or reload
+            setPackages(prev => prev.filter(p => p._id !== id));
+        } catch (err) {
+            alert('Error al marcar como retirado');
+        }
     };
 
     return (
@@ -70,10 +82,10 @@ export default function BuzonPage() {
                     ) : (
                         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="bg-blue-500/10 rounded-2xl p-6 mb-6 border border-blue-500/20 text-center">
-                                 <h2 className="text-xl font-bold text-white mb-1">Tu Buzón</h2>
-                                 <p className="text-blue-300 text-sm">
+                                <h2 className="text-xl font-bold text-white mb-1">Tu Buzón</h2>
+                                <p className="text-blue-300 text-sm">
                                     Tienes {packages.length} paquete(s) esperando.
-                                 </p>
+                                </p>
                             </div>
 
                             {packages.map((pkg) => (
@@ -85,8 +97,17 @@ export default function BuzonPage() {
                                             Llegó: {new Date(pkg.entryDate).toLocaleDateString('es-AR')}
                                         </p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                                        <Package size={20} />
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => handlePickup(pkg._id)}
+                                            className="p-2 bg-green-500/20 text-green-400 rounded-xl hover:bg-green-500 hover:text-white transition-all"
+                                            title="Marcar como retirado"
+                                        >
+                                            <Check size={20} />
+                                        </button>
+                                        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                                            <Package size={20} />
+                                        </div>
                                     </div>
                                 </div>
                             ))}

@@ -64,7 +64,14 @@ export async function addPackage(data: { unit: string; recipientName: string }) 
     return JSON.parse(JSON.stringify(newPackage));
 }
 
+import { revalidatePath } from 'next/cache';
+
 export async function markAsPickedUp(id: string) {
     await dbConnect();
+    const session = await auth();
+    if (!session?.user) throw new Error('Unauthorized');
+
     await Package.findByIdAndUpdate(id, { isPickedUp: true });
+    revalidatePath('/buzon');
+    revalidatePath('/admin');
 }
