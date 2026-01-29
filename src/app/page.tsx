@@ -66,7 +66,7 @@ export default async function Dashboard() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                     {/* Left: Announcements & Maintenance (1 Col) */}
-                    <section className="space-y-4 sm:space-y-8 lg:col-span-1 h-fit order-2 lg:order-1">
+                    <section className="space-y-4 sm:space-y-8 lg:col-span-1 h-fit order-1 lg:order-1">
                         {/* Announcements */}
                         <div className="space-y-3 sm:space-y-4">
                             <div className="flex items-center gap-2 mb-2">
@@ -87,7 +87,7 @@ export default async function Dashboard() {
                     </section>
 
                     {/* Right: Modules Navigation (2 Cols) */}
-                    <section className="space-y-3 sm:space-y-4 lg:col-span-2 order-1 lg:order-2">
+                    <section className="space-y-3 sm:space-y-4 lg:col-span-2 order-2 lg:order-2">
                         <div className="flex items-center gap-2 mb-2">
                             <QrCode className="text-gym-primary" size={18} />
                             <h2 className="text-base sm:text-lg font-bold uppercase tracking-wide">Módulos</h2>
