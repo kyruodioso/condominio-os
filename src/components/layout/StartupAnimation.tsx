@@ -8,16 +8,24 @@ export default function StartupAnimation() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        // Play sound immediately on mount
+        // Attempt to play sound with a slight delay to ensure DOM is ready
         const playSound = async () => {
             if (audioRef.current) {
                 try {
-                    audioRef.current.volume = 0.4; // Not too loud
+                    audioRef.current.volume = 0.4;
                     await audioRef.current.play();
                 } catch (e) {
-                    console.log("Autoplay blocked/failed:", e);
-                    // Fallback: If autoplay is widely blocked, we might just skip the sound
-                    // or specific interactions needed. For a "welcome" screen, we accept partial failure.
+                    console.log("Autoplay blocked/failed, waiting for interaction:", e);
+                    // We add a specific listener for the first interaction to play the sound
+                    const playOnInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(err => console.error("Retry failed", err));
+                            window.removeEventListener('click', playOnInteraction);
+                            window.removeEventListener('keydown', playOnInteraction);
+                        }
+                    };
+                    window.addEventListener('click', playOnInteraction);
+                    window.addEventListener('keydown', playOnInteraction);
                 }
             }
         };
@@ -85,8 +93,17 @@ export default function StartupAnimation() {
             {/* Windows 95 Startup Sound */}
             <audio
                 ref={audioRef}
-                src="https://archive.org/download/Windows95StartupAndShutdownSounds/Windows%2095%20Startup.mp3"
+                src="/sounds/win95-startup.mp3"
                 preload="auto"
+            />
+
+            {/* Invisible button to capture click and play sound if needed (browsers block autoplay) */}
+            <button
+                onClick={() => {
+                    if (audioRef.current) audioRef.current.play().catch(e => console.error(e));
+                }}
+                className="absolute inset-0 w-full h-full z-20 cursor-default focus:outline-none"
+                aria-label="Play sound"
             />
 
             <style jsx global>{`
