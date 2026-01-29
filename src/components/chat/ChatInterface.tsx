@@ -95,7 +95,8 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
             };
 
             mediaRecorder.onstop = async () => {
-                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                const blob = new Blob(chunks, { type: mimeType });
                 await sendAudioMessage(blob);
                 stream.getTracks().forEach(track => track.stop()); // Stop mic
             };
@@ -120,7 +121,8 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
         try {
             // 1. Upload Audio
             const formData = new FormData();
-            formData.append('file', audioBlob, 'audio.webm');
+            const extension = audioBlob.type.includes('mp4') ? 'mp4' : 'webm';
+            formData.append('file', audioBlob, `audio.${extension}`);
 
             const uploadRes = await fetch('/api/upload/audio', {
                 method: 'POST',

@@ -19,7 +19,9 @@ export async function POST(req: Request) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const filename = `${uuidv4()}.webm`; // Assuming webm from MediaRecorder
+        // Extract extension from original filename or default to .webm
+        const ext = path.extname(file.name) || '.webm';
+        const filename = `${uuidv4()}${ext}`;
         const uploadDir = path.join(process.cwd(), 'public/uploads/audio');
 
         // Ensure directory exists
