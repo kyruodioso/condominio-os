@@ -3,12 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 10;
-  --background-end-rgb: 0, 0, 0;
-  
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --foreground-rgb: 248, 250, 252;
+  /* Slate 50 */
+  --background-start-rgb: 15, 23, 42;
+  /* Slate 950 */
+  --background-end-rgb: 2, 6, 23;
+  /* Slate 950 darker */
+
+  --background: #0f172a;
+  --foreground: #f8fafc;
 }
 
 * {
@@ -18,12 +21,9 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: linear-gradient(to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb)));
   min-height: 100vh;
 }
 
@@ -31,32 +31,39 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #171717; 
+  background: #0f172a;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #262626; 
+  background: #334155;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #ccff00; 
+  background: #6366f1;
 }
 
 /* Focus visible for better accessibility */
 *:focus-visible {
-  outline: 2px solid #ccff00;
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 
 /* Smooth transitions for interactive elements */
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   transition: all 0.2s ease-in-out;
 }
 
 /* Active states for better click feedback */
 button:not(:disabled):active,
 .btn:not(:disabled):active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 a:active {
@@ -69,7 +76,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #ccff00;
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -80,6 +87,7 @@ textarea:focus-visible {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -87,11 +95,9 @@ textarea:focus-visible {
 
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%);
   background-size: 200% 100%;
 }

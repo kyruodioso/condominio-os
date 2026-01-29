@@ -12,12 +12,12 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
                 gym: {
-                    black: "#0a0a0a",
-                    dark: "#171717",
-                    gray: "#262626",
-                    primary: "#ccff00", // Neon Lime
-                    secondary: "#00ccff", // Cyan
-                    accent: "#ff0055", // Pink/Red
+                    black: "#0f172a", // Slate 950 (Rich Dark Blue-Gray)
+                    dark: "#1e293b",  // Slate 800 (Card Background)
+                    gray: "#334155",  // Slate 700 (Borders/Secondary BG)
+                    primary: "#6366f1", // Indigo 500 (Primary Action)
+                    secondary: "#14b8a6", // Teal 500 (Success/Active)
+                    accent: "#f59e0b", // Amber 500 (Highlights/Alerts)
                 }
             },
             fontFamily: {
