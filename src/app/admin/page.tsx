@@ -7,6 +7,7 @@ import { addPackage } from '@/actions/packages';
 import { createAnnouncement, getActiveAnnouncements, deleteAnnouncement } from '@/actions/announcements';
 import { getReservations } from '@/actions/reservations';
 import { getDashboardStats } from '@/actions/dashboard';
+import { getUnits } from '@/actions/units';
 import UsersManagement from '@/components/admin/UsersManagement';
 import EmptyState from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/LoadingSpinner';
@@ -32,6 +33,7 @@ export default function UnifiedAdminPage() {
         totalResidents: 0
     });
     const [reservations, setReservations] = useState<any[]>([]);
+    const [units, setUnits] = useState<any[]>([]);
     const [loadingData, setLoadingData] = useState(false);
 
     // --- Forms States ---
@@ -56,6 +58,7 @@ export default function UnifiedAdminPage() {
 
     useEffect(() => {
         loadStats();
+        loadUnits();
         if (activeTab === 'reservas') loadReservations();
         if (activeTab === 'cartelera') loadAnnouncements();
         setStatusMsg(null);
@@ -70,6 +73,11 @@ export default function UnifiedAdminPage() {
     const loadStats = async () => {
         const data = await getDashboardStats();
         setStats(data);
+    };
+
+    const loadUnits = async () => {
+        const data = await getUnits();
+        setUnits(data);
     };
 
     const loadReservations = async () => {
@@ -304,14 +312,25 @@ export default function UnifiedAdminPage() {
                                         </div>
                                         <form onSubmit={handleAddPackage} className="space-y-4">
                                             <div className="grid grid-cols-2 gap-4">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Unidad (4B)"
+                                                <select
                                                     required
                                                     value={pkgUnit}
-                                                    onChange={(e) => setPkgUnit(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-blue-500 uppercase font-bold text-sm"
-                                                />
+                                                    onChange={(e) => {
+                                                        const selectedUnit = units.find(u => u.number === e.target.value);
+                                                        setPkgUnit(e.target.value);
+                                                        if (selectedUnit?.contactName) {
+                                                            setPkgName(selectedUnit.contactName);
+                                                        }
+                                                    }}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-blue-500 uppercase font-bold text-sm appearance-none"
+                                                >
+                                                    <option value="">Unidad</option>
+                                                    {units.map((u: any) => (
+                                                        <option key={u._id} value={u.number} className="text-black">
+                                                            {u.number} - {u.contactName || 'Sin nombre'}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                                 <input
                                                     type="text"
                                                     placeholder="Destinatario"
@@ -358,14 +377,25 @@ export default function UnifiedAdminPage() {
                                         <p className="text-gray-400">Notifica a un vecino sobre una nueva entrega.</p>
                                     </div>
                                     <form onSubmit={handleAddPackage} className="space-y-4">
-                                        <input
-                                            type="text"
-                                            placeholder="Unidad (ej: 4B)"
+                                        <select
                                             required
                                             value={pkgUnit}
-                                            onChange={(e) => setPkgUnit(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-blue-500 uppercase font-bold"
-                                        />
+                                            onChange={(e) => {
+                                                const selectedUnit = units.find(u => u.number === e.target.value);
+                                                setPkgUnit(e.target.value);
+                                                if (selectedUnit?.contactName) {
+                                                    setPkgName(selectedUnit.contactName);
+                                                }
+                                            }}
+                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-blue-500 uppercase font-bold appearance-none"
+                                        >
+                                            <option value="">Seleccionar Unidad</option>
+                                            {units.map((u: any) => (
+                                                <option key={u._id} value={u.number} className="text-black">
+                                                    {u.number} - {u.contactName || 'Sin nombre'}
+                                                </option>
+                                            ))}
+                                        </select>
                                         <input
                                             type="text"
                                             placeholder="Nombre Destinatario"
