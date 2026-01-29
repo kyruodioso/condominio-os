@@ -8,19 +8,7 @@ export default function StartupAnimation() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        // Check if we've already shown the intro in this session
-        // Remove individual storage check if user wants it on EVERY refresh (usually annoying, so session is best)
-        const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
-
-        if (hasSeenIntro) {
-            setShouldRender(false);
-            return;
-        }
-
-        // Mark as seen immediately so it doesn't loop if user navigates away
-        sessionStorage.setItem('hasSeenIntro', 'true');
-
-        // Attempt to play sound with a slight delay to ensure DOM is ready
+        // Play sound immediately on mount
         const playSound = async () => {
             if (audioRef.current) {
                 try {
