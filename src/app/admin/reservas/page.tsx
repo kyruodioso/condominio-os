@@ -51,16 +51,21 @@ export default function ReservationsAdminPage() {
                                         <span className="block text-xl font-black text-white">{res.date.split('-')[2]}/{res.date.split('-')[1]}</span>
                                     </div>
                                     <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${res.timeSlot === 'Cena' ? 'bg-purple-500/20 text-purple-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                                                {res.timeSlot}
-                                            </span>
+                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                            {res.resources.map((r: string) => (
+                                                <span key={r} className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${r === 'SUM' ? 'bg-purple-500/20 text-purple-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                                    {r}
+                                                </span>
+                                            ))}
                                         </div>
                                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                             <User size={18} className="text-gray-500" />
                                             Unidad {res.unit?.number || '???'}
                                         </h3>
-                                        <p className="text-sm text-gray-500">{res.unit?.contactName || 'Sin nombre'}</p>
+                                        <p className="text-sm text-gray-400 mb-1">{res.unit?.contactName || 'Sin nombre'}</p>
+                                        <p className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-1 rounded w-fit">
+                                            {res.startTime} - {res.endTime}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="text-right">

@@ -10,9 +10,17 @@ const ReservationSchema = new Schema({
         type: String, // YYYY-MM-DD format
         required: true,
     },
-    timeSlot: {
-        type: String,
-        enum: ['Almuerzo', 'Cena'],
+    startTime: {
+        type: String, // HH:mm format
+        required: true,
+    },
+    endTime: {
+        type: String, // HH:mm format
+        required: true,
+    },
+    resources: {
+        type: [String],
+        enum: ['SUM', 'Parrilla'],
         required: true,
     },
     createdAt: {
@@ -26,8 +34,8 @@ const ReservationSchema = new Schema({
     },
 });
 
-// Prevent double booking within the same condominium
-ReservationSchema.index({ condominiumId: 1, date: 1, timeSlot: 1 }, { unique: true });
+// We handle overlap validation in the application layer now
+// ReservationSchema.index({ condominiumId: 1, date: 1, timeSlot: 1 }, { unique: true });
 
 const Reservation = models.Reservation || model('Reservation', ReservationSchema);
 

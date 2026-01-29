@@ -123,8 +123,8 @@ export default function UnifiedAdminPage() {
             onClick={() => setActiveTab(id)}
             className={clsx(
                 "flex items-center transition-all text-left border",
-                mobile 
-                    ? "flex-col justify-center p-3 rounded-xl min-w-[80px] snap-start" 
+                mobile
+                    ? "flex-col justify-center p-3 rounded-xl min-w-[80px] snap-start"
                     : "flex-col items-start p-4 rounded-2xl w-full",
                 activeTab === id
                     ? "bg-gym-primary text-black border-gym-primary shadow-lg shadow-gym-primary/20"
@@ -209,7 +209,7 @@ export default function UnifiedAdminPage() {
 
                 {/* Main Layout - Flex for Desktop to ensure proper height handling */}
                 <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-8">
-                    
+
                     {/* Mobile Navigation (Horizontal Scroll) - Flex-none */}
                     <div className="lg:hidden flex-none mb-4 space-y-4">
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x">
@@ -219,7 +219,7 @@ export default function UnifiedAdminPage() {
                             <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
                             <NavButton id="reservas" icon={Calendar} label="Reservas" mobile />
                         </div>
-                        
+
                         {/* Quick Links Dropdown or Horizontal List for Mobile */}
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
                             <Link href="/admin/tareas" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
@@ -234,7 +234,7 @@ export default function UnifiedAdminPage() {
                             <Link href="/admin/mensajes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <MessageSquare size={14} /> Mensajes
                             </Link>
-                             <Link href="/directorio" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                            <Link href="/directorio" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <Truck size={14} /> Directorio
                             </Link>
                         </div>
@@ -282,7 +282,7 @@ export default function UnifiedAdminPage() {
 
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
                     <div className="flex-1 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-20">
-                        
+
                         {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
                         {activeTab === 'dashboard' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -442,7 +442,7 @@ export default function UnifiedAdminPage() {
                                             <Bell size={20} className="text-yellow-500" />
                                             Anuncios Activos
                                         </h3>
-                                        
+
                                         {loadingData ? (
                                             <SkeletonList items={3} />
                                         ) : announcements.length === 0 ? (
@@ -455,12 +455,12 @@ export default function UnifiedAdminPage() {
                                         ) : (
                                             <div className="space-y-3">
                                                 {announcements.map((ann) => (
-                                                    <div 
-                                                        key={ann._id} 
+                                                    <div
+                                                        key={ann._id}
                                                         className={clsx(
                                                             "p-4 rounded-2xl border transition-all",
-                                                            ann.type === 'Alerta' 
-                                                                ? "bg-red-500/5 border-red-500/20" 
+                                                            ann.type === 'Alerta'
+                                                                ? "bg-red-500/5 border-red-500/20"
                                                                 : "bg-blue-500/5 border-blue-500/20"
                                                         )}
                                                     >
@@ -469,8 +469,8 @@ export default function UnifiedAdminPage() {
                                                                 <div className="flex items-center gap-2 mb-2">
                                                                     <span className={clsx(
                                                                         "text-xs font-bold px-2 py-1 rounded uppercase",
-                                                                        ann.type === 'Alerta' 
-                                                                            ? "bg-red-500/20 text-red-400" 
+                                                                        ann.type === 'Alerta'
+                                                                            ? "bg-red-500/20 text-red-400"
                                                                             : "bg-blue-500/20 text-blue-400"
                                                                     )}>
                                                                         {ann.type}
@@ -532,9 +532,18 @@ export default function UnifiedAdminPage() {
                                                         <span className="block text-xs text-gray-500 uppercase font-bold">Día</span>
                                                         <span className="block text-xl font-black text-white">{res.date.split('-')[2]}</span>
                                                     </div>
-                                                    <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${res.timeSlot === 'Cena' ? 'bg-purple-500/20 text-purple-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                                                        {res.timeSlot}
-                                                    </span>
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <span className="text-xs font-mono text-gray-400 bg-white/5 px-2 py-1 rounded">
+                                                            {res.startTime} - {res.endTime}
+                                                        </span>
+                                                        <div className="flex gap-1">
+                                                            {res.resources.map((r: string) => (
+                                                                <span key={r} className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${r === 'SUM' ? 'bg-purple-500/20 text-purple-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                                                    {r}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Reservado por:</p>
@@ -554,4 +563,5 @@ export default function UnifiedAdminPage() {
                     </div>
                 </div>            </div>
         </div>
-    );}
+    );
+}

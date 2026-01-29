@@ -21,7 +21,7 @@ export async function getReservations(startDate?: string, endDate?: string) {
 
     const reservations = await Reservation.find(query)
         .populate('unit', 'number contactName')
-        .sort({ date: 1, timeSlot: 1 })
+        .sort({ date: 1, startTime: 1 })
         .lean();
 
     return reservations.map((r: any) => ({
@@ -31,12 +31,19 @@ export async function getReservations(startDate?: string, endDate?: string) {
     }));
 }
 
-export async function bookSum(data: { date: string; timeSlot: string }) {
+interface BookingData {
+    date: string;
+    startTime: string;
+    endTime: string;
+    resources: string[];
+}
+
+export async function bookSum(data: BookingData) {
     await dbConnect();
     const session = await auth();
 
     if (!session?.user) {
-        return { success: false, error: 'Debes iniciar sesión para hacer una reserva. Por favor inicia sesión e intenta nuevamente.' };
+        return { success: false, error: 'Debes iniciar sesión para hacer una reserva.' };
     }
 
     // @ts-ignore
@@ -45,41 +52,57 @@ export async function bookSum(data: { date: string; timeSlot: string }) {
     const condominiumId = session.user.condominiumId;
 
     if (!unitId || !condominiumId) {
-        return { success: false, error: 'No se encontró información de tu unidad. Contacta al administrador para verificar tu perfil.' };
+        return { success: false, error: 'No se encontró información de tu unidad.' };
     }
 
-    // 1. Validate Unit (Optional check, mainly to get the object if needed, but we have IDs)
-    // We trust the session here.
+    if (!data.resources || data.resources.length === 0) {
+        return { success: false, error: 'Debes seleccionar al menos un recurso (SUM o Parrilla).' };
+    }
 
-    // 2. Check availability
-    const existing = await Reservation.findOne({ 
+    if (data.startTime >= data.endTime) {
+        return { success: false, error: 'La hora de inicio debe ser anterior a la hora de fin.' };
+    }
+
+    // Check availability
+    // Find all reservations for this date and condo
+    const existingReservations = await Reservation.find({
         condominiumId: condominiumId,
-        date: data.date, 
-        timeSlot: data.timeSlot 
+        date: data.date
     });
-    
-    if (existing) {
-        // Get unit name for better error message
-        const unit = await Unit.findById(existing.unit);
-        const unitName = unit ? `Unidad ${unit.number}` : 'otra unidad';
-        return { 
-            success: false, 
-            error: `El horario ${data.timeSlot} del ${new Date(data.date).toLocaleDateString('es-AR')} ya está reservado por ${unitName}. Por favor selecciona otro horario disponible.` 
-        };
+
+    for (const res of existingReservations) {
+        // Check if resources overlap
+        const commonResources = res.resources.filter((r: string) => data.resources.includes(r));
+
+        if (commonResources.length > 0) {
+            // Check if time overlaps
+            // (StartA < EndB) && (EndA > StartB)
+            if (data.startTime < res.endTime && data.endTime > res.startTime) {
+                const unit = await Unit.findById(res.unit);
+                const unitName = unit ? `Unidad ${unit.number}` : 'otra unidad';
+                const resourcesStr = commonResources.join(' y ');
+                return {
+                    success: false,
+                    error: `El recurso ${resourcesStr} ya está reservado por ${unitName} de ${res.startTime} a ${res.endTime}.`
+                };
+            }
+        }
     }
 
-    // 3. Create Reservation
+    // Create Reservation
     try {
         await Reservation.create({
             unit: unitId,
             condominiumId: condominiumId,
             date: data.date,
-            timeSlot: data.timeSlot
+            startTime: data.startTime,
+            endTime: data.endTime,
+            resources: data.resources
         });
         revalidatePath('/sum');
         revalidatePath('/admin/reservas');
         return { success: true };
     } catch (err: any) {
-        return { success: false, error: `Error al crear la reserva: ${err.message}. Por favor intenta nuevamente o contacta al administrador.` };
+        return { success: false, error: `Error al crear la reserva: ${err.message}` };
     }
 }
