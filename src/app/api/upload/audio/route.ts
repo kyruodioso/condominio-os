@@ -21,6 +21,11 @@ export async function POST(req: Request) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `${uuidv4()}.webm`; // Assuming webm from MediaRecorder
         const uploadDir = path.join(process.cwd(), 'public/uploads/audio');
+
+        // Ensure directory exists
+        const { mkdir } = require('fs/promises');
+        await mkdir(uploadDir, { recursive: true });
+
         const filePath = path.join(uploadDir, filename);
 
         await writeFile(filePath, buffer);
