@@ -1,5 +1,6 @@
 import { WeeklyMealPlan } from '@/components/nutrition/WeeklyMealPlan';
 import { SpotifyPlayer } from '@/components/music/SpotifyPlayer';
+import { AlertTriangle } from 'lucide-react';
 
 export default function RelaxPage() {
     return (
@@ -10,6 +11,14 @@ export default function RelaxPage() {
                     <div className="h-1 flex-grow bg-gym-secondary/20 rounded-full" />
                 </h2>
                 <WeeklyMealPlan />
+
+                <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3">
+                    <AlertTriangle className="text-yellow-500 shrink-0 mt-0.5" size={18} />
+                    <p className="text-xs text-gray-400 leading-relaxed text-justify">
+                        <span className="font-bold text-yellow-500 block mb-1">Descargo de Responsabilidad Médica</span>
+                        Este sistema proporciona recomendaciones generales basadas en algoritmos y no constituye asesoramiento médico profesional. La información aquí presentada no reemplaza la consulta, diagnóstico o tratamiento por parte de un médico o nutricionista calificado. Consulta siempre a un profesional de la salud antes de realizar cambios significativos en tu dieta o regimen de ejercicios.
+                    </p>
+                </div>
             </section>
 
             <section>
