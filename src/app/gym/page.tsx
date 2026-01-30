@@ -5,7 +5,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { ProfileForm } from '@/components/user/ProfileForm';
 import { BMIChart } from '@/components/user/BMIChart';
 import Link from 'next/link';
-import { ArrowRight, Dumbbell, Utensils } from 'lucide-react';
+import { ArrowRight, Dumbbell, Utensils, Truck } from 'lucide-react';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -26,12 +26,12 @@ export default function Home() {
   if (!hasProfile) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
-         <div className="max-w-4xl mx-auto">
-            <Breadcrumbs items={[{ label: 'Gimnasio' }]} />
-            <div className="mt-12">
-               <ProfileForm />
-            </div>
-         </div>
+        <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[{ label: 'Gimnasio' }]} />
+          <div className="mt-12">
+            <ProfileForm />
+          </div>
+        </div>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        
+
         {/* Breadcrumbs */}
         <Breadcrumbs items={[{ label: 'Gimnasio' }]} />
 
@@ -83,6 +83,18 @@ export default function Home() {
               <h3 className="font-bold text-white text-lg mb-1">Nutrición</h3>
               <p className="text-xs text-gray-400 mb-4 font-medium">Fuel & Relax</p>
               <div className="w-10 h-10 rounded-full bg-gym-secondary text-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,204,255,0.3)]">
+                <ArrowRight size={20} />
+              </div>
+            </div>
+          </Link>
+          <Link href="/gym/servicios" className="bg-gym-gray p-6 rounded-3xl border border-white/5 hover:border-orange-500/50 transition-all group relative overflow-hidden sm:col-span-2">
+            <div className="absolute top-0 right-0 p-4 opacity-[0.03] -mr-4 -mt-4">
+              <Truck size={80} />
+            </div>
+            <div className="relative z-10">
+              <h3 className="font-bold text-white text-lg mb-1">Servicios</h3>
+              <p className="text-xs text-gray-400 mb-4 font-medium">Limpieza, Agua, etc.</p>
+              <div className="w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                 <ArrowRight size={20} />
               </div>
             </div>
