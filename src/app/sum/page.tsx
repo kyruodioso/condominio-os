@@ -191,8 +191,9 @@ export default function SumPage() {
                                                 );
                                             })}
                                         </div>
-                                )}
                                     </div>
+                                )}
+                            </div>
                         </div>
                     </section>
 
