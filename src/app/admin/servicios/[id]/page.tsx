@@ -4,6 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 import Link from 'next/link';
 import { ArrowLeft, Trash2, Printer, CheckCircle, XCircle } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import PrintButton from '@/components/admin/PrintButton';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -54,13 +55,7 @@ export default async function ServiceDetailsPage({ params }: { params: { id: str
                     <ArrowLeft size={16} /> Volver
                 </Link>
                 <div className="flex gap-2">
-                    <button
-                        // @ts-ignore
-                        onClick="window.print()"
-                        className="bg-white/10 text-white px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-white/20 transition-colors flex items-center gap-2"
-                    >
-                        <Printer size={16} /> Imprimir
-                    </button>
+                    <PrintButton />
                     <DeleteButton id={params.id} />
                 </div>
             </div>
@@ -115,7 +110,7 @@ export default async function ServiceDetailsPage({ params }: { params: { id: str
                                             {req.unitId?.number || 'N/A'}
                                         </td>
                                         <td className="p-4">
-                                            {req.unitId?.contactName || req.userId.profile?.name || req.userId.email}
+                                            {req.unitId?.contactName || (req.userId ? (req.userId.profile?.name || req.userId.email) : 'Usuario eliminado')}
                                         </td>
                                         <td className="p-4 text-center font-bold">
                                             {req.quantity}
@@ -125,7 +120,7 @@ export default async function ServiceDetailsPage({ params }: { params: { id: str
                                         </td>
                                         <td className="p-4 text-right">
                                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${req.status === 'Requested' ? 'bg-blue-500/20 text-blue-400 print:text-black print:bg-transparent' :
-                                                    'bg-green-500/20 text-green-400'
+                                                'bg-green-500/20 text-green-400'
                                                 }`}>
                                                 {req.status === 'Requested' ? <CheckCircle size={12} /> : null}
                                                 {req.status}
