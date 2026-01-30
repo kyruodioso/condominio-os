@@ -98,7 +98,7 @@ export async function getUpcomingServices() {
     await dbConnect();
     const session = await auth();
 
-    if (!session?.user?.condominiumId) return [];
+    if (!session?.user?.condominiumId) return { services: [], userRequests: [] };
 
     const now = new Date();
     // Fetch 'Open' events that haven't passed their deadline yet (or date), 
