@@ -106,3 +106,39 @@ export async function bookSum(data: BookingData) {
         return { success: false, error: `Error al crear la reserva: ${err.message}` };
     }
 }
+
+export async function cancelReservation(id: string) {
+    await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    try {
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            return { success: false, error: 'Reserva no encontrada' };
+        }
+
+        // Check ownership
+        // Only the unit owner or an Admin can delete (for now just unit owner as per requirement)
+        // @ts-ignore
+        const userUnitId = session.user.unitId?.toString();
+
+        if (reservation.unit.toString() !== userUnitId && session.user.role !== 'ADMIN') {
+            return { success: false, error: 'No tienes permiso para cancelar esta reserva' };
+        }
+
+        // Optional: Block cancellation if it's in the past?
+        // Let's rely on frontend for that visual cue, backend just deletes.
+
+        await Reservation.findByIdAndDelete(id);
+
+        revalidatePath('/sum');
+        revalidatePath('/admin/reservas');
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}

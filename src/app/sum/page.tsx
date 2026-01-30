@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getReservations, bookSum } from '@/actions/reservations';
-import { Calendar as CalendarIcon, Clock, Check, X, Flame, Home } from 'lucide-react';
+import { getReservations, bookSum, cancelReservation } from '@/actions/reservations';
+import { Calendar as CalendarIcon, Clock, Check, X, Flame, Home, Trash2, Loader2 } from 'lucide-react';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
@@ -145,32 +145,54 @@ export default function SumPage() {
                                     <p className="text-gray-500 text-center text-sm">No hay reservas para este día. ¡Sé el primero!</p>
                                 ) : (
                                     <div className="space-y-3">
-                                        {reservations.map((res) => (
-                                            <div key={res._id} className="bg-black/20 p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                                                <div>
-                                                    <div className="flex gap-2 mb-1">
-                                                        {res.resources.map((r: string) => (
-                                                            <span key={r} className={clsx(
-                                                                "text-[10px] font-bold px-2 py-0.5 rounded uppercase",
-                                                                r === 'SUM' ? "bg-purple-500/20 text-purple-400" : "bg-orange-500/20 text-orange-400"
-                                                            )}>
-                                                                {r}
-                                                            </span>
-                                                        ))}
+                                        <div className="space-y-3">
+                                            {reservations.map((res) => {
+                                                // @ts-ignore
+                                                const isMyReservation = session?.user?.unitNumber && res.unit?.number === session.user.unitNumber;
+
+                                                return (
+                                                    <div key={res._id} className={`bg-black/20 p-4 rounded-xl border flex justify-between items-center ${isMyReservation ? 'border-purple-500/30' : 'border-white/5'}`}>
+                                                        <div>
+                                                            <div className="flex gap-2 mb-1">
+                                                                {res.resources.map((r: string) => (
+                                                                    <span key={r} className={clsx(
+                                                                        "text-[10px] font-bold px-2 py-0.5 rounded uppercase",
+                                                                        r === 'SUM' ? "bg-purple-500/20 text-purple-400" : "bg-orange-500/20 text-orange-400"
+                                                                    )}>
+                                                                        {r}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-white font-bold text-sm">
+                                                                {res.startTime} - {res.endTime}
+                                                            </p>
+                                                        </div>
+                                                        <div className="text-right flex items-center gap-4">
+                                                            <div>
+                                                                <p className="text-xs text-gray-400">Unidad</p>
+                                                                <p className="text-sm font-bold text-white">{res.unit?.number || '?'}</p>
+                                                            </div>
+                                                            {isMyReservation && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        if (confirm('¿Cancelar esta reserva?')) {
+                                                                            await cancelReservation(res._id);
+                                                                            loadData();
+                                                                        }
+                                                                    }}
+                                                                    className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
+                                                                    title="Cancelar Reserva"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-white font-bold text-sm">
-                                                        {res.startTime} - {res.endTime}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs text-gray-400">Unidad</p>
-                                                    <p className="text-sm font-bold text-white">{res.unit?.number || '?'}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                 )}
-                            </div>
+                                    </div>
                         </div>
                     </section>
 
