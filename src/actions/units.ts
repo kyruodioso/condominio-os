@@ -52,3 +52,15 @@ export async function deleteUnit(id: string) {
     await Unit.findByIdAndDelete(id);
     revalidatePath('/admin/units');
 }
+
+export async function getUnitsForSuperAdmin(condominiumId: string) {
+    await dbConnect();
+    const session = await auth();
+
+    if (session?.user?.role !== 'SUPER_ADMIN') {
+        return [];
+    }
+
+    const units = await Unit.find({ condominiumId }).sort({ number: 1 }).lean();
+    return units.map((u: any) => ({ ...u, _id: u._id.toString() }));
+}

@@ -6,6 +6,8 @@ import { CreateAdminModal } from '@/components/admin/CreateAdminModal';
 import { EditAdminModal } from '@/components/admin/EditAdminModal';
 import { DeleteAdminModal } from '@/components/admin/DeleteAdminModal';
 import { getCondoUsers } from '@/actions/users';
+import { getUnitsForSuperAdmin } from '@/actions/units';
+import { UnitLimitManager } from '@/components/admin/UnitLimitManager';
 import { ArrowLeft, Building2, Users, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,13 +20,14 @@ export default async function CondominiumDetails({ params }: { params: { id: str
 
     await dbConnect();
     const condominium = await Condominium.findById(params.id);
-    
+
     if (!condominium) {
         return <div>Condominio no encontrado</div>;
     }
 
     const users = await getCondoUsers(params.id);
     const admins = users.filter((u: any) => u.role === 'ADMIN');
+    const units = await getUnitsForSuperAdmin(params.id);
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
@@ -51,44 +54,53 @@ export default async function CondominiumDetails({ params }: { params: { id: str
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Admins Section */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold uppercase tracking-wide flex items-center gap-2">
-                                <Shield className="text-blue-400" size={20} /> Administradores
-                            </h2>
-                            <CreateAdminModal condominiumId={params.id} />
-                        </div>
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Units Management Section */}
+                        <UnitLimitManager
+                            condominiumId={params.id}
+                            currentLimit={condominium.maxUnits || 50}
+                            initialUnits={units}
+                        />
 
-                        <div className="grid gap-4">
-                            {admins.length === 0 ? (
-                                <div className="bg-gym-gray p-8 rounded-3xl border border-white/5 text-center">
-                                    <p className="text-gray-500">No hay administradores asignados.</p>
-                                </div>
-                            ) : (
-                                admins.map((admin: any) => (
-                                    <div key={admin._id} className="bg-gym-gray p-6 rounded-3xl border border-white/5 flex justify-between items-center hover:border-white/10 transition-colors">
-                                        <div className="flex-1">
-                                            <h3 className="font-bold text-white">{admin.profile?.name || 'Sin Nombre'}</h3>
-                                            <p className="text-sm text-gray-400">{admin.email}</p>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-                                                Admin
-                                            </span>
-                                            <div className="flex gap-2">
-                                                <EditAdminModal admin={admin} />
-                                                <DeleteAdminModal admin={admin} />
+                        <section className="space-y-6">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-xl font-bold uppercase tracking-wide flex items-center gap-2">
+                                    <Shield className="text-blue-400" size={20} /> Administradores
+                                </h2>
+                                <CreateAdminModal condominiumId={params.id} />
+                            </div>
+
+                            <div className="grid gap-4">
+                                {admins.length === 0 ? (
+                                    <div className="bg-gym-gray p-8 rounded-3xl border border-white/5 text-center">
+                                        <p className="text-gray-500">No hay administradores asignados.</p>
+                                    </div>
+                                ) : (
+                                    admins.map((admin: any) => (
+                                        <div key={admin._id} className="bg-gym-gray p-6 rounded-3xl border border-white/5 flex justify-between items-center hover:border-white/10 transition-colors">
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-white">{admin.profile?.name || 'Sin Nombre'}</h3>
+                                                <p className="text-sm text-gray-400">{admin.email}</p>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
+                                                    Admin
+                                                </span>
+                                                <div className="flex gap-2">
+                                                    <EditAdminModal admin={admin} />
+                                                    <DeleteAdminModal admin={admin} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </section>
                     </div>
 
                     {/* Stats / Info */}
                     <div className="space-y-6">
-                        <div className="bg-gym-gray p-6 rounded-3xl border border-white/5">
+                        <div className="bg-gym-gray p-6 rounded-3xl border border-white/5 sticky top-6">
                             <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">Resumen</h3>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
@@ -102,6 +114,10 @@ export default async function CondominiumDetails({ params }: { params: { id: str
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-300">Residentes</span>
                                     <span className="font-bold text-gym-primary">{users.length - admins.length}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-300">Unidades Totales</span>
+                                    <span className="font-bold text-white">{units.length}</span>
                                 </div>
                             </div>
                         </div>

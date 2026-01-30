@@ -133,3 +133,29 @@ export async function deleteCondominium(id: string) {
         return { success: false, error: error.message || 'Error deleting condominium' };
     }
 }
+
+export async function updateCondominiumLimit(id: string, maxUnits: number) {
+    try {
+        await dbConnect();
+        const session = await auth();
+
+        if (session?.user?.role !== 'SUPER_ADMIN') {
+            return { success: false, error: 'Unauthorized' };
+        }
+
+        await Condominium.findByIdAndUpdate(id, { maxUnits });
+
+        try {
+            const { revalidatePath } = await import('next/cache');
+            revalidatePath(`/admin/super/condo/${id}`);
+            revalidatePath('/admin/super');
+        } catch (revalError) {
+            console.error('Revalidation failed:', revalError);
+        }
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('Error updating limits:', error);
+        return { success: false, error: error.message };
+    }
+}
