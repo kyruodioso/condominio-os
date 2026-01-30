@@ -199,6 +199,23 @@ export default async function Dashboard() {
                                 </div>
                             </Link>
 
+                            {/* Servicios Card */}
+                            <Link href="/gym/servicios" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-pink-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
+                                    <Truck size={140} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.3)] group-hover:scale-110 transition-transform mb-4">
+                                        <Truck size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1">Servicios</h3>
+                                    <p className="text-sm text-gray-400">Limpieza, Agua y más</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-pink-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Ver Servicios <span className="ml-2">→</span>
+                                </div>
+                            </Link>
+
                             {/* Directorio Card */}
                             <Link href="/directorio" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-cyan-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
                                 <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
