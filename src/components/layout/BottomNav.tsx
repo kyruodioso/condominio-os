@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Dumbbell, Coffee, LogOut } from 'lucide-react';
+import { User, Dumbbell, Coffee, LogOut, Truck } from 'lucide-react';
 import clsx from 'clsx';
 import { useUserStore } from '@/store/useUserStore';
 
@@ -15,6 +15,7 @@ export const BottomNav = () => {
         { name: 'Perfil', href: '/gym', icon: User },
         { name: 'Entreno', href: '/gym/workout', icon: Dumbbell },
         { name: 'Relax', href: '/gym/relax', icon: Coffee },
+        { name: 'Servicios', href: '/servicios', icon: Truck },
     ];
 
     const handleLogout = () => {

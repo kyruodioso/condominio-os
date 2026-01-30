@@ -285,6 +285,10 @@ export default function UnifiedAdminPage() {
                                 <Settings size={20} className="group-hover:text-purple-500 transition-colors" />
                                 <span className="font-bold text-sm">Configuración</span>
                             </Link>
+                            <Link href="/admin/servicios" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
+                                <span className="font-bold text-sm">Servicios</span>
+                            </Link>
                         </div>
                     </div>
 
