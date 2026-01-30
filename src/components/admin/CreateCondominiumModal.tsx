@@ -24,7 +24,7 @@ export function CreateCondominiumModal() {
 
             if (result.success) {
                 setIsOpen(false);
-                setFormData({ name: '', address: '', plan: 'Free' });
+                setFormData({ name: '', address: '', plan: 'Free', maxUnits: 50 });
                 router.refresh();
             } else {
                 console.error('Error creating condominium:', result.error);
