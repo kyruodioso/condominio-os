@@ -64,6 +64,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (user.unitId) token.unitId = user.unitId;
                 // @ts-ignore
                 if (user.unitNumber) token.unitNumber = user.unitNumber;
+
+                // Map profile name to token name
+                // @ts-ignore
+                if (user.profile?.name) {
+                    // @ts-ignore
+                    token.name = user.profile.name;
+                }
             }
             return token;
         },
