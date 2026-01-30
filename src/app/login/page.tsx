@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Building2, Mail, Lock } from 'lucide-react';
+import { Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import FormField from '@/components/ui/FormField';
 import { useForm } from '@/hooks/useForm';
 import { validators, composeValidators } from '@/utils/validation';
@@ -16,6 +16,7 @@ interface LoginFormValues {
 export default function LoginPage() {
     const router = useRouter();
     const [serverError, setServerError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<LoginFormValues>({
         initialValues: {
@@ -111,7 +112,7 @@ export default function LoginPage() {
                     <FormField
                         label="Contraseña"
                         name="password"
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={form.values.password}
                         onChange={form.handleChange('password')}
                         onBlur={form.handleBlur('password')}
@@ -122,7 +123,15 @@ export default function LoginPage() {
                         autoComplete="current-password"
                         icon={Lock}
                         hint="Mínimo 6 caracteres"
-                        showSuccess
+                        endAdornment={
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-gray-400 hover:text-white transition-colors focus:outline-none"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        }
                     />
 
                     <button

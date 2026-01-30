@@ -22,6 +22,7 @@ export interface FormFieldProps {
   validateOnBlur?: boolean;
   showSuccess?: boolean;
   children?: React.ReactNode; // For select options
+  endAdornment?: React.ReactNode; // For custom right-side content (e.g. password toggle)
 }
 
 export default function FormField({
@@ -44,6 +45,7 @@ export default function FormField({
   validateOnBlur = true,
   showSuccess = false,
   children,
+  endAdornment,
 }: FormFieldProps) {
   const [internalError, setInternalError] = useState<string | undefined>();
   const [isTouched, setIsTouched] = useState(touched);
@@ -141,14 +143,14 @@ export default function FormField({
               'w-full rounded-xl px-4 py-3 bg-gym-gray text-white text-sm transition-all',
               'focus:outline-none focus:ring-2',
               Icon && 'pl-12',
-              isValid && 'pr-12',
+              (isValid || endAdornment) && 'pr-12',
               shouldShowError
                 ? 'border-2 border-red-500 focus:ring-red-500/50'
                 : isFocused
-                ? 'border-2 border-gym-primary focus:ring-gym-primary/50'
-                : isValid
-                ? 'border-2 border-green-500 focus:ring-green-500/50'
-                : 'border-2 border-white/10 focus:ring-gym-primary/50',
+                  ? 'border-2 border-gym-primary focus:ring-gym-primary/50'
+                  : isValid
+                    ? 'border-2 border-green-500 focus:ring-green-500/50'
+                    : 'border-2 border-white/10 focus:ring-gym-primary/50',
               disabled && 'opacity-50 cursor-not-allowed'
             )}
           >
@@ -172,23 +174,30 @@ export default function FormField({
               'w-full rounded-xl px-4 py-3 bg-gym-gray text-white text-sm transition-all',
               'placeholder-gray-500 focus:outline-none focus:ring-2',
               Icon && 'pl-12',
-              isValid && 'pr-12',
+              (isValid || endAdornment) && 'pr-12',
               shouldShowError
                 ? 'border-2 border-red-500 focus:ring-red-500/50'
                 : isFocused
-                ? 'border-2 border-gym-primary focus:ring-gym-primary/50'
-                : isValid
-                ? 'border-2 border-green-500 focus:ring-green-500/50'
-                : 'border-2 border-white/10 focus:ring-gym-primary/50',
+                  ? 'border-2 border-gym-primary focus:ring-gym-primary/50'
+                  : isValid
+                    ? 'border-2 border-green-500 focus:ring-green-500/50'
+                    : 'border-2 border-white/10 focus:ring-gym-primary/50',
               disabled && 'opacity-50 cursor-not-allowed'
             )}
           />
         )}
 
         {/* Success Icon */}
-        {isValid && (
+        {isValid && !endAdornment && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <CheckCircle2 size={20} className="text-green-400" />
+          </div>
+        )}
+
+        {/* Custom API End Adornment */}
+        {endAdornment && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            {endAdornment}
           </div>
         )}
       </div>
