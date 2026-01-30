@@ -5,35 +5,15 @@ import Link from 'next/link';
 import { ArrowLeft, Trash2, Printer, CheckCircle, XCircle } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import PrintButton from '@/components/admin/PrintButton';
+import DeleteServiceButton from '@/components/admin/DeleteServiceButton';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-async function DeleteButton({ id }: { id: string }) {
-    'use client';
 
-    const handleDelete = async () => {
-        if (confirm('¿Estás seguro de eliminar este servicio? Se borrarán todas las inscripciones.')) {
-            const result = await deleteServiceEvent(id);
-            if (result.success) {
-                window.location.href = '/admin/servicios';
-            } else {
-                alert('Error al eliminar');
-            }
-        }
-    };
 
-    return (
-        <button
-            onClick={handleDelete}
-            className="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-red-500/20 transition-colors flex items-center gap-2"
-        >
-            <Trash2 size={16} /> Eliminar
-        </button>
-    );
-}
-
-export default async function ServiceDetailsPage({ params }: { params: { id: string } }) {
+export default async function ServiceDetailsPage(props: any) {
+    const params = await props.params;
     try {
         await dbConnect();
 
@@ -69,7 +49,7 @@ export default async function ServiceDetailsPage({ params }: { params: { id: str
                     </Link>
                     <div className="flex gap-2">
                         <PrintButton />
-                        <DeleteButton id={params.id} />
+                        <DeleteServiceButton id={params.id} />
                     </div>
                 </div>
 
