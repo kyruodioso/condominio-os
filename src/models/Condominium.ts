@@ -19,6 +19,10 @@ const CondominiumSchema = new Schema({
         enum: ['Free', 'Pro', 'Enterprise'],
         default: 'Free',
     },
+    maxUnits: {
+        type: Number,
+        default: 50,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

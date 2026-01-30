@@ -11,7 +11,8 @@ export function CreateCondominiumModal() {
     const [formData, setFormData] = useState({
         name: '',
         address: '',
-        plan: 'Free'
+        plan: 'Free',
+        maxUnits: 50
     });
     const router = useRouter();
 
@@ -20,7 +21,7 @@ export function CreateCondominiumModal() {
         setIsLoading(true);
         try {
             const result = await createCondominium(formData);
-            
+
             if (result.success) {
                 setIsOpen(false);
                 setFormData({ name: '', address: '', plan: 'Free' });
@@ -39,7 +40,7 @@ export function CreateCondominiumModal() {
 
     return (
         <>
-            <button 
+            <button
                 onClick={() => setIsOpen(true)}
                 className="bg-gym-primary text-black px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
             >
@@ -51,7 +52,7 @@ export function CreateCondominiumModal() {
                     <div className="bg-gym-gray border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-white uppercase tracking-wide">Nuevo Condominio</h2>
-                            <button 
+                            <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
@@ -101,6 +102,21 @@ export function CreateCondominiumModal() {
                                     <option value="Pro">Pro</option>
                                     <option value="Enterprise">Enterprise</option>
                                 </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
+                                    Límite de Unidades
+                                </label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={formData.maxUnits}
+                                    onChange={(e) => setFormData({ ...formData, maxUnits: parseInt(e.target.value) || 50 })}
+                                    className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-gym-primary transition-colors"
+                                    placeholder="50"
+                                    required
+                                />
                             </div>
 
                             <div className="pt-4 flex gap-3">

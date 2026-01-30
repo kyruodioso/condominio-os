@@ -26,6 +26,19 @@ export async function createUnit(data: { number: string; accessPin: string; cont
     }
 
     try {
+        const Condominium = (await import('@/models/Condominium')).default;
+        const condo = await Condominium.findById(session.user.condominiumId);
+
+        if (condo) {
+            const currentUnits = await Unit.countDocuments({ condominiumId: session.user.condominiumId });
+            // Default to 50 if maxUnits not set
+            const maxUnits = condo.maxUnits || 50;
+
+            if (currentUnits >= maxUnits) {
+                return { success: false, error: `Se ha alcanzado el límite de ${maxUnits} unidades para este condominio. Contacta a soporte para aumentar tu plan.` };
+            }
+        }
+
         await Unit.create({ ...data, condominiumId: session.user.condominiumId.toString() });
         revalidatePath('/admin/units');
         return { success: true };
