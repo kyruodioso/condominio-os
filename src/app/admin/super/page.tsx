@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Building2, Plus, Users } from 'lucide-react';
 import { CreateCondominiumModal } from '@/components/admin/CreateCondominiumModal';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { DeleteCondominiumButton } from '@/components/admin/DeleteCondominiumButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,11 +68,10 @@ export default async function SuperAdminDashboard() {
                                     <h3 className="font-bold text-xl text-white mb-1">{condo.name}</h3>
                                     <p className="text-sm text-gray-400">{condo.address}</p>
                                 </div>
-                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
-                                    condo.plan === 'Enterprise' ? 'bg-purple-500/20 text-purple-400' :
+                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${condo.plan === 'Enterprise' ? 'bg-purple-500/20 text-purple-400' :
                                     condo.plan === 'Pro' ? 'bg-blue-500/20 text-blue-400' :
-                                    'bg-gray-500/20 text-gray-400'
-                                }`}>
+                                        'bg-gray-500/20 text-gray-400'
+                                    }`}>
                                     {condo.plan}
                                 </span>
                             </div>
@@ -79,9 +79,10 @@ export default async function SuperAdminDashboard() {
                                 <span>ID: {condo._id}</span>
                             </div>
                             <div className="mt-6 flex gap-2">
-                                <Link href={`/admin/super/condo/${condo._id}`} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-xl text-center text-xs font-bold uppercase tracking-widest transition-colors">
+                                <Link href={`/admin/super/condo/${condo._id}`} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-xl text-center text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center">
                                     Administrar
                                 </Link>
+                                <DeleteCondominiumButton id={condo._id} name={condo.name} />
                             </div>
                         </div>
                     ))}
