@@ -199,7 +199,7 @@ export default async function Dashboard() {
                             </SpotlightCard>
 
                             {/* Servicios Card */}
-                            <SpotlightCard href="/gym/servicios" className="min-h-[220px] border-pink-500/20 bg-pink-500/5" spotlightColor="rgba(236, 72, 153, 0.2)">
+                            <SpotlightCard href="/servicios" className="min-h-[220px] border-pink-500/20 bg-pink-500/5" spotlightColor="rgba(236, 72, 153, 0.2)">
                                 <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
                                     <Truck size={160} />
                                 </div>

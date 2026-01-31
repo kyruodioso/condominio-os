@@ -87,18 +87,7 @@ export default function Home() {
               </div>
             </div>
           </Link>
-          <Link href="/gym/servicios" className="bg-gym-gray p-6 rounded-3xl border border-white/5 hover:border-orange-500/50 transition-all group relative overflow-hidden sm:col-span-2">
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] -mr-4 -mt-4">
-              <Truck size={80} />
-            </div>
-            <div className="relative z-10">
-              <h3 className="font-bold text-white text-lg mb-1">Servicios</h3>
-              <p className="text-xs text-gray-400 mb-4 font-medium">Limpieza, Agua, etc.</p>
-              <div className="w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-                <ArrowRight size={20} />
-              </div>
-            </div>
-          </Link>
+
         </section>
 
         <div className="text-center pt-8">

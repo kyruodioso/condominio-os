@@ -3,6 +3,7 @@ import { ServiceList } from '@/components/services/ServiceList';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { Truck } from 'lucide-react';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,11 +14,13 @@ export default async function ServicesPage() {
     const { services, userRequests } = await getUpcomingServices();
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24">
+        <div className="min-h-screen bg-[#0a0a0a] text-white p-6 pb-24 font-sans">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in duration-500">
+                <Breadcrumbs items={[{ label: 'Servicios' }]} />
+
                 <header>
                     <div className="flex items-center gap-3 mb-2">
-                        <Truck className="text-gym-primary" size={32} />
+                        <Truck className="text-pink-500" size={32} />
                         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">
                             Servicios Disponibles
                         </h1>

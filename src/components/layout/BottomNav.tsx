@@ -15,7 +15,7 @@ export const BottomNav = () => {
         { name: 'Perfil', href: '/gym', icon: User },
         { name: 'Entreno', href: '/gym/workout', icon: Dumbbell },
         { name: 'Relax', href: '/gym/relax', icon: Coffee },
-        { name: 'Servicios', href: '/gym/servicios', icon: Truck },
+        { name: 'Servicios', href: '/servicios', icon: Truck },
     ];
 
     const handleLogout = () => {

@@ -32,7 +32,7 @@ export async function createServiceEvent(data: {
         });
 
         revalidatePath('/admin/services');
-        revalidatePath('/gym/servicios');
+        revalidatePath('/servicios');
         return { success: true, data: JSON.parse(JSON.stringify(event)) };
     } catch (error: any) {
         console.error('Error creating service event:', error);
@@ -54,7 +54,7 @@ export async function deleteServiceEvent(id: string) {
         await ServiceEvent.findByIdAndDelete(id);
 
         revalidatePath('/admin/services');
-        revalidatePath('/gym/servicios');
+        revalidatePath('/servicios');
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -156,7 +156,7 @@ export async function registerForService(
             status: 'Requested'
         });
 
-        revalidatePath('/gym/servicios');
+        revalidatePath('/servicios');
         return { success: true };
     } catch (error: any) {
         // Catch duplicate key error for unique index
@@ -185,7 +185,7 @@ export async function cancelRegistration(requestId: string) {
         // Optional: Check deadline before cancelling? Usually okay to cancel.
 
         await ServiceRequest.findByIdAndDelete(requestId);
-        revalidatePath('/gym/servicios');
+        revalidatePath('/servicios');
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
