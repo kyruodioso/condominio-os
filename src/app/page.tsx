@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { Dumbbell, Package, Info, AlertTriangle, QrCode, Hammer, Truck } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { AnnouncementCarousel } from '@/components/dashboard/AnnouncementCarousel';
-import { MaintenanceList } from '@/components/maintenance/MaintenanceList';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { SpotlightCard } from '@/components/ui/SpotlightCard';
 
-export const dynamic = 'force-dynamic'; // Ensure IP and DB data is fresh
+export const dynamic = 'force-dynamic';
 
 export default async function Dashboard() {
     const session = await auth();
@@ -37,201 +37,201 @@ export default async function Dashboard() {
         : 'Consorcios LITE';
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white p-3 sm:p-6 pb-24">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen text-white p-3 sm:p-6 pb-24 font-sans">
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
                 {/* Header / QR Section */}
-                <header className="bg-gym-gray rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-6 sm:mb-8 border border-white/5 flex flex-col sm:flex-row items-center justify-between shadow-lg gap-4 sm:gap-6">
-                    <div className="w-full sm:w-auto text-center sm:text-left">
-                        <h1 className="text-2xl sm:text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-2">
+                <header className="glass-panel p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group">
+                    {/* Glossy sheen effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none" />
+
+                    <div className="w-full sm:w-auto text-center sm:text-left relative z-10">
+                        <h1 className="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2 drop-shadow-sm">
                             {condoName}
                         </h1>
-                        <p className="text-gray-300 text-xs sm:text-sm max-w-full sm:max-w-[200px] mx-auto sm:mx-0 hidden sm:block">
+                        <p className="text-gray-300 text-sm max-w-[250px] mx-auto sm:mx-0 hidden sm:block font-medium">
                             Escanea para llevar el sistema en tu móvil.
                         </p>
-                        <div className="mt-2 text-[10px] font-mono text-gray-500 bg-black/30 px-2 py-1 rounded w-fit mx-auto sm:mx-0 hidden sm:block">
+                        <div className="mt-3 text-[10px] font-mono text-cyan-200 bg-cyan-950/30 px-3 py-1.5 rounded-full w-fit mx-auto sm:mx-0 hidden sm:block border border-cyan-500/20">
                             {appUrl}
                         </div>
                     </div>
-                    <div className="bg-white p-2 rounded-xl shrink-0 flex flex-col items-center gap-2">
+                    <div className="bg-white p-3 rounded-2xl shrink-0 flex flex-col items-center gap-3 shadow-lg shadow-black/20">
                         <QRCode value={appUrl} size={60} className="sm:hidden" />
-                        <QRCode value={appUrl} size={80} className="hidden sm:block" />
-                        <div className="sm:hidden w-full">
-                            <LogoutButton />
-                        </div>
-                        <div className="hidden sm:block">
+                        <QRCode value={appUrl} size={90} className="hidden sm:block" />
+                        <div className="w-full">
                             <LogoutButton />
                         </div>
                     </div>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                    {/* Left: Announcements & Maintenance (1 Col) */}
-                    <section className="space-y-4 sm:space-y-8 lg:col-span-1 h-fit order-1 lg:order-1">
-                        {/* Announcements */}
-                        <div className="space-y-3 sm:space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Info className="text-blue-400" size={18} />
-                                <h2 className="text-base sm:text-lg font-bold uppercase tracking-wide">Cartelera</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                    {/* Left: Announcements (1 Col) */}
+                    <section className="space-y-6 lg:col-span-1 h-fit order-1 lg:order-1">
+                        <div className="flex items-center gap-3 mb-2 px-2">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                <Info size={20} />
                             </div>
-
-                            {announcements.length === 0 ? (
-                                <div className="bg-gym-gray rounded-2xl p-4 sm:p-6 text-center border border-white/5">
-                                    <p className="text-gray-500 text-sm">No hay anuncios activos.</p>
-                                </div>
-                            ) : (
-                                <AnnouncementCarousel announcements={announcements} />
-                            )}
+                            <h2 className="text-lg font-bold uppercase tracking-widest text-gray-200">Cartelera</h2>
                         </div>
 
-                        {/* Maintenance Widget Removed - Moved to separate module */}
+                        {announcements.length === 0 ? (
+                            <div className="glass-card rounded-3xl p-8 text-center border-dashed border-white/10">
+                                <p className="text-gray-400 font-medium">No hay anuncios activos.</p>
+                            </div>
+                        ) : (
+                            <div className="glass-card rounded-3xl p-1 overflow-hidden">
+                                <AnnouncementCarousel announcements={announcements} />
+                            </div>
+                        )}
                     </section>
 
                     {/* Right: Modules Navigation (2 Cols) */}
-                    <section className="space-y-3 sm:space-y-4 lg:col-span-2 order-2 lg:order-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <QrCode className="text-gym-primary" size={18} />
-                            <h2 className="text-base sm:text-lg font-bold uppercase tracking-wide">Módulos</h2>
+                    <section className="space-y-6 lg:col-span-2 order-2 lg:order-2">
+                        <div className="flex items-center gap-3 mb-2 px-2">
+                            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                <QrCode size={20} />
+                            </div>
+                            <h2 className="text-lg font-bold uppercase tracking-widest text-gray-200">Módulos</h2>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-                            {/* Gym Card */}
-                            <Link href="/gym" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-gym-primary/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-2 sm:p-4 opacity-[0.05] -mr-2 sm:-mr-4 -mt-2 sm:-mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Dumbbell size={80} className="sm:hidden" />
-                                    <Dumbbell size={140} className="hidden sm:block" />
-                                </div>
-                                <div className="relative z-10 mb-3 sm:mb-4">
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-gym-primary text-black flex items-center justify-center shadow-[0_0_20px_rgba(204,255,0,0.3)] group-hover:scale-110 transition-transform mb-2 sm:mb-3 lg:mb-4">
-                                        <Dumbbell size={20} className="sm:hidden" />
-                                        <Dumbbell size={24} className="hidden sm:block lg:hidden" />
-                                        <Dumbbell size={32} className="hidden lg:block" />
-                                    </div>
-                                    <h3 className="font-bold text-base sm:text-xl lg:text-2xl text-white mb-1">Gimnasio</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">Rutinas, Música & Nutrición</p>
-                                </div>
-                                <div className="relative z-10 flex items-center text-gym-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-                                    Ingresar <span className="ml-1 sm:ml-2">→</span>
-                                </div>
-                            </Link>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
-                            {/* Buzon Card */}
-                            <Link href="/buzon" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-blue-400/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Package size={140} />
+                            {/* Gym Card */}
+                            <SpotlightCard href="/gym" className="min-h-[220px] border-gym-primary/20 bg-gym-primary/5" spotlightColor="rgba(99, 102, 241, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Dumbbell size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <Package size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gym-primary to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-gym-primary/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Dumbbell size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Buzón</h3>
-                                    <p className="text-sm text-gray-400">Consulta tu paquetería</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Gimnasio</h3>
+                                    <p className="text-xs text-indigo-200/70 hidden sm:block font-medium">Rutinas & Nutrición</p>
+                                </div>
+                                <div className="relative z-10 flex items-center text-gym-primary text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                    Ingresar <span className="ml-2">→</span>
+                                </div>
+                            </SpotlightCard>
+
+                            {/* Buzon Card */}
+                            <SpotlightCard href="/buzon" className="min-h-[220px] border-blue-400/20 bg-blue-500/5" spotlightColor="rgba(96, 165, 250, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Package size={160} />
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Package size={28} />
+                                    </div>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Buzón</h3>
+                                    <p className="text-xs text-blue-200/70 hidden sm:block font-medium">Tus paquetes</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-blue-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Consultar <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
                             {/* SUM Card */}
-                            <Link href="/sum" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-purple-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <QrCode size={140} />
+                            <SpotlightCard href="/sum" className="min-h-[220px] border-purple-500/20 bg-purple-500/5" spotlightColor="rgba(168, 85, 247, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <QrCode size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <QrCode size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <QrCode size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">SUM</h3>
-                                    <p className="text-sm text-gray-400">Reserva el salón</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">SUM</h3>
+                                    <p className="text-xs text-purple-200/70 hidden sm:block font-medium">Reservas</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-purple-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Reservar <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
                             {/* Pedidos Card */}
-                            <Link href="/pedidos" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-green-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Truck size={140} />
+                            <SpotlightCard href="/pedidos" className="min-h-[220px] border-green-500/20 bg-green-500/5" spotlightColor="rgba(34, 197, 94, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Truck size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <Truck size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-lg shadow-green-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Truck size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Pedidos</h3>
-                                    <p className="text-sm text-gray-400">Agua, Soda y más</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Pedidos</h3>
+                                    <p className="text-xs text-green-200/70 hidden sm:block font-medium">Agua & Soda</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-green-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Solicitar <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
-                            {/* Maintenance Card */}
-                            <Link href="/mantenimiento" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-orange-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Hammer size={140} />
+                            {/* Mantenimiento Card */}
+                            <SpotlightCard href="/mantenimiento" className="min-h-[220px] border-orange-500/20 bg-orange-500/5" spotlightColor="rgba(249, 115, 22, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Hammer size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <Hammer size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Hammer size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Mantenimiento</h3>
-                                    <p className="text-sm text-gray-400">Estado del edificio</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Mante...</h3>
+                                    <p className="text-xs text-orange-200/70 hidden sm:block font-medium">Estado Edificio</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-orange-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Ver Estado <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
                             {/* Reportes Card */}
-                            <Link href="/reportes" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-yellow-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <AlertTriangle size={140} />
+                            <SpotlightCard href="/reportes" className="min-h-[220px] border-yellow-500/20 bg-yellow-500/5" spotlightColor="rgba(234, 179, 8, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <AlertTriangle size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-yellow-500 text-black flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <AlertTriangle size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 text-white flex items-center justify-center shadow-lg shadow-yellow-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <AlertTriangle size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Reportes</h3>
-                                    <p className="text-sm text-gray-400">Reportar incidencias</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Reportes</h3>
+                                    <p className="text-xs text-yellow-200/70 hidden sm:block font-medium">Incidencias</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-yellow-500 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Reportar <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
                             {/* Servicios Card */}
-                            <Link href="/gym/servicios" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-pink-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Truck size={140} />
+                            <SpotlightCard href="/gym/servicios" className="min-h-[220px] border-pink-500/20 bg-pink-500/5" spotlightColor="rgba(236, 72, 153, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Truck size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <Truck size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-400 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Truck size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Servicios</h3>
-                                    <p className="text-sm text-gray-400">Limpieza, Agua y más</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Servicios</h3>
+                                    <p className="text-xs text-pink-200/70 hidden sm:block font-medium">Limpieza y más</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-pink-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Ver Servicios <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
 
                             {/* Directorio Card */}
-                            <Link href="/directorio" className="group bg-gym-gray p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-cyan-500/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[150px] sm:min-h-[180px] lg:min-h-[200px]">
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-4 -mt-4 group-hover:opacity-10 transition-opacity">
-                                    <Truck size={140} />
+                            <SpotlightCard href="/directorio" className="min-h-[220px] border-cyan-500/20 bg-cyan-500/5" spotlightColor="rgba(6, 182, 212, 0.2)">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] -mr-6 -mt-6">
+                                    <Truck size={160} />
                                 </div>
                                 <div className="relative z-10 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-cyan-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:scale-110 transition-transform mb-4">
-                                        <Truck size={32} />
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-cyan-500/25 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <Truck size={28} />
                                     </div>
-                                    <h3 className="font-bold text-2xl text-white mb-1">Directorio</h3>
-                                    <p className="text-sm text-gray-400">Proveedores y Servicios</p>
+                                    <h3 className="font-bold text-2xl text-white mb-1 tracking-tight">Directorio</h3>
+                                    <p className="text-xs text-cyan-200/70 hidden sm:block font-medium">Proveedores</p>
                                 </div>
                                 <div className="relative z-10 flex items-center text-cyan-400 text-xs font-bold uppercase tracking-widest group-hover:translate-x-2 transition-transform">
                                     Consultar <span className="ml-2">→</span>
                                 </div>
-                            </Link>
+                            </SpotlightCard>
+
                         </div>
                     </section>
                 </div>
