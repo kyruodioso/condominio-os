@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, MouseEvent } from 'react';
 import Link from 'next/link';
-import { cn } from '@/utils/cn'; // Assuming you have a cn utility, if not I will use template literals but cn is standard in shadcn/tailwind projects usually. 
+
 
 // Small utility to merge classes if 'cn' is not available, 
 // but usually it is. I'll define a simple one internally to be safe or assuming the user has clsx/tailwind-merge
