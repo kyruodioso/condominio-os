@@ -27,8 +27,8 @@ export default async function Dashboard() {
     }
 
     const announcements = await getActiveAnnouncements();
-    const localIp = getLocalIp();
-    const appUrl = `http://${localIp}:3000`;
+    // const localIp = getLocalIp();
+    const appUrl = `https://consorcios.tech`;
 
     // Fetch Condo Name
     const { getCondominiumName } = await import('@/actions/condominiums');
