@@ -19,10 +19,10 @@ export default function AdminChatLayout() {
         { refreshInterval: 5000 }
     );
 
-    const filteredConversations = conversations?.filter((c: any) => 
+    const filteredConversations = Array.isArray(conversations) ? conversations?.filter((c: any) =>
         c.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.contactName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ) : [];
 
     return (
         <div className="flex h-[calc(100vh-120px)] gap-6">
@@ -44,14 +44,14 @@ export default function AdminChatLayout() {
 
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
                     {!conversations && <div className="p-4 text-center text-gray-500">Cargando chats...</div>}
-                    
+
                     {filteredConversations?.map((conv: any) => (
                         <button
                             key={conv.unitId}
-                            onClick={() => setSelectedUnit({ 
-                                id: conv.unitId, 
+                            onClick={() => setSelectedUnit({
+                                id: conv.unitId,
                                 name: `Unidad ${conv.unitNumber} - ${conv.contactName}`,
-                                isOnline: conv.isOnline 
+                                isOnline: conv.isOnline
                             })}
                             className={clsx(
                                 "w-full p-4 rounded-xl flex items-start gap-3 transition-all text-left group",
@@ -69,7 +69,7 @@ export default function AdminChatLayout() {
                                     <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#1a1a1a] rounded-full" title="En línea" />
                                 )}
                             </div>
-                            
+
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="font-bold text-sm truncate">
@@ -101,7 +101,7 @@ export default function AdminChatLayout() {
             {/* Chat Area */}
             <div className="flex-1">
                 {selectedUnit ? (
-                    <ChatInterface 
+                    <ChatInterface
                         key={selectedUnit.id} // Forzar re-render al cambiar de unidad
                         unitId={selectedUnit.id}
                         currentUserRole="ADMIN"

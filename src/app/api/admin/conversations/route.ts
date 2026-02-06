@@ -10,8 +10,8 @@ export async function GET(req: Request) {
     try {
         await dbConnect();
         const session = await auth();
-        
-        if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'SUPER_ADMIN') {
+
+        if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'STAFF' && session?.user?.role !== 'CONSORCIO_ADMIN') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

@@ -17,7 +17,7 @@ export async function GET(req: Request) {
         // Lógica de seguridad:
         // Si es ADMIN, debe proveer un unitId.
         // Si es USER, el unitId es forzosamente el suyo propio (ignora el param).
-        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') {
+        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') {
             if (!unitId) return NextResponse.json({ error: 'Unit ID required for admin' }, { status: 400 });
         } else {
             // Es un residente/usuario
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         }
 
         let senderRole = 'USER';
-        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') {
+        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') {
             senderRole = 'ADMIN';
         }
 
@@ -149,7 +149,7 @@ export async function PATCH(req: Request) {
         // Si soy user, marco como leídos los mensajes del ADMIN en mi unidad
 
         let targetSender = 'ADMIN'; // Si soy user, leo los de admin
-        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') {
+        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') {
             targetSender = 'USER'; // Si soy admin, leo los de user
         }
 
