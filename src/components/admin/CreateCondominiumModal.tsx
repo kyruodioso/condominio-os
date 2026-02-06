@@ -11,7 +11,7 @@ export function CreateCondominiumModal() {
     const [formData, setFormData] = useState({
         name: '',
         address: '',
-        plan: 'Free',
+        planType: 'FREE',
         maxUnits: 50
     });
     const router = useRouter();
@@ -24,7 +24,7 @@ export function CreateCondominiumModal() {
 
             if (result.success) {
                 setIsOpen(false);
-                setFormData({ name: '', address: '', plan: 'Free', maxUnits: 50 });
+                setFormData({ name: '', address: '', planType: 'FREE', maxUnits: 50 });
                 router.refresh();
             } else {
                 console.error('Error creating condominium:', result.error);
@@ -94,13 +94,13 @@ export function CreateCondominiumModal() {
                                     Plan
                                 </label>
                                 <select
-                                    value={formData.plan}
-                                    onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
+                                    value={formData.planType}
+                                    onChange={(e) => setFormData({ ...formData, planType: e.target.value })}
                                     className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-gym-primary transition-colors appearance-none"
                                 >
-                                    <option value="Free">Free</option>
-                                    <option value="Pro">Pro</option>
-                                    <option value="Enterprise">Enterprise</option>
+                                    <option value="FREE">Free</option>
+                                    <option value="PRO">Pro</option>
+                                    <option value="ENTERPRISE">Enterprise</option>
                                 </select>
                             </div>
 

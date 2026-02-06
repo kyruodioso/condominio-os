@@ -21,7 +21,7 @@ export async function getCondominiums() {
     }
 }
 
-export async function createCondominium(data: { name: string; address: string; plan: string; maxUnits?: number }) {
+export async function createCondominium(data: { name: string; address: string; planType: string; maxUnits?: number }) {
     try {
         await dbConnect();
         const session = await auth();

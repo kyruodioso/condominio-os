@@ -68,11 +68,11 @@ export default async function SuperAdminDashboard() {
                                     <h3 className="font-bold text-xl text-white mb-1">{condo.name}</h3>
                                     <p className="text-sm text-gray-400">{condo.address}</p>
                                 </div>
-                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${condo.plan === 'Enterprise' ? 'bg-purple-500/20 text-purple-400' :
-                                    condo.plan === 'Pro' ? 'bg-blue-500/20 text-blue-400' :
+                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${condo.planType === 'ENTERPRISE' ? 'bg-purple-500/20 text-purple-400' :
+                                    condo.planType === 'PRO' ? 'bg-blue-500/20 text-blue-400' :
                                         'bg-gray-500/20 text-gray-400'
                                     }`}>
-                                    {condo.plan}
+                                    {condo.planType}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
