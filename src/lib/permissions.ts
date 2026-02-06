@@ -48,9 +48,14 @@ export function can(user: { role: string }, permission: Permission, planType: st
             // Operational tasks: Available to both STAFF and CONSORCIO_ADMIN in any plan
             return role === Role.STAFF || role === Role.CONSORCIO_ADMIN;
 
+        case PERMISSIONS.MANAGE_PROVIDERS:
+            // FREE Plan: STAFF handles operational tasks including providers
+            if (!isPro) return role === Role.STAFF || role === Role.CONSORCIO_ADMIN;
+            // PRO Plan: Only CONSORCIO_ADMIN
+            return role === Role.CONSORCIO_ADMIN;
+
         case PERMISSIONS.MANAGE_EXPENSES:
         case PERMISSIONS.VIEW_FINANCE:
-        case PERMISSIONS.MANAGE_PROVIDERS:
             // High-level Management: Strictly PRO and CONSORCIO_ADMIN
             if (!isPro) return false;
             return role === Role.CONSORCIO_ADMIN;

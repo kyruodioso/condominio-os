@@ -206,7 +206,7 @@ export default function UnifiedAdminPage() {
                                 Panel de Control
                             </h1>
                             <p className="text-gray-500 text-sm font-medium flex items-center gap-2">
-                                Bienvenido, {session.user.name || 'Administrador'}
+                                Bienvenido, {session.user.role === 'STAFF' ? 'Encargado' : (session.user.name || 'Administrador')}
                                 {session.user.planType?.toUpperCase() === 'PRO' && (
                                     <span className="bg-gym-primary/20 text-gym-primary px-2 py-0.5 rounded text-xs font-bold border border-gym-primary/20">
                                         PRO
