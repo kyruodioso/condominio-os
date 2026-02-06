@@ -18,7 +18,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null;
                 }
 
-                const user = await User.findOne({ email: credentials.email });
+                // Use lean() to get a plain JavaScript object
+                const user: any = await User.findOne({ email: credentials.email }).lean();
 
                 if (!user) {
                     throw new Error("User not found.");
@@ -32,6 +33,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (!isPasswordCorrect) {
                     throw new Error("Invalid credentials.");
                 }
+
+                // Ensure id field is present for NextAuth
+                user.id = user._id.toString();
 
                 // Si es un residente (tiene unitNumber y condominiumId), buscamos su Unit ID
                 if (user.unitNumber && user.condominiumId) {
@@ -47,7 +51,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 // Obtener el plan del condominio
                 if (user.condominiumId) {
-                    // Import dynamically to avoid circular deps if any, or just import at top. User model is imported. Condominium needs import.
                     const Condominium = (await import('@/models/Condominium')).default;
                     const condominium = await Condominium.findById(user.condominiumId);
                     user.planType = condominium?.planType || 'FREE';
