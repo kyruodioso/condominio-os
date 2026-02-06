@@ -26,7 +26,7 @@ export default async function CondominiumDetails({ params }: { params: { id: str
     }
 
     const users = await getCondoUsers(params.id);
-    const admins = users.filter((u: any) => u.role === 'ADMIN');
+    const admins = users.filter((u: any) => u.role === 'ADMIN' || u.role === 'CONSORCIO_ADMIN');
     const units = await getUnitsForSuperAdmin(params.id);
 
     return (
@@ -83,8 +83,8 @@ export default async function CondominiumDetails({ params }: { params: { id: str
                                                 <p className="text-sm text-gray-400">{admin.email}</p>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-                                                    Admin
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${admin.role === 'CONSORCIO_ADMIN' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                                                    {admin.role === 'CONSORCIO_ADMIN' ? 'Admin. Consorcio' : 'Staff'}
                                                 </span>
                                                 <div className="flex gap-2">
                                                     <EditAdminModal admin={admin} />
