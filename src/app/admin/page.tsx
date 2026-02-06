@@ -23,6 +23,7 @@ import ExpensesManagement from '@/components/admin/ExpensesManagement';
 import ProvidersManager from '@/components/admin/ProvidersManager';
 import FinancialDashboard from '@/components/admin/FinancialDashboard';
 import LiquidationManager from '@/components/admin/LiquidationManager';
+import StaffFreeDashboard from '@/components/admin/StaffFreeDashboard';
 
 export default function UnifiedAdminPage() {
     const { data: session, status } = useSession();
@@ -35,7 +36,11 @@ export default function UnifiedAdminPage() {
         packagesToday: 0,
         pendingReports: 0,
         activeTasks: 0,
-        totalResidents: 0
+        totalResidents: 0,
+        packagesPending: 0,
+        urgentMaintenance: [],
+        todaysReservations: [],
+        unreadMessages: 0
     });
     const [reservations, setReservations] = useState<any[]>([]);
     const [units, setUnits] = useState<any[]>([]);
@@ -282,72 +287,113 @@ export default function UnifiedAdminPage() {
                         </div>
                     </div>
 
-                    {/* Desktop Sidebar / Navigation - Fixed width, h-full, scrollable */}
+                    {/* Desktop Sidebar / Navigation */}
                     <div className="hidden lg:block w-80 flex-none h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-4 pb-10">
-                        <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
-                            <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
-                            {session.user.role !== 'CONSORCIO_ADMIN' && (
-                                <NavButton id="buzon" icon={Package} label="Paquetería" description="Registrar entregas" />
-                            )}
-                            <NavButton id="cartelera" icon={Megaphone} label="Cartelera" description="Publicar anuncios" />
-                            <NavButton id="usuarios" icon={Users} label="Residentes" description="Gestionar usuarios" />
-                            {session.user.role !== 'CONSORCIO_ADMIN' && (
-                                <NavButton id="reservas" icon={Calendar} label="Reservas" description="Agenda del SUM" />
-                            )}
-                            {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
-                                <NavButton id="expensas" icon={DollarSign} label="Expensas" description="Liquidación y Finanzas" />
-                            )}
-                            {can(session.user, PERMISSIONS.MANAGE_PROVIDERS, session.user.planType as PlanType) && (
-                                <NavButton id="proveedores" icon={Truck} label="Proveedores" description="Gestión de Proveedores" />
-                            )}
-                        </div>
-
-                        <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Gestión</p>
-                            <Link href="/admin/mensajes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <MessageSquare size={20} className="text-blue-500 transition-colors" />
-                                <span className="font-bold text-sm text-white">Mensajes</span>
-                            </Link>
-                            <Link href="/admin/tareas" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <Hammer size={20} className="group-hover:text-orange-500 transition-colors" />
-                                <span className="font-bold text-sm">Mantenimiento</span>
-                            </Link>
-                            <Link href="/admin/reportes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <AlertTriangle size={20} className="group-hover:text-yellow-500 transition-colors" />
-                                <span className="font-bold text-sm">Reportes</span>
-                            </Link>
-                            {session.user.role !== 'CONSORCIO_ADMIN' && (
-                                <Link href="/admin/pedidos/lista" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                    <Truck size={20} className="group-hover:text-green-500 transition-colors" />
-                                    <span className="font-bold text-sm">Pedidos</span>
+                        {/* Custom Sidebar for STAFF FREE */}
+                        {session.user.role === 'STAFF' && session.user.planType !== 'PRO' ? (
+                            <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Panel Encargado</p>
+                                <NavButton id="dashboard" icon={LayoutDashboard} label="Inicio" description="Vista general operativa" />
+                                <NavButton id="usuarios" icon={Users} label="Unidades y Usuarios" description="Gestión del padrón" />
+                                <NavButton id="cartelera" icon={Megaphone} label="Anuncios" description="Cartelera Digital" />
+                                <Link href="/admin/mensajes" onClick={() => setActiveTab('mensajes')} className={clsx("flex items-center gap-3 p-4 rounded-2xl border transition-all group", activeTab === 'mensajes' ? "bg-gym-primary text-black border-gym-primary" : "bg-black/20 text-gray-400 border-white/5 hover:bg-white/5")}>
+                                    <MessageSquare size={24} />
+                                    <div>
+                                        <span className="font-bold text-sm block uppercase tracking-wide">Mensajería</span>
+                                        <span className={clsx("text-xs block mt-1", activeTab === 'mensajes' ? "text-black/60" : "text-gray-600")}>Consultas de residentes</span>
+                                    </div>
                                 </Link>
-                            )}
+                                <NavButton id="buzon" icon={Package} label="Paquetería" description="Recepción y entregas" />
+                                <Link href="/admin/tareas" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                    <Hammer size={24} />
+                                    <div>
+                                        <span className="font-bold text-sm block uppercase tracking-wide">Mantenimiento</span>
+                                        <span className="text-xs text-gray-600 block mt-1">Gestión de tareas</span>
+                                    </div>
+                                </Link>
+                                <NavButton id="reservas" icon={Calendar} label="Amenities" description="Reservas de SUM" />
+                                <NavButton id="proveedores" icon={Truck} label="Proveedores" description="Agenda de contactos" />
+                                <Link href="/admin/configuracion" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                    <Settings size={24} />
+                                    <div>
+                                        <span className="font-bold text-sm block uppercase tracking-wide">Mi Perfil</span>
+                                        <span className="text-xs text-gray-600 block mt-1">Configuración</span>
+                                    </div>
+                                </Link>
+                            </div>
+                        ) : (
+                            // Default Sidebar for others (PRO, CONSORCIO)
+                            <>
+                                <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
+                                    <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
+                                    {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                        <NavButton id="buzon" icon={Package} label="Paquetería" description="Registrar entregas" />
+                                    )}
+                                    <NavButton id="cartelera" icon={Megaphone} label="Cartelera" description="Publicar anuncios" />
+                                    <NavButton id="usuarios" icon={Users} label="Residentes" description="Gestionar usuarios" />
+                                    {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                        <NavButton id="reservas" icon={Calendar} label="Reservas" description="Agenda del SUM" />
+                                    )}
+                                    {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
+                                        <NavButton id="expensas" icon={DollarSign} label="Expensas" description="Liquidación y Finanzas" />
+                                    )}
+                                    {can(session.user, PERMISSIONS.MANAGE_PROVIDERS, session.user.planType as PlanType) && (
+                                        <NavButton id="proveedores" icon={Truck} label="Proveedores" description="Gestión de Proveedores" />
+                                    )}
+                                </div>
 
-                            <Link href="/directorio" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
-                                <span className="font-bold text-sm">Directorio</span>
-                            </Link>
-                            <Link href="/admin/configuracion" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <Settings size={20} className="group-hover:text-purple-500 transition-colors" />
-                                <span className="font-bold text-sm">Configuración</span>
-                            </Link>
-                            <Link href="/admin/servicios" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
-                                <span className="font-bold text-sm">Servicios</span>
-                            </Link>
-                        </div>
+                                <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Gestión</p>
+                                    <Link href="/admin/mensajes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <MessageSquare size={20} className="text-blue-500 transition-colors" />
+                                        <span className="font-bold text-sm text-white">Mensajes</span>
+                                    </Link>
+                                    <Link href="/admin/tareas" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <Hammer size={20} className="group-hover:text-orange-500 transition-colors" />
+                                        <span className="font-bold text-sm">Mantenimiento</span>
+                                    </Link>
+                                    <Link href="/admin/reportes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <AlertTriangle size={20} className="group-hover:text-yellow-500 transition-colors" />
+                                        <span className="font-bold text-sm">Reportes</span>
+                                    </Link>
+                                    {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                        <Link href="/admin/pedidos/lista" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                            <Truck size={20} className="group-hover:text-green-500 transition-colors" />
+                                            <span className="font-bold text-sm">Pedidos</span>
+                                        </Link>
+                                    )}
+
+                                    <Link href="/directorio" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
+                                        <span className="font-bold text-sm">Directorio</span>
+                                    </Link>
+                                    <Link href="/admin/configuracion" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <Settings size={20} className="group-hover:text-purple-500 transition-colors" />
+                                        <span className="font-bold text-sm">Configuración</span>
+                                    </Link>
+                                    <Link href="/admin/servicios" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                        <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
+                                        <span className="font-bold text-sm">Servicios</span>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
                     <div className="flex-1 space-y-6 pb-20 lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar lg:pb-20 lg:h-[calc(100vh-220px)]">
 
                         {/* Dashboard View - Conditional based on Role */}
+                        {activeTab === 'dashboard' && session?.user?.role === 'STAFF' && session?.user?.planType !== 'PRO' && (
+                            <StaffFreeDashboard stats={stats} setActiveTab={setActiveTab} />
+                        )}
+
                         {activeTab === 'dashboard' && session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO' && (
                             <FinancialDashboard setActiveTab={setActiveTab} />
                         )}
 
-                        {activeTab === 'dashboard' && !(session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO') && (
+                        {activeTab === 'dashboard' && !((session?.user?.role === 'STAFF' && session?.user?.planType !== 'PRO') || (session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO')) && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <StatCard icon={Package} label="Paquetes Hoy" value={stats.packagesToday} color="bg-blue-500" />
