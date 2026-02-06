@@ -6,7 +6,7 @@ import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
 import Unit from '@/models/Unit';
 
-export async function createCondoAdmin(data: { email: string; name: string; condominiumId: string; role?: 'ADMIN' | 'CONSORCIO_ADMIN' }) {
+export async function createCondoAdmin(data: { email: string; name: string; condominiumId: string; role?: 'STAFF' | 'CONSORCIO_ADMIN' }) {
     await dbConnect();
     const session = await auth();
 
@@ -24,7 +24,7 @@ export async function createCondoAdmin(data: { email: string; name: string; cond
     const newUser = new User({
         email: data.email,
         password: hashedPassword,
-        role: data.role || 'ADMIN',
+        role: data.role || 'STAFF',
         condominiumId: data.condominiumId,
         profile: {
             name: data.name,
@@ -48,7 +48,7 @@ export async function updateCondoAdmin(userId: string, data: { email: string; na
         throw new Error('User not found');
     }
 
-    if (user.role !== 'ADMIN' && user.role !== 'CONSORCIO_ADMIN') {
+    if (user.role !== 'STAFF' && user.role !== 'CONSORCIO_ADMIN') {
         throw new Error('User is not an admin');
     }
 
@@ -80,7 +80,7 @@ export async function deleteCondoAdmin(userId: string) {
         throw new Error('User not found');
     }
 
-    if (user.role !== 'ADMIN' && user.role !== 'CONSORCIO_ADMIN') {
+    if (user.role !== 'STAFF' && user.role !== 'CONSORCIO_ADMIN') {
         throw new Error('User is not an admin');
     }
 
@@ -92,12 +92,12 @@ export async function getCondoUsers(condominiumId: string) {
     await dbConnect();
     const session = await auth();
 
-    if (session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'ADMIN') {
+    if (session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'STAFF' && session?.user?.role !== 'CONSORCIO_ADMIN') {
         throw new Error('Unauthorized');
     }
 
     // If ADMIN, force condominiumId to be their own
-    const targetCondoId = session.user.role === 'ADMIN' ? session.user.condominiumId : condominiumId;
+    const targetCondoId = (session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') ? session.user.condominiumId : condominiumId;
 
     if (!targetCondoId) {
         throw new Error('Condominium ID required');
@@ -109,7 +109,7 @@ export async function getCondoUsers(condominiumId: string) {
 
 
 
-export async function createResident(data: { email: string; name: string; unitNumber: string; role: 'OWNER' | 'TENANT' | 'ADMIN' | 'CONSORCIO_ADMIN'; password?: string }) {
+export async function createResident(data: { email: string; name: string; unitNumber: string; role: 'OWNER' | 'TENANT' | 'STAFF' | 'CONSORCIO_ADMIN'; password?: string }) {
     await dbConnect();
     const session = await auth();
 
@@ -122,7 +122,7 @@ export async function createResident(data: { email: string; name: string; unitNu
     const targetRole = data.role;
 
     // Check permissions
-    if (currentUserRole !== 'ADMIN' && currentUserRole !== 'CONSORCIO_ADMIN' && currentUserRole !== 'SUPER_ADMIN') {
+    if (currentUserRole !== 'STAFF' && currentUserRole !== 'CONSORCIO_ADMIN' && currentUserRole !== 'SUPER_ADMIN') {
         throw new Error('Unauthorized');
     }
 
@@ -133,8 +133,10 @@ export async function createResident(data: { email: string; name: string; unitNu
             if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create another CONSORCIO_ADMIN');
         }
 
-        if (targetRole === 'ADMIN' && currentPlan === 'PRO') {
-            if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create Staff (ADMIN)');
+        if (targetRole === 'STAFF' && currentPlan === 'PRO') {
+            // In PRO, only Consorcio Admin can create Staff? Or Staff can add other Staff? 
+            // Stick to specification: Consorcio Admin is higher hierarchy.
+            if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create Staff');
         }
     }
 
@@ -180,7 +182,7 @@ export async function updateResident(userId: string, data: { email: string; name
     await dbConnect();
     const session = await auth();
 
-    if (session?.user?.role !== 'ADMIN') {
+    if (session?.user?.role !== 'STAFF' && session?.user?.role !== 'CONSORCIO_ADMIN') {
         throw new Error('Unauthorized');
     }
 
@@ -233,7 +235,7 @@ export async function deleteResident(userId: string) {
     await dbConnect();
     const session = await auth();
 
-    if (session?.user?.role !== 'ADMIN') {
+    if (session?.user?.role !== 'STAFF' && session?.user?.role !== 'CONSORCIO_ADMIN') {
         throw new Error('Unauthorized');
     }
 

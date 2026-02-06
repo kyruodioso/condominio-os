@@ -56,7 +56,7 @@ export default function UnifiedAdminPage() {
     // --- Effects ---
     useEffect(() => {
         if (status === 'loading') return;
-        if (status === 'unauthenticated' || (session && session.user?.role !== 'ADMIN' && session.user?.role !== 'CONSORCIO_ADMIN')) {
+        if (status === 'unauthenticated' || (session && session.user?.role !== 'STAFF' && session.user?.role !== 'CONSORCIO_ADMIN')) {
             router.push('/login');
         }
     }, [status, session, router]);
@@ -189,7 +189,7 @@ export default function UnifiedAdminPage() {
     }
 
     // Don't render if not authenticated or not admin
-    if (status === 'unauthenticated' || !session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'CONSORCIO_ADMIN')) {
+    if (status === 'unauthenticated' || !session || (session.user?.role !== 'STAFF' && session.user?.role !== 'CONSORCIO_ADMIN')) {
         return null;
     }
 
@@ -534,7 +534,7 @@ export default function UnifiedAdminPage() {
                                     ) : (
                                         <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center text-red-400 font-bold">
                                             No tienes permisos para crear anuncios en este plan.
-                                            {session.user.planType === 'PRO' && session.user.role === 'ADMIN' && (
+                                            {session.user.planType === 'PRO' && session.user.role === 'STAFF' && (
                                                 <p className="text-xs text-gray-400 mt-1 font-normal">Contacta al Administrador del Consorcio (PRO).</p>
                                             )}
                                         </div>

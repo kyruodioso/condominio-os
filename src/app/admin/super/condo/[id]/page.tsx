@@ -26,7 +26,7 @@ export default async function CondominiumDetails({ params }: { params: { id: str
     }
 
     const users = await getCondoUsers(params.id);
-    const admins = users.filter((u: any) => u.role === 'ADMIN' || u.role === 'CONSORCIO_ADMIN');
+    const admins = users.filter((u: any) => u.role === 'STAFF' || u.role === 'CONSORCIO_ADMIN');
     const units = await getUnitsForSuperAdmin(params.id);
 
     return (

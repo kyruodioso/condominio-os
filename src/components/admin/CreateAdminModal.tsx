@@ -11,7 +11,7 @@ export function CreateAdminModal({ condominiumId, planType = 'FREE' }: { condomi
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        role: 'ADMIN' as 'ADMIN' | 'CONSORCIO_ADMIN',
+        role: 'STAFF' as 'STAFF' | 'CONSORCIO_ADMIN',
     });
     const router = useRouter();
 
@@ -21,7 +21,7 @@ export function CreateAdminModal({ condominiumId, planType = 'FREE' }: { condomi
         try {
             await createCondoAdmin({ ...formData, condominiumId });
             setIsOpen(false);
-            setFormData({ name: '', email: '', role: 'ADMIN' });
+            setFormData({ name: '', email: '', role: 'STAFF' });
             router.refresh();
         } catch (error) {
             console.error('Error creating admin:', error);
@@ -91,10 +91,10 @@ export function CreateAdminModal({ condominiumId, planType = 'FREE' }: { condomi
                                     </label>
                                     <select
                                         value={formData.role}
-                                        onChange={(e) => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'CONSORCIO_ADMIN' })}
+                                        onChange={(e) => setFormData({ ...formData, role: e.target.value as 'STAFF' | 'CONSORCIO_ADMIN' })}
                                         className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-blue-400 transition-colors"
                                     >
-                                        <option value="ADMIN">Staff / Encargado</option>
+                                        <option value="STAFF">Staff / Encargado</option>
                                         <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
                                     </select>
                                     <p className="text-[10px] text-gray-500 mt-1">

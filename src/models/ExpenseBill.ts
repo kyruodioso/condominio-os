@@ -11,22 +11,38 @@ const ExpenseBillSchema = new Schema({
         ref: 'Unit',
         required: true,
     },
-    expenseId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Expense',
+    period: { // Format "YYYY-MM"
+        type: String,
         required: true,
     },
-    period: { type: String, required: true }, // Format: "MM-YYYY"
-    amount: { type: Number, required: true },
+    totalAmount: {
+        type: Number,
+        required: true,
+    },
     status: {
         type: String,
         enum: ['PENDING', 'PAID', 'OVERDUE'],
         default: 'PENDING',
     },
-    issueDate: { type: Date, default: Date.now },
-    dueDate: { type: Date },
-    paymentDate: { type: Date },
+    issueDate: {
+        type: Date,
+        default: Date.now,
+    },
+    dueDate: {
+        type: Date,
+    },
+    paymentDate: {
+        type: Date,
+    },
+    items: [{ // Snapshot of items included in this bill
+        description: String,
+        amount: Number,
+        category: String
+    }]
 });
+
+// Composite index to prevent duplicates for same unit/period
+ExpenseBillSchema.index({ unitId: 1, period: 1 }, { unique: true });
 
 const ExpenseBill = models.ExpenseBill || model('ExpenseBill', ExpenseBillSchema);
 

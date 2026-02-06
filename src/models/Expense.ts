@@ -1,30 +1,44 @@
 import mongoose, { Schema, model, models } from 'mongoose';
 
-const ExpenseItemSchema = new Schema({
-    description: { type: String, required: true },
-    amount: { type: Number, required: true },
-    category: { type: String, default: 'General' },
-    date: { type: Date, default: Date.now },
-    attachmentUrl: { type: String },
-});
-
 const ExpenseSchema = new Schema({
     condominiumId: {
         type: Schema.Types.ObjectId,
         ref: 'Condominium',
         required: true,
     },
-    month: { type: Number, required: true },
-    year: { type: Number, required: true },
-    totalAmount: { type: Number, required: true, default: 0 },
-    status: {
+    description: {
         type: String,
-        enum: ['DRAFT', 'PUBLISHED'],
-        default: 'DRAFT',
+        required: true,
+        trim: true,
     },
-    items: [ExpenseItemSchema],
-    createdAt: { type: Date, default: Date.now },
-    publishedAt: { type: Date },
+    amount: {
+        type: Number,
+        required: true,
+        min: 0,
+    },
+    category: {
+        type: String,
+        default: 'General',
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+        required: true,
+    },
+    attachmentUrl: {
+        type: String,
+        required: false,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    // Optional: link to a liquidation batch if we want to group them later
+    liquidationId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Liquidation',
+        required: false
+    }
 });
 
 const Expense = models.Expense || model('Expense', ExpenseSchema);

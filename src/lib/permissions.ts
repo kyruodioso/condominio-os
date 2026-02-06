@@ -1,7 +1,7 @@
 export enum Role {
     SUPER_ADMIN = 'SUPER_ADMIN',
     CONSORCIO_ADMIN = 'CONSORCIO_ADMIN',
-    ADMIN = 'ADMIN', // Staff/Encargado
+    STAFF = 'STAFF', // Renamed from ADMIN
     OWNER = 'OWNER',
     TENANT = 'TENANT',
 }
@@ -12,7 +12,7 @@ export enum PlanType {
 }
 
 export const PERMISSIONS = {
-    MANAGE_ANNOUNCEMENTS: 'MANAGE_ANNOUNCEMENTS',
+    MANAGE_ANNOUNCEMENTS: 'MANAGE_ANNOUNCEMENTS', // Create/Edit/Delete
     MANAGE_MAINTENANCE: 'MANAGE_MAINTENANCE',
     MANAGE_PACKAGES: 'MANAGE_PACKAGES',
     MANAGE_EXPENSES: 'MANAGE_EXPENSES',
@@ -23,31 +23,35 @@ export const PERMISSIONS = {
 type Permission = keyof typeof PERMISSIONS;
 
 export function can(user: { role: string }, permission: Permission, planType: string = PlanType.FREE): boolean {
-    const role = String(user.role || '').toUpperCase() as Role;
+    // Normalize logic
+    let roleStr = String(user.role || '').toUpperCase();
+    if (roleStr === 'ADMIN') roleStr = 'STAFF'; // Backwards compatibility during migration
+
+    const role = roleStr as Role;
     const plan = String(planType || PlanType.FREE).toUpperCase() as PlanType;
 
     if (role === Role.SUPER_ADMIN) return true;
 
-    // Helper for strictly PRO check
     const isPro = plan === PlanType.PRO;
 
     switch (permission) {
         case PERMISSIONS.MANAGE_ANNOUNCEMENTS:
-            // FREE: ADMIN can create (Staff).
-            // PRO: Only CONSORCIO_ADMIN.
-            if (!isPro) return role === Role.ADMIN || role === Role.CONSORCIO_ADMIN;
-            if (isPro) return role === Role.CONSORCIO_ADMIN;
-            return false;
+            // FREE Plan: STAFF handles everything (Operational Mode)
+            if (!isPro) return role === Role.STAFF || role === Role.CONSORCIO_ADMIN;
+
+            // PRO Plan: Only CONSORCIO_ADMIN (Strategic Mode). 
+            // STAFF is restricted to operative tasks, can only READ announcements (handled by UI logic)
+            return role === Role.CONSORCIO_ADMIN;
 
         case PERMISSIONS.MANAGE_MAINTENANCE:
         case PERMISSIONS.MANAGE_PACKAGES:
-            // Both can manage operational tasks
-            return role === Role.ADMIN || role === Role.CONSORCIO_ADMIN;
+            // Operational tasks: Available to both STAFF and CONSORCIO_ADMIN in any plan
+            return role === Role.STAFF || role === Role.CONSORCIO_ADMIN;
 
         case PERMISSIONS.MANAGE_EXPENSES:
         case PERMISSIONS.VIEW_FINANCE:
         case PERMISSIONS.MANAGE_PROVIDERS:
-            // Only available in PRO and only for CONSORCIO_ADMIN
+            // High-level Management: Strictly PRO and CONSORCIO_ADMIN
             if (!isPro) return false;
             return role === Role.CONSORCIO_ADMIN;
 
