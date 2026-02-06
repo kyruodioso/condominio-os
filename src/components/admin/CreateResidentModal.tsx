@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createResident } from '@/actions/users';
 import { Plus, X, Loader2, UserPlus, User, Mail, Home, Lock, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import FormField from '@/components/ui/FormField';
 import { useForm } from '@/hooks/useForm';
 import { validators, composeValidators } from '@/utils/validation';
@@ -16,7 +17,7 @@ interface CreateResidentFormValues {
     name: string;
     email: string;
     unitNumber: string;
-    role: 'OWNER' | 'TENANT';
+    role: 'OWNER' | 'TENANT' | 'ADMIN' | 'CONSORCIO_ADMIN';
     password?: string;
     confirmPassword?: string;
 }
@@ -70,21 +71,21 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
                 // But for now, let's stick to the existing API which might not accept password yet
                 // We will send what the API expects. If API doesn't support password, we ignore it here
                 // but for UX we show it.
-                
+
                 // NOTE: The original createResident might not accept password. 
                 // We should check that action, but for now we pass existing fields.
                 // If we want to support custom password, we need to update the action.
                 // For this refactor, I will assume we pass what was there + password if supported.
-                
+
                 await createResident({
                     name: values.name,
                     email: values.email,
                     unitNumber: values.unitNumber,
                     role: values.role,
                     // @ts-ignore - passing password if the action supports it, otherwise it's ignored
-                    password: values.password || '123456' 
+                    password: values.password || '123456'
                 });
-                
+
                 setIsOpen(false);
                 form.resetForm();
                 if (onSuccess) onSuccess();
@@ -103,7 +104,7 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
 
     return (
         <>
-            <button 
+            <button
                 onClick={handleOpen}
                 className="bg-gym-primary text-black px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-[0_0_15px_rgba(204,255,0,0.3)]"
             >
@@ -117,7 +118,7 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
                             <h2 className="text-xl font-bold text-white uppercase tracking-wide flex items-center gap-2">
                                 <UserPlus className="text-gym-primary" size={24} /> Nuevo Residente
                             </h2>
-                            <button 
+                            <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
                             >
@@ -184,7 +185,7 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
 
                             <div className="border-t border-white/10 pt-4 mt-4">
                                 <p className="text-xs text-gray-400 mb-4 font-medium uppercase tracking-wider">Seguridad (Opcional)</p>
-                                
+
                                 <FormField
                                     label="Contraseña Personalizada"
                                     name="password"

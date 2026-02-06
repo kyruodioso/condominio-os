@@ -109,12 +109,31 @@ export async function getCondoUsers(condominiumId: string) {
 
 
 
-export async function createResident(data: { email: string; name: string; unitNumber: string; role: 'OWNER' | 'TENANT' }) {
+export async function createResident(data: { email: string; name: string; unitNumber: string; role: 'OWNER' | 'TENANT' | 'ADMIN' | 'CONSORCIO_ADMIN'; password?: string }) {
     await dbConnect();
     const session = await auth();
 
-    if (session?.user?.role !== 'ADMIN') {
+    if (!session || !session.user) {
         throw new Error('Unauthorized');
+    }
+
+    const currentUserRole = session.user.role;
+    const currentPlan = session.user.planType || 'FREE';
+    const targetRole = data.role;
+
+    // Check permissions
+    if (currentUserRole !== 'ADMIN' && currentUserRole !== 'CONSORCIO_ADMIN') {
+        throw new Error('Unauthorized');
+    }
+
+    // Logic for creating hierarchical roles
+    if (targetRole === 'CONSORCIO_ADMIN') {
+        if (currentPlan !== 'PRO') throw new Error('Cannot create CONSORCIO_ADMIN in FREE plan');
+        if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create another CONSORCIO_ADMIN');
+    }
+
+    if (targetRole === 'ADMIN' && currentPlan === 'PRO') {
+        if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create Staff (ADMIN)');
     }
 
     const existingUser = await User.findOne({ email: data.email });
@@ -122,13 +141,13 @@ export async function createResident(data: { email: string; name: string; unitNu
         throw new Error('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash('123456', 10); // Default password
+    const hashedPassword = await bcrypt.hash(data.password || '123456', 10);
 
     // Ensure Unit exists
     const normalizedUnitNumber = data.unitNumber.trim().toUpperCase();
-    let unit = await Unit.findOne({ 
-        number: normalizedUnitNumber, 
-        condominiumId: session.user.condominiumId 
+    let unit = await Unit.findOne({
+        number: normalizedUnitNumber,
+        condominiumId: session.user.condominiumId
     });
 
     if (!unit) {
@@ -184,9 +203,9 @@ export async function updateResident(userId: string, data: { email: string; name
     // Ensure Unit exists if changed
     const normalizedUnitNumber = data.unitNumber.trim().toUpperCase();
     if (normalizedUnitNumber !== user.unitNumber) {
-        let unit = await Unit.findOne({ 
-            number: normalizedUnitNumber, 
-            condominiumId: session.user.condominiumId 
+        let unit = await Unit.findOne({
+            number: normalizedUnitNumber,
+            condominiumId: session.user.condominiumId
         });
 
         if (!unit) {
