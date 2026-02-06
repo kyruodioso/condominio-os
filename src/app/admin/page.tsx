@@ -237,10 +237,20 @@ export default function UnifiedAdminPage() {
                     <div className="lg:hidden flex-none mb-4 space-y-4">
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x">
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" mobile />
-                            <NavButton id="buzon" icon={Package} label="Paquetería" mobile />
-                            <NavButton id="cartelera" icon={Megaphone} label="Cartelera" mobile />
-                            <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
-                            <NavButton id="reservas" icon={Calendar} label="Reservas" mobile />
+                            {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                <>
+                                    <NavButton id="buzon" icon={Package} label="Paquetería" mobile />
+                                    <NavButton id="cartelera" icon={Megaphone} label="Cartelera" mobile />
+                                    <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
+                                    <NavButton id="reservas" icon={Calendar} label="Reservas" mobile />
+                                </>
+                            )}
+                            {session.user.role === 'CONSORCIO_ADMIN' && (
+                                <>
+                                    <NavButton id="cartelera" icon={Megaphone} label="Cartelera" mobile />
+                                    <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
+                                </>
+                            )}
                             {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
                                 <NavButton id="expensas" icon={DollarSign} label="Expensas" mobile />
                             )}
@@ -257,9 +267,11 @@ export default function UnifiedAdminPage() {
                             <Link href="/admin/reportes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <AlertTriangle size={14} /> Reportes
                             </Link>
-                            <Link href="/admin/pedidos/lista" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
-                                <Truck size={14} /> Pedidos
-                            </Link>
+                            {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                <Link href="/admin/pedidos/lista" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
+                                    <Truck size={14} /> Pedidos
+                                </Link>
+                            )}
                             <Link href="/admin/mensajes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <MessageSquare size={14} /> Mensajes
                             </Link>
@@ -277,10 +289,14 @@ export default function UnifiedAdminPage() {
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Acciones Rápidas</p>
                             <NavButton id="dashboard" icon={LayoutDashboard} label="Resumen" description="Vista general y estadísticas" />
-                            <NavButton id="buzon" icon={Package} label="Paquetería" description="Registrar entregas" />
+                            {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                <NavButton id="buzon" icon={Package} label="Paquetería" description="Registrar entregas" />
+                            )}
                             <NavButton id="cartelera" icon={Megaphone} label="Cartelera" description="Publicar anuncios" />
                             <NavButton id="usuarios" icon={Users} label="Residentes" description="Gestionar usuarios" />
-                            <NavButton id="reservas" icon={Calendar} label="Reservas" description="Agenda del SUM" />
+                            {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                <NavButton id="reservas" icon={Calendar} label="Reservas" description="Agenda del SUM" />
+                            )}
                             {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
                                 <NavButton id="expensas" icon={DollarSign} label="Expensas" description="Liquidación y Finanzas" />
                             )}
@@ -299,10 +315,12 @@ export default function UnifiedAdminPage() {
                                 <AlertTriangle size={20} className="group-hover:text-yellow-500 transition-colors" />
                                 <span className="font-bold text-sm">Reportes</span>
                             </Link>
-                            <Link href="/admin/pedidos/lista" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <Truck size={20} className="group-hover:text-green-500 transition-colors" />
-                                <span className="font-bold text-sm">Pedidos</span>
-                            </Link>
+                            {session.user.role !== 'CONSORCIO_ADMIN' && (
+                                <Link href="/admin/pedidos/lista" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                    <Truck size={20} className="group-hover:text-green-500 transition-colors" />
+                                    <span className="font-bold text-sm">Pedidos</span>
+                                </Link>
+                            )}
                             <Link href="/admin/mensajes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
                                 <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
                                 <span className="font-bold text-sm">Mensajes</span>
