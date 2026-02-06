@@ -25,6 +25,7 @@ interface CreateResidentFormValues {
 export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
+    const { data: session } = useSession();
 
     const form = useForm<CreateResidentFormValues>({
         initialValues: {
@@ -96,6 +97,9 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
             }
         }
     });
+
+    // Determine context for role creation
+    const isPro = session?.user?.planType === 'PRO';
 
     const handleOpen = () => {
         setIsOpen(true);
@@ -180,6 +184,12 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
                                 >
                                     <option value="OWNER">Propietario</option>
                                     <option value="TENANT">Inquilino</option>
+                                    {isPro && (
+                                        <>
+                                            <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
+                                            <option value="ADMIN">Staff (Encargado)</option>
+                                        </>
+                                    )}
                                 </FormField>
                             </div>
 
