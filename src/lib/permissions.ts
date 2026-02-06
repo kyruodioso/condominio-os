@@ -23,19 +23,20 @@ export const PERMISSIONS = {
 type Permission = keyof typeof PERMISSIONS;
 
 export function can(user: { role: string }, permission: Permission, planType: string = PlanType.FREE): boolean {
-    const role = user.role as Role;
-
-    // ERROR HANDLING: If planType is undefined, default to FREE strictly
-    const plan = (planType || PlanType.FREE) as PlanType;
+    const role = String(user.role || '').toUpperCase() as Role;
+    const plan = String(planType || PlanType.FREE).toUpperCase() as PlanType;
 
     if (role === Role.SUPER_ADMIN) return true;
 
+    // Helper for strictly PRO check
+    const isPro = plan === PlanType.PRO;
+
     switch (permission) {
         case PERMISSIONS.MANAGE_ANNOUNCEMENTS:
-            // FREE: ADMIN can create announcements
-            // PRO: Only CONSORCIO_ADMIN can create announcements
-            if (plan === PlanType.FREE) return role === Role.ADMIN || role === Role.CONSORCIO_ADMIN;
-            if (plan === PlanType.PRO) return role === Role.CONSORCIO_ADMIN;
+            // FREE: ADMIN can create (Staff).
+            // PRO: Only CONSORCIO_ADMIN.
+            if (!isPro) return role === Role.ADMIN || role === Role.CONSORCIO_ADMIN;
+            if (isPro) return role === Role.CONSORCIO_ADMIN;
             return false;
 
         case PERMISSIONS.MANAGE_MAINTENANCE:
@@ -47,7 +48,7 @@ export function can(user: { role: string }, permission: Permission, planType: st
         case PERMISSIONS.VIEW_FINANCE:
         case PERMISSIONS.MANAGE_PROVIDERS:
             // Only available in PRO and only for CONSORCIO_ADMIN
-            if (plan !== PlanType.PRO) return false;
+            if (!isPro) return false;
             return role === Role.CONSORCIO_ADMIN;
 
         default:

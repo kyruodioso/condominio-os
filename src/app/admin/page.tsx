@@ -205,7 +205,17 @@ export default function UnifiedAdminPage() {
                             <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">
                                 Panel de Control
                             </h1>
-                            <p className="text-gray-500 text-sm font-medium">Bienvenido, {session.user.name || 'Administrador'}</p>
+                            <p className="text-gray-500 text-sm font-medium flex items-center gap-2">
+                                Bienvenido, {session.user.name || 'Administrador'}
+                                <span className="bg-white/10 px-2 py-0.5 rounded text-xs text-gray-400 capitalize">
+                                    {session.user.role?.replace('_', ' ').toLowerCase()}
+                                </span>
+                                {session.user.planType === 'PRO' && (
+                                    <span className="bg-gym-primary/20 text-gym-primary px-2 py-0.5 rounded text-xs font-bold border border-gym-primary/20">
+                                        PRO
+                                    </span>
+                                )}
+                            </p>
                         </div>
                     </div>
 
