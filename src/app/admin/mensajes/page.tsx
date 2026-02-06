@@ -6,8 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 
 export default async function AdminMessagesPage() {
     const session = await auth();
-    
-    if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'SUPER_ADMIN') {
+
+    if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'STAFF' && session?.user?.role !== 'CONSORCIO_ADMIN') {
         redirect('/login');
     }
 
