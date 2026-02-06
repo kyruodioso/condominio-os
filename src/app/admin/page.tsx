@@ -27,7 +27,13 @@ import StaffFreeDashboard from '@/components/admin/StaffFreeDashboard';
 
 export default function UnifiedAdminPage() {
     const { data: session, status } = useSession();
-    const router = useRouter();
+    // --- Access Control Helpers ---
+    const userRole = (session?.user?.role || '').toUpperCase();
+    const isStaff = userRole === 'STAFF' || userRole === 'ADMIN';
+    const isConsorcio = userRole === 'CONSORCIO_ADMIN';
+    const isPro = (session?.user?.planType || '').toUpperCase() === 'PRO';
+    const currentPlan = isPro ? PlanType.PRO : PlanType.FREE;
+
     const [activeTab, setActiveTab] = useState<'dashboard' | 'buzon' | 'cartelera' | 'usuarios' | 'reservas' | 'expensas' | 'proveedores'>('dashboard');
     const [statusMsg, setStatusMsg] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
 
@@ -61,7 +67,7 @@ export default function UnifiedAdminPage() {
     // --- Effects ---
     useEffect(() => {
         if (status === 'loading') return;
-        if (status === 'unauthenticated' || (session && session.user?.role !== 'STAFF' && session.user?.role !== 'CONSORCIO_ADMIN')) {
+        if (status === 'unauthenticated' || (session && !isStaff && !isConsorcio)) {
             router.push('/login');
         }
     }, [status, session, router]);
@@ -211,8 +217,8 @@ export default function UnifiedAdminPage() {
                                 Panel de Control
                             </h1>
                             <p className="text-gray-500 text-sm font-medium flex items-center gap-2">
-                                Bienvenido, {session.user.role === 'STAFF' ? 'Encargado' : (session.user.name || 'Administrador')}
-                                {session.user.planType?.toUpperCase() === 'PRO' && (
+                                Bienvenido, {isStaff ? 'Encargado' : (session.user.name || 'Administrador')}
+                                {isPro && (
                                     <span className="bg-gym-primary/20 text-gym-primary px-2 py-0.5 rounded text-xs font-bold border border-gym-primary/20">
                                         PRO
                                     </span>
@@ -290,7 +296,7 @@ export default function UnifiedAdminPage() {
                     {/* Desktop Sidebar / Navigation */}
                     <div className="hidden lg:block w-80 flex-none h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar space-y-4 pb-10">
                         {/* Custom Sidebar for STAFF FREE */}
-                        {session.user.role === 'STAFF' && session.user.planType !== 'PRO' ? (
+                        {isStaff && !isPro ? (
                             <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Panel Encargado</p>
                                 <NavButton id="dashboard" icon={LayoutDashboard} label="Inicio" description="Vista general operativa" />
@@ -385,15 +391,15 @@ export default function UnifiedAdminPage() {
                     <div className="flex-1 space-y-6 pb-20 lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar lg:pb-20 lg:h-[calc(100vh-220px)]">
 
                         {/* Dashboard View - Conditional based on Role */}
-                        {activeTab === 'dashboard' && session?.user?.role === 'STAFF' && session?.user?.planType !== 'PRO' && (
+                        {activeTab === 'dashboard' && isStaff && !isPro && (
                             <StaffFreeDashboard stats={stats} setActiveTab={setActiveTab} />
                         )}
 
-                        {activeTab === 'dashboard' && session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO' && (
+                        {activeTab === 'dashboard' && isConsorcio && isPro && (
                             <FinancialDashboard setActiveTab={setActiveTab} />
                         )}
 
-                        {activeTab === 'dashboard' && !((session?.user?.role === 'STAFF' && session?.user?.planType !== 'PRO') || (session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO')) && (
+                        {activeTab === 'dashboard' && !((isStaff && !isPro) || (isConsorcio && isPro)) && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <StatCard icon={Package} label="Paquetes Hoy" value={stats.packagesToday} color="bg-blue-500" />
