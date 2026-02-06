@@ -184,11 +184,9 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
                                 >
                                     <option value="OWNER">Propietario</option>
                                     <option value="TENANT">Inquilino</option>
+                                    <option value="STAFF">Staff (Encargado)</option>
                                     {isPro && (
-                                        <>
-                                            <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
-                                            <option value="STAFF">Staff (Encargado)</option>
-                                        </>
+                                        <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
                                     )}
                                 </FormField>
                             </div>

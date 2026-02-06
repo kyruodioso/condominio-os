@@ -60,7 +60,7 @@ export default function LoginPage() {
                     // Redirect based on role
                     if (session?.user?.role === 'SUPER_ADMIN') {
                         router.push('/admin/super');
-                    } else if (session?.user?.role === 'ADMIN') {
+                    } else if (session?.user?.role === 'ADMIN' || session?.user?.role === 'STAFF' || session?.user?.role === 'CONSORCIO_ADMIN') {
                         router.push('/admin');
                     } else {
                         router.push('/');

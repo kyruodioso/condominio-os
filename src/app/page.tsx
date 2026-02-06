@@ -22,7 +22,7 @@ export default async function Dashboard() {
         redirect('/admin/super');
     }
 
-    if (session?.user?.role === 'ADMIN') {
+    if (session?.user?.role === 'ADMIN' || session?.user?.role === 'STAFF' || session?.user?.role === 'CONSORCIO_ADMIN') {
         redirect('/admin');
     }
 
