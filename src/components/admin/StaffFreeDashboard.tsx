@@ -1,4 +1,5 @@
 import { Package, AlertTriangle, Calendar, MessageSquare, Clock } from 'lucide-react';
+import Link from 'next/link';
 
 interface StaffFreeDashboardProps {
     stats: any;
@@ -12,7 +13,7 @@ export default function StaffFreeDashboard({ stats, setActiveTab }: StaffFreeDas
 
             {/* Widget Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Paquetes en Espera */}
+                {/* Paquetes en Espera - TAB */}
                 <div onClick={() => setActiveTab('buzon')} className="bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-blue-500/50 transition-all group">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 group-hover:bg-blue-500 group-hover:text-black transition-colors">
@@ -23,8 +24,8 @@ export default function StaffFreeDashboard({ stats, setActiveTab }: StaffFreeDas
                     <p className="text-gray-400 font-bold uppercase text-xs tracking-wider">Paquetes en Espera</p>
                 </div>
 
-                {/* Mantenimiento Urgente (Count) */}
-                <div onClick={() => setActiveTab('tareas')} className="bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-red-500/50 transition-all group">
+                {/* Mantenimiento Urgente (Count) - LINK */}
+                <Link href="/admin/tareas" className="block bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-red-500/50 transition-all group">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-red-500/10 rounded-2xl text-red-500 group-hover:bg-red-500 group-hover:text-black transition-colors">
                             <AlertTriangle size={24} />
@@ -32,9 +33,9 @@ export default function StaffFreeDashboard({ stats, setActiveTab }: StaffFreeDas
                         <span className="text-4xl font-black text-white">{stats.urgentMaintenance?.length || 0}</span>
                     </div>
                     <p className="text-gray-400 font-bold uppercase text-xs tracking-wider">Mantenimiento Urgente</p>
-                </div>
+                </Link>
 
-                {/* Reservas Hoy (Count) */}
+                {/* Reservas Hoy (Count) - TAB */}
                 <div onClick={() => setActiveTab('reservas')} className="bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-purple-500/50 transition-all group">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors">
@@ -45,8 +46,8 @@ export default function StaffFreeDashboard({ stats, setActiveTab }: StaffFreeDas
                     <p className="text-gray-400 font-bold uppercase text-xs tracking-wider">Reservas Hoy</p>
                 </div>
 
-                {/* Mensajes (Placeholder count) */}
-                <div onClick={() => setActiveTab('mensajes')} className="bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-green-500/50 transition-all group">
+                {/* Mensajes (Placeholder count) - LINK */}
+                <Link href="/admin/mensajes" className="block bg-gym-gray p-6 rounded-3xl border border-white/5 cursor-pointer hover:border-green-500/50 transition-all group">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-green-500/10 rounded-2xl text-green-500 group-hover:bg-green-500 group-hover:text-black transition-colors">
                             <MessageSquare size={24} />
@@ -54,7 +55,7 @@ export default function StaffFreeDashboard({ stats, setActiveTab }: StaffFreeDas
                         <span className="text-4xl font-black text-white">-</span>
                     </div>
                     <p className="text-gray-400 font-bold uppercase text-xs tracking-wider">Mensajes Nuevos</p>
-                </div>
+                </Link>
             </div>
 
             {/* Listas Detalladas */}
