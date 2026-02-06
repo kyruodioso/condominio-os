@@ -210,7 +210,7 @@ export default function UnifiedAdminPage() {
                                 <span className="bg-white/10 px-2 py-0.5 rounded text-xs text-gray-400 capitalize">
                                     {session.user.role?.replace('_', ' ').toLowerCase()}
                                 </span>
-                                {session.user.planType === 'PRO' && (
+                                {session.user.planType?.toUpperCase() === 'PRO' && (
                                     <span className="bg-gym-primary/20 text-gym-primary px-2 py-0.5 rounded text-xs font-bold border border-gym-primary/20">
                                         PRO
                                     </span>
@@ -344,11 +344,11 @@ export default function UnifiedAdminPage() {
                     <div className="flex-1 space-y-6 pb-20 lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar lg:pb-20 lg:h-[calc(100vh-220px)]">
 
                         {/* Dashboard View - Conditional based on Role */}
-                        {activeTab === 'dashboard' && session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType === 'PRO' && (
+                        {activeTab === 'dashboard' && session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO' && (
                             <FinancialDashboard setActiveTab={setActiveTab} />
                         )}
 
-                        {activeTab === 'dashboard' && !(session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType === 'PRO') && (
+                        {activeTab === 'dashboard' && !(session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType?.toUpperCase() === 'PRO') && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <StatCard icon={Package} label="Paquetes Hoy" value={stats.packagesToday} color="bg-blue-500" />
