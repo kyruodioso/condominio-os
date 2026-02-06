@@ -5,7 +5,7 @@ const { resolve } = require('path');
 // Load environment variables from .env.local
 dotenv.config({ path: resolve(__dirname, '../.env.local') });
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/condominio_db';
 
 if (!MONGODB_URI) {
     console.error('Please define the MONGODB_URI environment variable inside .env.local');

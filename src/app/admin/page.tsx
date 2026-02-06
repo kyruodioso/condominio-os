@@ -258,6 +258,9 @@ export default function UnifiedAdminPage() {
 
                         {/* Quick Links Dropdown or Horizontal List for Mobile */}
                         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
+                            <Link href="/admin/mensajes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-blue-400 whitespace-nowrap">
+                                <MessageSquare size={14} /> Mensajes
+                            </Link>
                             <Link href="/admin/tareas" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <Hammer size={14} /> Mantenimiento
                             </Link>
@@ -269,9 +272,7 @@ export default function UnifiedAdminPage() {
                                     <Truck size={14} /> Pedidos
                                 </Link>
                             )}
-                            <Link href="/admin/mensajes" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
-                                <MessageSquare size={14} /> Mensajes
-                            </Link>
+
                             <Link href="/directorio" className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 whitespace-nowrap">
                                 <Truck size={14} /> Directorio
                             </Link>
@@ -304,6 +305,10 @@ export default function UnifiedAdminPage() {
 
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-2 mb-2">Gestión</p>
+                            <Link href="/admin/mensajes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
+                                <MessageSquare size={20} className="text-blue-500 transition-colors" />
+                                <span className="font-bold text-sm text-white">Mensajes</span>
+                            </Link>
                             <Link href="/admin/tareas" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
                                 <Hammer size={20} className="group-hover:text-orange-500 transition-colors" />
                                 <span className="font-bold text-sm">Mantenimiento</span>
@@ -318,10 +323,7 @@ export default function UnifiedAdminPage() {
                                     <span className="font-bold text-sm">Pedidos</span>
                                 </Link>
                             )}
-                            <Link href="/admin/mensajes" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
-                                <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
-                                <span className="font-bold text-sm">Mensajes</span>
-                            </Link>
+
                             <Link href="/directorio" className="flex items-center gap-3 p-4 rounded-2xl bg-black/20 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5 transition-all group">
                                 <Truck size={20} className="group-hover:text-cyan-500 transition-colors" />
                                 <span className="font-bold text-sm">Directorio</span>
