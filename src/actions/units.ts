@@ -4,6 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 import Unit from '@/models/Unit';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
+import { can, PERMISSIONS, PlanType } from '@/lib/permissions';
 
 export async function getUnits() {
     await dbConnect();
@@ -22,6 +23,11 @@ export async function createUnit(data: { number: string; accessPin: string; cont
     const session = await auth();
 
     if (!session?.user?.condominiumId) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    const planType = (session.user.planType || PlanType.FREE) as PlanType;
+    if (!can(session.user, PERMISSIONS.MANAGE_UNITS, planType)) {
         return { success: false, error: 'Unauthorized' };
     }
 
@@ -49,6 +55,25 @@ export async function createUnit(data: { number: string; accessPin: string; cont
 
 export async function deleteUnit(id: string) {
     await dbConnect();
+    const session = await auth();
+
+    if (!session?.user?.condominiumId) {
+        throw new Error('Unauthorized');
+    }
+
+    const planType = (session.user.planType || PlanType.FREE) as PlanType;
+    if (!can(session.user, PERMISSIONS.MANAGE_UNITS, planType)) {
+        throw new Error('Unauthorized');
+    }
+
+    const unit = await Unit.findById(id);
+    if (!unit) return;
+
+    // Authorization Check: Unit must belong to user's condominium
+    if (unit.condominiumId !== session.user.condominiumId) {
+        throw new Error('Unauthorized access to unit');
+    }
+
     await Unit.findByIdAndDelete(id);
     revalidatePath('/admin/units');
 }

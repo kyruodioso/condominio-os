@@ -296,7 +296,7 @@ export default function UnifiedAdminPage() {
                                 <NavButton id="dashboard" icon={LayoutDashboard} label="Inicio" description="Vista general operativa" />
                                 <NavButton id="usuarios" icon={Users} label="Unidades y Usuarios" description="Gestión del padrón" />
                                 <NavButton id="cartelera" icon={Megaphone} label="Anuncios" description="Cartelera Digital" />
-                                <Link href="/admin/mensajes" onClick={() => setActiveTab('mensajes')} className={clsx("flex items-center gap-3 p-4 rounded-2xl border transition-all group", activeTab === 'mensajes' ? "bg-gym-primary text-black border-gym-primary" : "bg-black/20 text-gray-400 border-white/5 hover:bg-white/5")}>
+                                <Link href="/admin/mensajes" className={clsx("flex items-center gap-3 p-4 rounded-2xl border transition-all group", activeTab === 'mensajes' ? "bg-gym-primary text-black border-gym-primary" : "bg-black/20 text-gray-400 border-white/5 hover:bg-white/5")}>
                                     <MessageSquare size={24} />
                                     <div>
                                         <span className="font-bold text-sm block uppercase tracking-wide">Mensajería</span>
