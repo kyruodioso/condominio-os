@@ -4,6 +4,8 @@ import dbConnect from '@/lib/dbConnect';
 import Announcement from '@/models/Announcement';
 import { auth } from '@/auth';
 
+import { can, PERMISSIONS, PlanType } from '@/lib/permissions';
+
 export async function getActiveAnnouncements() {
     await dbConnect();
     const session = await auth();
@@ -38,8 +40,9 @@ export async function createAnnouncement(data: { title: string; message: string;
         throw new Error('No condominium ID found. User must be associated with a condominium.');
     }
 
-    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-        throw new Error('Unauthorized. Only admins can create announcements.');
+    const planType = (session.user.planType || PlanType.FREE) as PlanType;
+    if (!can(session.user, PERMISSIONS.MANAGE_ANNOUNCEMENTS, planType)) {
+        throw new Error('Unauthorized. Tu plan o rol no permite crear anuncios.');
     }
 
     const expiresAt = new Date();
@@ -64,12 +67,13 @@ export async function deleteAnnouncement(id: string) {
         throw new Error('Unauthorized');
     }
 
-    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+    const planType = (session.user.planType || PlanType.FREE) as PlanType;
+    if (!can(session.user, PERMISSIONS.MANAGE_ANNOUNCEMENTS, planType)) {
         throw new Error('Unauthorized');
     }
 
     await Announcement.findByIdAndDelete(id);
-    
+
     // Revalidate paths where announcements might be shown
     const { revalidatePath } = await import('next/cache');
     revalidatePath('/');
