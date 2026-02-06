@@ -86,3 +86,112 @@ export async function liquidateExpenses(month: number, year: number) {
 
     return { success: true, message: `Successfully liquidated expenses. Generated ${bills.length} bills.` };
 }
+
+export async function getFinancialStats() {
+    await dbConnect();
+    const session = await auth();
+    if (!session?.user?.condominiumId) return null;
+    const condoId = session.user.condominiumId;
+
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const period = `${currentMonth.toString().padStart(2, '0')}-${currentYear}`;
+
+    // 1. Current Month Billing vs Collection
+    const currentBills = await ExpenseBill.find({ condominiumId: condoId, period });
+
+    let totalBilled = 0;
+    let totalCollected = 0;
+
+    currentBills.forEach((bill: any) => {
+        totalBilled += bill.amount;
+        if (bill.status === 'PAID') {
+            totalCollected += bill.amount;
+        }
+    });
+
+    const collectionPercentage = totalBilled > 0 ? (totalCollected / totalBilled) * 100 : 0;
+
+    // 2. Total Delinquency (Overdue bills from ALL periods)
+    // We can consider 'PENDING' from past months as overdue too, if we check dates.
+    // For now, let's just rely on status 'OVERDUE'.
+    const overdueBills = await ExpenseBill.find({
+        condominiumId: condoId,
+        status: 'OVERDUE'
+    });
+
+    const totalDebt = overdueBills.reduce((sum: number, bill: any) => sum + bill.amount, 0);
+
+    // 3. Current Expense (Total accumulated for next liquidation)
+    const currentExpense = await Expense.findOne({
+        condominiumId: condoId,
+        month: currentMonth,
+        year: currentYear
+    });
+
+    return {
+        billed: totalBilled,
+        collected: totalCollected,
+        collectionPercentage: parseFloat(collectionPercentage.toFixed(1)),
+        totalDebt,
+        currentExpenseTotal: currentExpense?.totalAmount || 0
+    };
+}
+
+export async function getExpenseDraft(month: number, year: number) {
+    await dbConnect();
+    const session = await auth();
+    if (!session?.user?.condominiumId) throw new Error('Unauthorized');
+    const condoId = session.user.condominiumId;
+
+    let expense = await Expense.findOne({ condominiumId: condoId, month, year });
+
+    if (!expense) {
+        expense = await Expense.create({
+            condominiumId: condoId,
+            month,
+            year,
+            status: 'DRAFT',
+            totalAmount: 0,
+            items: []
+        });
+    }
+
+    return JSON.parse(JSON.stringify(expense));
+}
+
+export async function addExpenseItem(expenseId: string, item: { description: string, amount: number, category: string, date?: Date }) {
+    await dbConnect();
+    const session = await auth();
+    if (!session?.user?.condominiumId) throw new Error('Unauthorized');
+
+    const expense = await Expense.findById(expenseId);
+    if (!expense) throw new Error('Expense not found');
+    if (expense.status === 'PUBLISHED') throw new Error('Cannot edit published expenses');
+
+    expense.items.push(item);
+
+    // Recalculate total
+    expense.totalAmount = expense.items.reduce((sum: number, i: any) => sum + i.amount, 0);
+
+    await expense.save();
+    return JSON.parse(JSON.stringify(expense));
+}
+
+export async function deleteExpenseItem(expenseId: string, itemId: string) {
+    await dbConnect();
+    const session = await auth();
+    if (!session?.user?.condominiumId) throw new Error('Unauthorized');
+
+    const expense = await Expense.findById(expenseId);
+    if (!expense) throw new Error('Expense not found');
+    if (expense.status === 'PUBLISHED') throw new Error('Cannot edit published expenses');
+
+    expense.items = expense.items.filter((i: any) => i._id.toString() !== itemId);
+
+    // Recalculate total
+    expense.totalAmount = expense.items.reduce((sum: number, i: any) => sum + i.amount, 0);
+
+    await expense.save();
+    return JSON.parse(JSON.stringify(expense));
+}

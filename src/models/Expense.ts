@@ -4,6 +4,8 @@ const ExpenseItemSchema = new Schema({
     description: { type: String, required: true },
     amount: { type: Number, required: true },
     category: { type: String, default: 'General' },
+    date: { type: Date, default: Date.now },
+    attachmentUrl: { type: String },
 });
 
 const ExpenseSchema = new Schema({

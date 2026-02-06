@@ -21,6 +21,8 @@ import clsx from 'clsx';
 import { can, PERMISSIONS, PlanType } from '@/lib/permissions';
 import ExpensesManagement from '@/components/admin/ExpensesManagement';
 import ProvidersManager from '@/components/admin/ProvidersManager';
+import FinancialDashboard from '@/components/admin/FinancialDashboard';
+import LiquidationManager from '@/components/admin/LiquidationManager';
 
 export default function UnifiedAdminPage() {
     const { data: session, status } = useSession();
@@ -313,8 +315,12 @@ export default function UnifiedAdminPage() {
                     {/* Main Content Area - Flex-1, h-full, scrollable */}
                     <div className="flex-1 space-y-6 pb-20 lg:overflow-y-auto lg:pr-2 lg:custom-scrollbar lg:pb-20 lg:h-[calc(100vh-220px)]">
 
-                        {/* Stats Row - Always visible or only on dashboard? Let's keep it on dashboard for focus */}
-                        {activeTab === 'dashboard' && (
+                        {/* Dashboard View - Conditional based on Role */}
+                        {activeTab === 'dashboard' && session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType === 'PRO' && (
+                            <FinancialDashboard setActiveTab={setActiveTab} />
+                        )}
+
+                        {activeTab === 'dashboard' && !(session?.user?.role === 'CONSORCIO_ADMIN' && session?.user?.planType === 'PRO') && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <StatCard icon={Package} label="Paquetes Hoy" value={stats.packagesToday} color="bg-blue-500" />
@@ -391,7 +397,7 @@ export default function UnifiedAdminPage() {
 
                         {/* --- FINANCIAL TAB --- */}
                         {activeTab === 'expensas' && can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
-                            <ExpensesManagement />
+                            <LiquidationManager />
                         )}
 
                         {/* --- PROVIDERS TAB --- */}
