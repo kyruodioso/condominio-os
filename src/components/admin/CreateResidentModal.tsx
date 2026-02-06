@@ -17,7 +17,7 @@ interface CreateResidentFormValues {
     name: string;
     email: string;
     unitNumber: string;
-    role: 'OWNER' | 'TENANT' | 'ADMIN' | 'CONSORCIO_ADMIN';
+    role: 'OWNER' | 'TENANT' | 'STAFF' | 'CONSORCIO_ADMIN';
     password?: string;
     confirmPassword?: string;
 }
@@ -187,7 +187,7 @@ export function CreateResidentModal({ onSuccess }: CreateResidentModalProps) {
                                     {isPro && (
                                         <>
                                             <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
-                                            <option value="ADMIN">Staff (Encargado)</option>
+                                            <option value="STAFF">Staff (Encargado)</option>
                                         </>
                                     )}
                                 </FormField>
