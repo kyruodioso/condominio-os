@@ -119,7 +119,8 @@ export async function generateMonthlyLiquidation(month: number, year: number) {
 export async function getBillsByPeriod(period: string) {
     await dbConnect();
     const session = await auth();
-    // basic auth check...
+
+    if (!session?.user) throw new Error('Unauthorized');
 
     const bills = await ExpenseBill.find({
         condominiumId: session.user.condominiumId,
