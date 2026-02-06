@@ -48,7 +48,7 @@ export default async function CondominiumDetails({ params }: { params: { id: str
                     </div>
                     <div className="bg-white/5 px-4 py-2 rounded-xl border border-white/10">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-1">Plan Actual</span>
-                        <span className="text-gym-primary font-bold">{condominium.plan}</span>
+                        <span className="text-gym-primary font-bold">{condominium.planType}</span>
                     </div>
                 </header>
 
@@ -67,7 +67,7 @@ export default async function CondominiumDetails({ params }: { params: { id: str
                                 <h2 className="text-xl font-bold uppercase tracking-wide flex items-center gap-2">
                                     <Shield className="text-blue-400" size={20} /> Administradores
                                 </h2>
-                                <CreateAdminModal condominiumId={params.id} />
+                                <CreateAdminModal condominiumId={params.id} planType={condominium.planType} />
                             </div>
 
                             <div className="grid gap-4">

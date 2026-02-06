@@ -5,12 +5,13 @@ import { createCondoAdmin } from '@/actions/users';
 import { Plus, X, Loader2, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export function CreateAdminModal({ condominiumId }: { condominiumId: string }) {
+export function CreateAdminModal({ condominiumId, planType = 'FREE' }: { condominiumId: string; planType?: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        role: 'ADMIN' as 'ADMIN' | 'CONSORCIO_ADMIN',
     });
     const router = useRouter();
 
@@ -20,7 +21,7 @@ export function CreateAdminModal({ condominiumId }: { condominiumId: string }) {
         try {
             await createCondoAdmin({ ...formData, condominiumId });
             setIsOpen(false);
-            setFormData({ name: '', email: '' });
+            setFormData({ name: '', email: '', role: 'ADMIN' });
             router.refresh();
         } catch (error) {
             console.error('Error creating admin:', error);
@@ -32,7 +33,7 @@ export function CreateAdminModal({ condominiumId }: { condominiumId: string }) {
 
     return (
         <>
-            <button 
+            <button
                 onClick={() => setIsOpen(true)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)]"
             >
@@ -46,7 +47,7 @@ export function CreateAdminModal({ condominiumId }: { condominiumId: string }) {
                             <h2 className="text-xl font-bold text-white uppercase tracking-wide flex items-center gap-2">
                                 <Shield className="text-blue-400" size={24} /> Nuevo Administrador
                             </h2>
-                            <button 
+                            <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
@@ -82,6 +83,27 @@ export function CreateAdminModal({ condominiumId }: { condominiumId: string }) {
                                     required
                                 />
                             </div>
+
+                            {planType === 'PRO' && (
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
+                                        Rol Administrativo
+                                    </label>
+                                    <select
+                                        value={formData.role}
+                                        onChange={(e) => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'CONSORCIO_ADMIN' })}
+                                        className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-blue-400 transition-colors"
+                                    >
+                                        <option value="ADMIN">Staff / Encargado</option>
+                                        <option value="CONSORCIO_ADMIN">Admin. Consorcio</option>
+                                    </select>
+                                    <p className="text-[10px] text-gray-500 mt-1">
+                                        {formData.role === 'CONSORCIO_ADMIN'
+                                            ? 'Acceso total a finanzas, proveedores y gestión.'
+                                            : 'Gestión operativa (Reservas, Residentes, Paquetes).'}
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl">
                                 <p className="text-blue-400 text-xs text-center">

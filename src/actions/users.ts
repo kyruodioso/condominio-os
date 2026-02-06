@@ -6,7 +6,7 @@ import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
 import Unit from '@/models/Unit';
 
-export async function createCondoAdmin(data: { email: string; name: string; condominiumId: string }) {
+export async function createCondoAdmin(data: { email: string; name: string; condominiumId: string; role?: 'ADMIN' | 'CONSORCIO_ADMIN' }) {
     await dbConnect();
     const session = await auth();
 
@@ -24,7 +24,7 @@ export async function createCondoAdmin(data: { email: string; name: string; cond
     const newUser = new User({
         email: data.email,
         password: hashedPassword,
-        role: 'ADMIN',
+        role: data.role || 'ADMIN',
         condominiumId: data.condominiumId,
         profile: {
             name: data.name,
@@ -122,18 +122,20 @@ export async function createResident(data: { email: string; name: string; unitNu
     const targetRole = data.role;
 
     // Check permissions
-    if (currentUserRole !== 'ADMIN' && currentUserRole !== 'CONSORCIO_ADMIN') {
+    if (currentUserRole !== 'ADMIN' && currentUserRole !== 'CONSORCIO_ADMIN' && currentUserRole !== 'SUPER_ADMIN') {
         throw new Error('Unauthorized');
     }
 
-    // Logic for creating hierarchical roles
-    if (targetRole === 'CONSORCIO_ADMIN') {
-        if (currentPlan !== 'PRO') throw new Error('Cannot create CONSORCIO_ADMIN in FREE plan');
-        if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create another CONSORCIO_ADMIN');
-    }
+    // Logic for creating hierarchical roles (Skip for SUPER_ADMIN)
+    if (currentUserRole !== 'SUPER_ADMIN') {
+        if (targetRole === 'CONSORCIO_ADMIN') {
+            if (currentPlan !== 'PRO') throw new Error('Cannot create CONSORCIO_ADMIN in FREE plan');
+            if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create another CONSORCIO_ADMIN');
+        }
 
-    if (targetRole === 'ADMIN' && currentPlan === 'PRO') {
-        if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create Staff (ADMIN)');
+        if (targetRole === 'ADMIN' && currentPlan === 'PRO') {
+            if (currentUserRole !== 'CONSORCIO_ADMIN') throw new Error('Only CONSORCIO_ADMIN can create Staff (ADMIN)');
+        }
     }
 
     const existingUser = await User.findOne({ email: data.email });
