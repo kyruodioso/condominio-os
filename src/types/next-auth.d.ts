@@ -11,6 +11,7 @@ declare module "next-auth" {
       /** The user's condominium ID. */
       /** The user's condominium ID. */
       condominiumId?: string
+      planType?: string
       /** The user's unit ID (if resident). */
       unitId?: string
       unitNumber?: string
@@ -29,6 +30,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: string
     condominiumId?: string
+    planType?: string
     unitId?: string
     unitNumber?: string
   }

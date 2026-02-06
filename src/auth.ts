@@ -45,6 +45,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                 }
 
+                // Obtener el plan del condominio
+                if (user.condominiumId) {
+                    // Import dynamically to avoid circular deps if any, or just import at top. User model is imported. Condominium needs import.
+                    const Condominium = (await import('@/models/Condominium')).default;
+                    const condominium = await Condominium.findById(user.condominiumId);
+                    user.planType = condominium?.planType || 'FREE';
+                } else {
+                    user.planType = 'FREE';
+                }
+
                 return user;
             },
         }),
@@ -60,6 +70,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.role = user.role;
                 // @ts-ignore
                 token.condominiumId = user.condominiumId?.toString();
+                // @ts-ignore
+                token.planType = user.planType;
                 // @ts-ignore
                 if (user.unitId) token.unitId = user.unitId;
                 // @ts-ignore
@@ -82,6 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.role = token.role;
                 // @ts-ignore
                 session.user.condominiumId = token.condominiumId?.toString();
+                // @ts-ignore
+                session.user.planType = token.planType;
                 // @ts-ignore
                 if (token.unitId) session.user.unitId = token.unitId;
                 // @ts-ignore

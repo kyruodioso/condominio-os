@@ -14,15 +14,18 @@ import { SkeletonList } from '@/components/ui/LoadingSpinner';
 import {
     Package, Megaphone, Users, Calendar,
     Plus, Trash2, Key, User, Search, CheckCircle, AlertCircle, Hammer, Truck, AlertTriangle,
-    LayoutDashboard, ClipboardList, Bell, MessageSquare, Settings
+    LayoutDashboard, ClipboardList, Bell, MessageSquare, Settings, DollarSign
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { can, PERMISSIONS, PlanType } from '@/lib/permissions';
+import ExpensesManagement from '@/components/admin/ExpensesManagement';
+import ProvidersManager from '@/components/admin/ProvidersManager';
 
 export default function UnifiedAdminPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'buzon' | 'cartelera' | 'usuarios' | 'reservas'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'buzon' | 'cartelera' | 'usuarios' | 'reservas' | 'expensas' | 'proveedores'>('dashboard');
     const [statusMsg, setStatusMsg] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
 
     // --- Data States ---
@@ -51,7 +54,7 @@ export default function UnifiedAdminPage() {
     // --- Effects ---
     useEffect(() => {
         if (status === 'loading') return;
-        if (status === 'unauthenticated' || (session && session.user?.role !== 'ADMIN')) {
+        if (status === 'unauthenticated' || (session && session.user?.role !== 'ADMIN' && session.user?.role !== 'CONSORCIO_ADMIN')) {
             router.push('/login');
         }
     }, [status, session, router]);
@@ -184,7 +187,7 @@ export default function UnifiedAdminPage() {
     }
 
     // Don't render if not authenticated or not admin
-    if (status === 'unauthenticated' || !session || session.user?.role !== 'ADMIN') {
+    if (status === 'unauthenticated' || !session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'CONSORCIO_ADMIN')) {
         return null;
     }
 
@@ -226,6 +229,12 @@ export default function UnifiedAdminPage() {
                             <NavButton id="cartelera" icon={Megaphone} label="Cartelera" mobile />
                             <NavButton id="usuarios" icon={Users} label="Residentes" mobile />
                             <NavButton id="reservas" icon={Calendar} label="Reservas" mobile />
+                            {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
+                                <NavButton id="expensas" icon={DollarSign} label="Expensas" mobile />
+                            )}
+                            {can(session.user, PERMISSIONS.MANAGE_PROVIDERS, session.user.planType as PlanType) && (
+                                <NavButton id="proveedores" icon={Truck} label="Proveedores" mobile />
+                            )}
                         </div>
 
                         {/* Quick Links Dropdown or Horizontal List for Mobile */}
@@ -260,6 +269,12 @@ export default function UnifiedAdminPage() {
                             <NavButton id="cartelera" icon={Megaphone} label="Cartelera" description="Publicar anuncios" />
                             <NavButton id="usuarios" icon={Users} label="Residentes" description="Gestionar usuarios" />
                             <NavButton id="reservas" icon={Calendar} label="Reservas" description="Agenda del SUM" />
+                            {can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
+                                <NavButton id="expensas" icon={DollarSign} label="Expensas" description="Liquidación y Finanzas" />
+                            )}
+                            {can(session.user, PERMISSIONS.MANAGE_PROVIDERS, session.user.planType as PlanType) && (
+                                <NavButton id="proveedores" icon={Truck} label="Proveedores" description="Gestión de Proveedores" />
+                            )}
                         </div>
 
                         <div className="bg-gym-gray rounded-3xl p-4 border border-white/5 space-y-2">
@@ -354,22 +369,34 @@ export default function UnifiedAdminPage() {
                                     </div>
 
                                     {/* Quick Announcement */}
-                                    <div className="bg-gym-gray rounded-3xl p-6 border border-white/5">
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <div className="p-2 bg-yellow-500/10 rounded-xl text-yellow-500">
-                                                <Megaphone size={20} />
+                                    {can(session.user, PERMISSIONS.MANAGE_ANNOUNCEMENTS, session.user.planType as PlanType) && (
+                                        <div className="bg-gym-gray rounded-3xl p-6 border border-white/5">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="p-2 bg-yellow-500/10 rounded-xl text-yellow-500">
+                                                    <Megaphone size={20} />
+                                                </div>
+                                                <h3 className="font-bold text-lg text-white">Anuncio Rápido</h3>
                                             </div>
-                                            <h3 className="font-bold text-lg text-white">Anuncio Rápido</h3>
+                                            <Link href="#" onClick={() => setActiveTab('cartelera')} className="block w-full bg-black/20 hover:bg-black/40 border border-white/5 rounded-2xl p-4 text-center transition-all group">
+                                                <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-yellow-500 group-hover:scale-110 transition-transform">
+                                                    <Plus size={20} />
+                                                </div>
+                                                <p className="text-sm font-bold text-gray-400 group-hover:text-white">Crear Nuevo Anuncio</p>
+                                            </Link>
                                         </div>
-                                        <Link href="#" onClick={() => setActiveTab('cartelera')} className="block w-full bg-black/20 hover:bg-black/40 border border-white/5 rounded-2xl p-4 text-center transition-all group">
-                                            <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-yellow-500 group-hover:scale-110 transition-transform">
-                                                <Plus size={20} />
-                                            </div>
-                                            <p className="text-sm font-bold text-gray-400 group-hover:text-white">Crear Nuevo Anuncio</p>
-                                        </Link>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
+                        )}
+
+                        {/* --- FINANCIAL TAB --- */}
+                        {activeTab === 'expensas' && can(session.user, PERMISSIONS.MANAGE_EXPENSES, session.user.planType as PlanType) && (
+                            <ExpensesManagement />
+                        )}
+
+                        {/* --- PROVIDERS TAB --- */}
+                        {activeTab === 'proveedores' && can(session.user, PERMISSIONS.MANAGE_PROVIDERS, session.user.planType as PlanType) && (
+                            <ProvidersManager />
                         )}
 
                         {/* --- BUZON TAB --- */}
@@ -430,48 +457,57 @@ export default function UnifiedAdminPage() {
                                         <h2 className="text-2xl font-bold text-white">Nuevo Anuncio</h2>
                                         <p className="text-gray-400">Publica información visible para todo el edificio.</p>
                                     </div>
-                                    <form onSubmit={handleAddAnnouncement} className="space-y-4">
-                                        <input
-                                            type="text"
-                                            placeholder="Título del Anuncio"
-                                            required
-                                            value={annTitle}
-                                            onChange={(e) => setAnnTitle(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-yellow-500 font-bold"
-                                        />
-                                        <textarea
-                                            placeholder="Mensaje detallado..."
-                                            required
-                                            value={annMsg}
-                                            onChange={(e) => setAnnMsg(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-yellow-500 h-32 resize-none"
-                                        />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <button
-                                                type="button"
-                                                onClick={() => setAnnType('Info')}
-                                                className={clsx(
-                                                    "p-3 rounded-xl border font-bold transition-all",
-                                                    annType === 'Info' ? "bg-blue-500/20 border-blue-500 text-blue-400" : "border-white/10 text-gray-500"
-                                                )}
-                                            >
-                                                Información
+                                    {can(session.user, PERMISSIONS.MANAGE_ANNOUNCEMENTS, session.user.planType as PlanType) ? (
+                                        <form onSubmit={handleAddAnnouncement} className="space-y-4">
+                                            <input
+                                                type="text"
+                                                placeholder="Título del Anuncio"
+                                                required
+                                                value={annTitle}
+                                                onChange={(e) => setAnnTitle(e.target.value)}
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-yellow-500 font-bold"
+                                            />
+                                            <textarea
+                                                placeholder="Mensaje detallado..."
+                                                required
+                                                value={annMsg}
+                                                onChange={(e) => setAnnMsg(e.target.value)}
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-yellow-500 h-32 resize-none"
+                                            />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAnnType('Info')}
+                                                    className={clsx(
+                                                        "p-3 rounded-xl border font-bold transition-all",
+                                                        annType === 'Info' ? "bg-blue-500/20 border-blue-500 text-blue-400" : "border-white/10 text-gray-500"
+                                                    )}
+                                                >
+                                                    Información
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAnnType('Alerta')}
+                                                    className={clsx(
+                                                        "p-3 rounded-xl border font-bold transition-all",
+                                                        annType === 'Alerta' ? "bg-red-500/20 border-red-500 text-red-400" : "border-white/10 text-gray-500"
+                                                    )}
+                                                >
+                                                    Alerta
+                                                </button>
+                                            </div>
+                                            <button type="submit" className="w-full bg-yellow-500 text-black font-bold py-4 rounded-xl hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20">
+                                                Publicar Anuncio
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setAnnType('Alerta')}
-                                                className={clsx(
-                                                    "p-3 rounded-xl border font-bold transition-all",
-                                                    annType === 'Alerta' ? "bg-red-500/20 border-red-500 text-red-400" : "border-white/10 text-gray-500"
-                                                )}
-                                            >
-                                                Alerta
-                                            </button>
+                                        </form>
+                                    ) : (
+                                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center text-red-400 font-bold">
+                                            No tienes permisos para crear anuncios en este plan.
+                                            {session.user.planType === 'PRO' && session.user.role === 'ADMIN' && (
+                                                <p className="text-xs text-gray-400 mt-1 font-normal">Contacta al Administrador del Consorcio (PRO).</p>
+                                            )}
                                         </div>
-                                        <button type="submit" className="w-full bg-yellow-500 text-black font-bold py-4 rounded-xl hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20">
-                                            Publicar Anuncio
-                                        </button>
-                                    </form>
+                                    )}
 
                                     {/* Anuncios Actuales */}
                                     <div className="mt-8 pt-8 border-t border-white/10">

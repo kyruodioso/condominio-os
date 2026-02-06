@@ -24,6 +24,12 @@ const UnitSchema = new Schema({
         ref: 'Condominium',
         required: true,
     },
+    coefficient: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100, // Assuming percentage or ratio
+    },
 });
 
 const Unit = models.Unit || model('Unit', UnitSchema);

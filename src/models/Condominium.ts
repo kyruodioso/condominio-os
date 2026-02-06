@@ -14,10 +14,10 @@ const CondominiumSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
     },
-    plan: {
+    planType: {
         type: String,
-        enum: ['Free', 'Pro', 'Enterprise'],
-        default: 'Free',
+        enum: ['FREE', 'PRO'],
+        default: 'FREE',
     },
     maxUnits: {
         type: Number,

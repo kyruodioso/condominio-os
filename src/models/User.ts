@@ -14,7 +14,7 @@ const UserSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ['SUPER_ADMIN', 'ADMIN', 'OWNER', 'TENANT'],
+        enum: ['SUPER_ADMIN', 'CONSORCIO_ADMIN', 'ADMIN', 'OWNER', 'TENANT'],
         default: 'TENANT',
     },
     condominiumId: {
