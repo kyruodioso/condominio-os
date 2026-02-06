@@ -18,7 +18,7 @@ export const PERMISSIONS = {
     MANAGE_EXPENSES: 'MANAGE_EXPENSES',
     MANAGE_PROVIDERS: 'MANAGE_PROVIDERS',
     VIEW_FINANCE: 'VIEW_FINANCE',
-};
+} as const;
 
 type Permission = keyof typeof PERMISSIONS;
 
