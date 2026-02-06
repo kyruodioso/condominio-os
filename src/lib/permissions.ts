@@ -17,6 +17,7 @@ export const PERMISSIONS = {
     MANAGE_PACKAGES: 'MANAGE_PACKAGES',
     MANAGE_EXPENSES: 'MANAGE_EXPENSES',
     MANAGE_PROVIDERS: 'MANAGE_PROVIDERS',
+    MANAGE_UNITS: 'MANAGE_UNITS',
     VIEW_FINANCE: 'VIEW_FINANCE',
 } as const;
 
@@ -45,6 +46,7 @@ export function can(user: { role: string }, permission: Permission, planType: st
 
         case PERMISSIONS.MANAGE_MAINTENANCE:
         case PERMISSIONS.MANAGE_PACKAGES:
+        case PERMISSIONS.MANAGE_UNITS:
             // Operational tasks: Available to both STAFF and CONSORCIO_ADMIN in any plan
             return role === Role.STAFF || role === Role.CONSORCIO_ADMIN;
 
