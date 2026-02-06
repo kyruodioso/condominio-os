@@ -27,6 +27,8 @@ import StaffFreeDashboard from '@/components/admin/StaffFreeDashboard';
 
 export default function UnifiedAdminPage() {
     const { data: session, status } = useSession();
+    const router = useRouter();
+
     // --- Access Control Helpers ---
     const userRole = (session?.user?.role || '').toUpperCase();
     const isStaff = userRole === 'STAFF' || userRole === 'ADMIN';
