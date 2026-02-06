@@ -48,7 +48,7 @@ export async function updateCondoAdmin(userId: string, data: { email: string; na
         throw new Error('User not found');
     }
 
-    if (user.role !== 'ADMIN') {
+    if (user.role !== 'ADMIN' && user.role !== 'CONSORCIO_ADMIN') {
         throw new Error('User is not an admin');
     }
 
@@ -80,7 +80,7 @@ export async function deleteCondoAdmin(userId: string) {
         throw new Error('User not found');
     }
 
-    if (user.role !== 'ADMIN') {
+    if (user.role !== 'ADMIN' && user.role !== 'CONSORCIO_ADMIN') {
         throw new Error('User is not an admin');
     }
 
