@@ -300,7 +300,7 @@ export default function UnifiedAdminPage() {
                                     <MessageSquare size={24} />
                                     <div>
                                         <span className="font-bold text-sm block uppercase tracking-wide">Mensajería</span>
-                                        <span className={clsx("text-xs block mt-1", activeTab === 'mensajes' ? "text-black/60" : "text-gray-600")}>Consultas de residentes</span>
+                                        <span className="text-xs block mt-1 text-gray-600">Consultas de residentes</span>
                                     </div>
                                 </Link>
                                 <NavButton id="buzon" icon={Package} label="Paquetería" description="Recepción y entregas" />
