@@ -6,24 +6,43 @@ const ExpenseSchema = new Schema({
         ref: 'Condominium',
         required: true,
     },
+    date: {
+        type: Date,
+        default: Date.now,
+        required: true,
+    },
+    provider: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     description: {
         type: String,
         required: true,
         trim: true,
     },
-    amount: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
     category: {
         type: String,
-        default: 'General',
-    },
-    date: {
-        type: Date,
-        default: Date.now,
+        enum: ['SUELDOS', 'SERVICIOS', 'MANTENIMIENTO', 'SEGUROS', 'ADMINISTRACION', 'BANCARIOS'],
         required: true,
+    },
+    type: {
+        type: String,
+        enum: ['GASTO_A', 'GASTO_B', 'GASTO_C', 'PARTICULAR'],
+        required: true,
+    },
+    amount: {
+        type: Schema.Types.Decimal128,
+        required: true,
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['BANCO', 'EFECTIVO'],
+        required: true,
+    },
+    invoiceNumber: {
+        type: String,
+        trim: true,
     },
     attachmentUrl: {
         type: String,
@@ -33,12 +52,6 @@ const ExpenseSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    // Optional: link to a liquidation batch if we want to group them later
-    liquidationId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Liquidation',
-        required: false
-    }
 });
 
 const Expense = models.Expense || model('Expense', ExpenseSchema);

@@ -87,6 +87,10 @@ export async function liquidateExpenses(month: number, year: number) {
     return { success: true, message: `Successfully liquidated expenses. Generated ${bills.length} bills.` };
 }
 
+import Payment from '@/models/Payment';
+import ExpenseSettlement from '@/models/ExpenseSettlement';
+import UnitAccountStatus from '@/models/UnitAccountStatus';
+
 export async function getFinancialStats() {
     await dbConnect();
     const session = await auth();
@@ -95,46 +99,64 @@ export async function getFinancialStats() {
 
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
-    const period = `${currentMonth.toString().padStart(2, '0')}-${currentYear}`;
 
-    // 1. Current Month Billing vs Collection
-    const currentBills = await ExpenseBill.find({ condominiumId: condoId, period });
+    // 1. Get Last Settlement to determine Billed and Total Debt context
+    const lastSettlement = await ExpenseSettlement.findOne({ 
+        condominiumId: condoId, 
+        status: 'SENT' 
+    }).sort({ processedAt: -1 });
 
     let totalBilled = 0;
     let totalCollected = 0;
+    let totalDebt = 0;
 
-    currentBills.forEach((bill: any) => {
-        totalBilled += bill.amount;
-        if (bill.status === 'PAID') {
-            totalCollected += bill.amount;
-        }
-    });
+    if (lastSettlement) {
+        // Stats from the last closed settlement
+        const statuses = await UnitAccountStatus.find({ settlementId: lastSettlement._id });
+        
+        // Total Billed for the last period (this includes previous debt usually, but if "Billed" means "New Charges", it's currentPeriodShare + reserveFund. If it means "Total Coupon Value", it's totalToPay)
+        // Let's assume "Facturación (Mes)" means the total amount requested in the last bills.
+        totalBilled = statuses.reduce((sum: number, s: any) => sum + parseFloat(s.totalToPay.toString()), 0);
+
+        // Total Debt (at the time of settlement)
+        // This is tricky without a live "CurrentBalance" on Unit. 
+        // We will use TotalBilled as a proxy for "Debt at start of month" + "New Expenses".
+        // Real-time debt = TotalToPay - Payments made AFTER settlement date.
+        
+        // Let's calculate payments made in the current month
+        const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
+        const endOfMonth = new Date(currentYear, currentMonth, 0);
+        
+        const payments = await Payment.find({
+            condominiumId: condoId,
+            date: { $gte: startOfMonth, $lte: endOfMonth },
+            status: 'CONFIRMED'
+        });
+
+        totalCollected = payments.reduce((sum: number, p: any) => sum + parseFloat(p.amount.toString()), 0);
+        
+        // Rough estimate of current outstanding debt
+        totalDebt = Math.max(0, totalBilled - totalCollected);
+    }
 
     const collectionPercentage = totalBilled > 0 ? (totalCollected / totalBilled) * 100 : 0;
 
-    // 2. Total Delinquency (Overdue bills from ALL periods)
-    // We can consider 'PENDING' from past months as overdue too, if we check dates.
-    // For now, let's just rely on status 'OVERDUE'.
-    const overdueBills = await ExpenseBill.find({
-        condominiumId: condoId,
-        status: 'OVERDUE'
-    });
-
-    const totalDebt = overdueBills.reduce((sum: number, bill: any) => sum + bill.amount, 0);
-
-    // 3. Current Expense (Total accumulated for next liquidation)
-    const currentExpense = await Expense.findOne({
+    // 2. Current Expense (Accumulated for Next Settlement)
+    // We look for expenses in the CURRENT month (which might not be settled yet)
+    const currentExpenses = await Expense.find({
         condominiumId: condoId,
         month: currentMonth,
         year: currentYear
     });
 
+    const currentExpenseTotal = currentExpenses.reduce((sum: number, e: any) => sum + parseFloat(e.amount.toString()), 0);
+
     return {
-        billed: totalBilled,
-        collected: totalCollected,
+        billed: parseFloat(totalBilled.toFixed(2)),
+        collected: parseFloat(totalCollected.toFixed(2)),
         collectionPercentage: parseFloat(collectionPercentage.toFixed(1)),
-        totalDebt,
-        currentExpenseTotal: currentExpense?.totalAmount || 0
+        totalDebt: parseFloat(totalDebt.toFixed(2)),
+        currentExpenseTotal: parseFloat(currentExpenseTotal.toFixed(2))
     };
 }
 

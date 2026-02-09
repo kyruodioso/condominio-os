@@ -19,7 +19,6 @@ import {
 import Link from 'next/link';
 import clsx from 'clsx';
 import { can, PERMISSIONS, PlanType } from '@/lib/permissions';
-import ExpensesManagement from '@/components/admin/ExpensesManagement';
 import ProvidersManager from '@/components/admin/ProvidersManager';
 import FinancialDashboard from '@/components/admin/FinancialDashboard';
 import LiquidationManager from '@/components/admin/LiquidationManager';
