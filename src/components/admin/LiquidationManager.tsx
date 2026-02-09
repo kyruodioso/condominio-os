@@ -178,27 +178,27 @@ export default function LiquidationManager() {
                     <p className="text-gray-400 text-sm">Gestión del Periodo: {format(new Date(year, month - 1), 'MMMM yyyy', { locale: es }).toUpperCase()}</p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                     <div className="flex bg-black/20 p-1 rounded-xl border border-white/5">
+                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                     <div className="flex bg-black/20 p-1 rounded-xl border border-white/5 flex-1 md:flex-none">
                         <button
                             onClick={() => setActiveTab('expenses')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'expenses' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'expenses' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
                         >
                             Gastos
                         </button>
                         <button
                             onClick={() => setActiveTab('settlement')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'settlement' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'settlement' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
                         >
                             Liquidación
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5 flex-1 md:flex-none justify-between md:justify-start">
                         <select
                             value={month}
                             onChange={(e) => setMonth(parseInt(e.target.value))}
-                            className="bg-transparent text-white font-bold outline-none p-2 appearance-none cursor-pointer"
+                            className="bg-transparent text-white font-bold outline-none p-2 appearance-none cursor-pointer flex-1 md:flex-none"
                         >
                             {Array.from({ length: 12 }, (_, i) => (
                                 <option key={i + 1} value={i + 1} className="text-black">
@@ -209,7 +209,7 @@ export default function LiquidationManager() {
                         <select
                             value={year}
                             onChange={(e) => setYear(parseInt(e.target.value))}
-                            className="bg-transparent text-white font-bold outline-none p-2 appearance-none cursor-pointer"
+                            className="bg-transparent text-white font-bold outline-none p-2 appearance-none cursor-pointer flex-1 md:flex-none text-right md:text-left"
                         >
                             <option value={2025} className="text-black">2025</option>
                             <option value={2026} className="text-black">2026</option>
@@ -302,7 +302,7 @@ export default function LiquidationManager() {
                             </button>
                         </div>
                         
-                        <div className="bg-black/20 rounded-2xl border border-white/5 overflow-hidden">
+                        <div className="bg-black/20 rounded-2xl border border-white/5 overflow-x-auto">
                             <table className="w-full text-left text-sm text-gray-400">
                                 <thead className="bg-white/5 text-white uppercase font-bold text-xs tracking-wider">
                                     <tr>
