@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import ChatInterface from '@/components/chat/ChatInterface';
-import { Search, MessageSquare, User, Plus, X } from 'lucide-react';
+import { Search, MessageSquare, User, Plus, X, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 import { getUnits } from '@/actions/units'; 
 
@@ -62,9 +62,12 @@ export default function AdminChatLayout() {
     ) : [];
 
     return (
-        <div className="flex h-[calc(100vh-120px)] gap-6">
+        <div className="flex h-[calc(100vh-120px)] gap-6 relative">
             {/* Sidebar - Lista de Chats */}
-            <div className="w-1/3 bg-gym-gray rounded-3xl border border-white/5 flex flex-col overflow-hidden">
+            <div className={clsx(
+                "w-full md:w-1/3 bg-gym-gray rounded-3xl border border-white/5 flex-col overflow-hidden absolute md:relative inset-0 z-10 md:z-auto transition-transform duration-300 md:translate-x-0 md:flex",
+                selectedUnit ? "-translate-x-full md:translate-x-0 hidden md:flex" : "flex"
+            )}>
                 <div className="p-4 border-b border-white/5 space-y-4">
                     {!isStaff && (
                         <div className="flex gap-2 bg-black/20 p-1 rounded-xl">
@@ -165,18 +168,33 @@ export default function AdminChatLayout() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1">
+            <div className={clsx(
+                "flex-1 bg-gym-gray md:bg-transparent rounded-3xl md:rounded-none border border-white/5 md:border-none overflow-hidden absolute md:relative inset-0 z-20 md:z-auto md:block",
+                selectedUnit ? "block" : "hidden md:block" // Show when selectedUnit is true on mobile
+            )}>
                 {selectedUnit ? (
-                    <ChatInterface
-                        key={selectedUnit.id} // Forzar re-render al cambiar de unidad
-                        unitId={selectedUnit.id}
-                        currentUserRole="ADMIN"
-                        title={selectedUnit.name}
-                        isOnline={selectedUnit.isOnline}
-                        channel={activeChannel}
-                    />
+                    <div className="h-full flex flex-col">
+                        {/* Mobile Back Button (Render custom header or wrap ChatInterface) */}
+                        <div className="md:hidden p-4 border-b border-white/5 flex items-center gap-2 bg-gray-900">
+                            <button onClick={() => setSelectedUnit(null)} className="text-gray-400 hover:text-white">
+                                <ArrowLeft size={20} />
+                            </button>
+                            <span className="font-bold text-white truncate">{selectedUnit.name}</span>
+                        </div>
+
+                        <div className="flex-1 overflow-hidden">
+                             <ChatInterface
+                                key={selectedUnit.id} // Forzar re-render al cambiar de unidad
+                                unitId={selectedUnit.id}
+                                currentUserRole="ADMIN"
+                                title="" // Empty title because mobile has its own header, or we let ChatInterface handle it but we need back button
+                                isOnline={selectedUnit.isOnline}
+                                channel={activeChannel}
+                            />
+                        </div>
+                    </div>
                 ) : (
-                    <div className="h-full bg-gym-gray rounded-3xl border border-white/5 flex flex-col items-center justify-center text-gray-500">
+                    <div className="h-full bg-gym-gray rounded-3xl border border-white/5 flex flex-col items-center justify-center text-gray-500 hidden md:flex">
                         <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4">
                             <MessageSquare size={40} />
                         </div>
