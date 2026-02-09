@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import ChatInterface from '@/components/chat/ChatInterface';
 import { Search, MessageSquare, User } from 'lucide-react';
@@ -8,13 +8,27 @@ import clsx from 'clsx';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+import { useSession } from 'next-auth/react';
+
 export default function AdminChatLayout() {
+    const { data: session } = useSession();
+    const isStaff = session?.user?.role === 'STAFF';
+
     const [selectedUnit, setSelectedUnit] = useState<{ id: string; name: string; isOnline?: boolean } | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    // Si es Staff, empieza en ENCARGADO. Si es Admin, en ADMINISTRACION.
+    const [activeChannel, setActiveChannel] = useState<'ADMINISTRACION' | 'ENCARGADO'>('ADMINISTRACION');
+    
+    // Effect to set initial channel based on role
+    useEffect(() => {
+        if (isStaff) {
+             setActiveChannel('ENCARGADO');
+        }
+    }, [isStaff]);
 
     // Polling de conversaciones cada 5 segundos
     const { data: conversations, error } = useSWR(
-        '/api/admin/conversations',
+        `/api/admin/conversations?channel=${activeChannel}`,
         fetcher,
         { refreshInterval: 5000 }
     );
@@ -28,8 +42,27 @@ export default function AdminChatLayout() {
         <div className="flex h-[calc(100vh-120px)] gap-6">
             {/* Sidebar - Lista de Chats */}
             <div className="w-1/3 bg-gym-gray rounded-3xl border border-white/5 flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-white/5">
-                    <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Mensajes</h2>
+                <div className="p-4 border-b border-white/5 space-y-4">
+                    {!isStaff && (
+                        <div className="flex gap-2 bg-black/20 p-1 rounded-xl">
+                            <button 
+                                onClick={() => { setActiveChannel('ADMINISTRACION'); setSelectedUnit(null); }}
+                                className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-colors ${activeChannel === 'ADMINISTRACION' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                            >
+                                Administración
+                            </button>
+                            <button 
+                                onClick={() => { setActiveChannel('ENCARGADO'); setSelectedUnit(null); }}
+                                className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-colors ${activeChannel === 'ENCARGADO' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                            >
+                                Encargado
+                            </button>
+                        </div>
+                    )}
+
+                    <h2 className="text-xl font-bold text-white uppercase tracking-wide">
+                        {isStaff ? 'Mensajes de Residentes' : 'Mensajes'}
+                    </h2>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                         <input
@@ -83,7 +116,7 @@ export default function AdminChatLayout() {
                                     "text-xs truncate",
                                     conv.unreadCount > 0 && selectedUnit?.id !== conv.unitId ? "font-bold" : "opacity-70"
                                 )}>
-                                    {conv.lastSender === 'USER' ? '👤 ' : 'me: '}
+                                    {conv.lastSender === 'USER' ? '👤 ' : (conv.lastSender === 'STAFF' ? '🛠️ ' : 'me: ')}
                                     {conv.lastMessage}
                                 </p>
                             </div>
@@ -107,6 +140,7 @@ export default function AdminChatLayout() {
                         currentUserRole="ADMIN"
                         title={selectedUnit.name}
                         isOnline={selectedUnit.isOnline}
+                        channel={activeChannel}
                     />
                 ) : (
                     <div className="h-full bg-gym-gray rounded-3xl border border-white/5 flex flex-col items-center justify-center text-gray-500">

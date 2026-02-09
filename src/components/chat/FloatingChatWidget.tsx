@@ -16,6 +16,9 @@ export default function FloatingChatWidget() {
     const [isMinimized, setIsMinimized] = useState(false);
     const [unitId, setUnitId] = useState<string | null>(null);
 
+    const [view, setView] = useState<'contacts' | 'chat'>('contacts');
+    const [selectedChannel, setSelectedChannel] = useState('ADMINISTRACION');
+
     // Obtener Unit ID del usuario actual
     useEffect(() => {
         if (session?.user) {
@@ -47,6 +50,11 @@ export default function FloatingChatWidget() {
 
     const pathname = usePathname();
     const isGymPage = pathname?.startsWith('/gym');
+
+    const handleSelectChannel = (channel: string) => {
+        setSelectedChannel(channel);
+        setView('chat');
+    };
 
     return (
         <>
@@ -93,8 +101,15 @@ export default function FloatingChatWidget() {
                     {/* Header Personalizado del Widget */}
                     <div className="bg-gym-primary p-3 flex justify-between items-center text-black">
                         <div className="flex items-center gap-2">
+                             {view === 'chat' && (
+                                <button onClick={() => setView('contacts')} className="p-1 hover:bg-black/10 rounded mr-1">
+                                    <MessageCircle size={16} className="rotate-180" />
+                                </button>
+                            )}
                             <MessageCircle size={20} />
-                            <span className="font-bold text-sm uppercase">Administración</span>
+                            <span className="font-bold text-sm uppercase">
+                                {view === 'contacts' ? 'Soporte' : selectedChannel}
+                            </span>
                         </div>
                         <div className="flex items-center gap-1">
                             <button
@@ -114,15 +129,59 @@ export default function FloatingChatWidget() {
 
                     {/* Chat Interface Reutilizado */}
                     <div className="flex-1 overflow-hidden relative">
-                        {/* Pasamos un prop especial para ocultar el header interno del ChatInterface si quisiéramos, 
-                            pero por ahora lo dejamos tal cual o lo ajustamos con CSS */}
-                        <div className="absolute inset-0 pb-0">
-                            <ChatInterface
-                                unitId={unitId}
-                                currentUserRole="USER"
-                            // Opcional: Podrías modificar ChatInterface para aceptar un prop `hideHeader`
-                            />
-                        </div>
+                        {view === 'contacts' ? (
+                            <div className="p-6 space-y-4">
+                                <h3 className="text-white font-bold text-lg mb-2">¿Con quién desea hablar?</h3>
+                                
+                                <button 
+                                    onClick={() => handleSelectChannel('ADMINISTRACION')}
+                                    className="w-full bg-white/5 hover:bg-white/10 p-4 rounded-xl flex items-center gap-4 transition-all group"
+                                >
+                                    <div className="p-3 bg-blue-500/20 text-blue-500 rounded-full group-hover:scale-110 transition-transform">
+                                        <MessageCircle size={24} />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-white font-bold">Administración</div>
+                                        <div className="text-gray-400 text-xs">Consultas generales, expensas, reclamos</div>
+                                    </div>
+                                </button>
+
+                                <button 
+                                    onClick={() => handleSelectChannel('ENCARGADO')}
+                                    className="w-full bg-white/5 hover:bg-white/10 p-4 rounded-xl flex items-center gap-4 transition-all group"
+                                >
+                                    <div className="p-3 bg-red-500/20 text-red-500 rounded-full group-hover:scale-110 transition-transform">
+                                        <MessageCircle size={24} />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-white font-bold">Encargado del Edificio</div>
+                                        <div className="text-gray-400 text-xs">Consultas, emergencias, delivery</div>
+                                    </div>
+                                </button>
+
+                                <button 
+                                    onClick={() => handleSelectChannel('MANTENIMIENTO')}
+                                    className="w-full bg-white/5 hover:bg-white/10 p-4 rounded-xl flex items-center gap-4 transition-all group"
+                                >
+                                    <div className="p-3 bg-orange-500/20 text-orange-500 rounded-full group-hover:scale-110 transition-transform">
+                                        <MessageCircle size={24} />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-white font-bold">Mantenimiento</div>
+                                        <div className="text-gray-400 text-xs">Reparaciones en áreas comunes</div>
+                                    </div>
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="absolute inset-0 pb-0">
+                                <ChatInterface
+                                    unitId={unitId}
+                                    currentUserRole="USER"
+                                    channel={selectedChannel}
+                                    // Opcional: Podrías modificar ChatInterface para aceptar un prop `hideHeader`
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

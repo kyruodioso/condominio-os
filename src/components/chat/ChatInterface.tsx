@@ -7,7 +7,7 @@ import clsx from 'clsx';
 
 interface Message {
     _id: string;
-    sender: 'ADMIN' | 'USER';
+    sender: 'ADMIN' | 'USER' | 'STAFF';
     content?: string;
     type: 'text' | 'audio';
     fileUrl?: string;
@@ -17,14 +17,15 @@ interface Message {
 
 interface ChatInterfaceProps {
     unitId: string;
-    currentUserRole: 'ADMIN' | 'USER';
+    currentUserRole: 'ADMIN' | 'USER' | 'STAFF';
     title?: string;
     isOnline?: boolean;
+    channel?: string; // Add channel prop
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function ChatInterface({ unitId, currentUserRole, title, isOnline }: ChatInterfaceProps) {
+export default function ChatInterface({ unitId, currentUserRole, title, isOnline, channel = 'ADMINISTRACION' }: ChatInterfaceProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -32,7 +33,7 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const { data: messages, error, mutate } = useSWR<Message[]>(
-        unitId ? `/api/messages?unitId=${unitId}` : null,
+        unitId ? `/api/messages?unitId=${unitId}&channel=${channel}` : null,
         fetcher,
         { refreshInterval: 1000 }
     );
@@ -68,7 +69,8 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                 body: JSON.stringify({
                     content: newMessage,
                     unitId: unitId,
-                    type: 'text'
+                    type: 'text',
+                    channel 
                 }),
             });
 
@@ -140,7 +142,8 @@ export default function ChatInterface({ unitId, currentUserRole, title, isOnline
                     unitId: unitId,
                     type: 'audio',
                     fileUrl: url,
-                    content: 'Mensaje de voz' // Fallback text
+                    content: 'Mensaje de voz', // Fallback text
+                    channel
                 }),
             });
 

@@ -307,7 +307,7 @@ export default function UnifiedAdminPage() {
                                     <MessageSquare size={24} />
                                     <div>
                                         <span className="font-bold text-sm block uppercase tracking-wide">Mensajería</span>
-                                        <span className="text-xs block mt-1 text-gray-600">Consultas de residentes</span>
+                                        <span className="text-xs block mt-1 text-gray-600">Vecinos y Administración</span>
                                     </div>
                                 </Link>
                                 <NavButton id="buzon" icon={Package} label="Paquetería" description="Recepción y entregas" />

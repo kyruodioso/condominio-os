@@ -15,8 +15,30 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Agregación para obtener la última conversación por unidad
+        const { searchParams } = new URL(req.url);
+        let channelFilter = 'ADMINISTRACION';
+
+        // Si es STAFF, por defecto ve ENCARGADO, a menos que se especifique lo contrario (si quisiera ver ADMIN, pero eso sería otro permiso)
+        if (session.user.role === 'STAFF') {
+            channelFilter = 'ENCARGADO';
+        }
+        
+        // Si se pasa un canal por query param y el usuario tiene permisos (Admin puede ver todo?), lo usamos.
+        // Por ahora, restrinjamos:
+        // Admin -> ve ADMINISTRACION (y podría ver otros si se implementa switch)
+        // Staff -> ve ENCARGADO
+        // Para simplificar, si es Admin y pide channel=ENCARGADO, lo dejamos.
+        if (searchParams.get('channel')) {
+             if (session.user.role === 'ADMIN' || session.user.role === 'CONSORCIO_ADMIN' || session.user.role === 'SUPER_ADMIN') {
+                channelFilter = searchParams.get('channel')!;
+             }
+        }
+
+        // Agregación para obtener la última conversación por unidad y canal
         const conversations = await Message.aggregate([
+            {
+                $match: { channel: channelFilter } // Filtrar por canal
+            },
             {
                 $sort: { createdAt: -1 } // Ordenar por fecha descendente primero
             },

@@ -3,7 +3,7 @@ import mongoose, { Schema, model, models } from 'mongoose';
 const MessageSchema = new Schema({
     sender: {
         type: String,
-        enum: ['ADMIN', 'USER'],
+        enum: ['ADMIN', 'USER', 'STAFF'],
         required: true,
     },
     unitId: {
@@ -20,6 +20,11 @@ const MessageSchema = new Schema({
         type: String,
         enum: ['text', 'audio'],
         default: 'text',
+    },
+    channel: {
+        type: String,
+        enum: ['ADMINISTRACION', 'ENCARGADO', 'SEGURIDAD', 'MANTENIMIENTO'], // Departments
+        default: 'ADMINISTRACION',
     },
     fileUrl: {
         type: String, // URL for audio file

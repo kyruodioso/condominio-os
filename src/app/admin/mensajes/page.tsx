@@ -11,6 +11,8 @@ export default async function AdminMessagesPage() {
         redirect('/login');
     }
 
+    const isStaff = session?.user?.role === 'STAFF';
+
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
             <div className="max-w-7xl mx-auto">
@@ -20,9 +22,11 @@ export default async function AdminMessagesPage() {
                     </Link>
                     <div>
                         <h1 className="text-3xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
-                            Centro de Mensajes
+                           {isStaff ? 'Mensajería Encargado' : 'Centro de Mensajes'}
                         </h1>
-                        <p className="text-gray-400 text-sm">Comunicación directa con residentes</p>
+                        <p className="text-gray-400 text-sm">
+                            {isStaff ? 'Comunicación directa con vecinos' : 'Comunicación directa con residentes y personal'}
+                        </p>
                     </div>
                 </header>
 

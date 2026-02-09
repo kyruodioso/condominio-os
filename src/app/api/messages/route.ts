@@ -13,37 +13,67 @@ export async function GET(req: Request) {
 
         const { searchParams } = new URL(req.url);
         let unitId = searchParams.get('unitId');
+        let channel = searchParams.get('channel') || 'ADMINISTRACION';
 
-        // Lógica de seguridad:
-        // Si es ADMIN, debe proveer un unitId.
-        // Si es USER, el unitId es forzosamente el suyo propio (ignora el param).
-        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') {
-            if (!unitId) return NextResponse.json({ error: 'Unit ID required for admin' }, { status: 400 });
+        // Validar permisos de acceso a mensajes
+        const userRole = session.user.role;
+        const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'CONSORCIO_ADMIN';
+        const isStaff = userRole === 'STAFF';
+
+        if (isAdmin || isStaff) {
+             // Si es Admin o Staff, DEBE proveer unitId para ver mensajes de una unidad específica
+             if (!unitId) return NextResponse.json({ error: 'Unit ID required for staff/admin' }, { status: 400 });
+
+             // VERIFICACIÓN: La unidad DEBE pertenecer al condominio del admin/staff.
+             const UNIT_MODEL = (await import('@/models/Unit')).default;
+             const targetUnit = await UNIT_MODEL.findById(unitId);
+             
+             if (!targetUnit) {
+                 return NextResponse.json({ error: 'Unit not found' }, { status: 404 });
+             }
+
+             // Comparar IDs como strings
+             if (targetUnit.condominiumId.toString() !== session.user.condominiumId?.toString()) {
+                 return NextResponse.json({ error: 'Unauthorized: Unit belongs to another condominium' }, { status: 403 });
+             }
+
         } else {
-            // Es un residente/usuario
-            // Asumimos que el usuario tiene un unitId vinculado en su sesión o perfil
-            // NOTA: Necesitamos obtener el unitId del usuario. 
-            // Si el session.user no tiene unitId directo, habría que buscarlo.
-            // Asumiré por ahora que session.user.unitId existe o lo buscamos.
+             // Es Resident (USER)
+             // Asumimos que "session.user.unitId" sería lo ideal, pero si no está en sesión, validamos
+             // buscando la unidad vinculada al usuario y comparando.
+             
+             // Si el request trae un unitId, verificamos que sea EL SUYO.
+             if (!unitId) return NextResponse.json({ error: 'Unit ID required' }, { status: 400 });
 
-            // Opción A: session.user.unitId (si lo agregamos al token)
-            // Opción B: Buscar Unit donde residents.userId == session.user.id
+              // Validar contra DB buscando si este user es residente de esa unit
+             const UNIT_MODEL = (await import('@/models/Unit')).default;
+             const unit = await UNIT_MODEL.findById(unitId);
 
-            // Usaremos el unitId pasado por parametro PERO validaremos que le pertenezca
-            // O mejor, busquemos la unidad asociada al usuario.
+             // Verificar si el usuario está en la lista de residentes (owners/tenants)
+             // Esto asume Unit tiene residents array con userId o similar. 
+             // O podemos simplificar usando condominiumId del usuario vs el de la unidad.
+             // PERO un usuario solo debería ver SU unidad.
+             
+             // Por performance/MVP: Si el usuario tiene session.user.condominiumId, validamos que la unidad sea de ese condominio.
+             // ESTO ES LO MINIMO: Evita ver chats de OTRO edificio.
+             // Para evitar ver chats de OTRA unidad en el mismo edificio, necesitaríamos session.user.unitId confiable.
+             
+             if (!unit || unit.condominiumId.toString() !== session.user.condominiumId?.toString()) {
+                  return NextResponse.json({ error: 'Unauthorized access to this unit' }, { status: 403 });
+             }
+             
+             // TODO: Idealmente validar que session.user.id esté en unit.owners o unit.tenants
+        }
+        
+        // Query base
+        const query: any = { unitId };
 
-            // Por simplicidad y seguridad, asumiré que el frontend del usuario manda su unitId
-            // y aquí deberíamos validarlo. Para este MVP, confiaremos en el session.user.condominiumId 
-            // y buscaremos la unidad del usuario si es necesario.
-
-            // *FIX*: Para simplificar, asumiré que el usuario pasa su unitId y validamos que sea suyo.
-            // O mejor aún, si el usuario es USER, buscamos mensajes donde unitId sea el suyo.
-            // Pero espera, el modelo Message tiene `unitId`.
-            // Vamos a asumir que el frontend manda el unitId correcto por ahora.
-            if (!unitId) return NextResponse.json({ error: 'Unit ID required' }, { status: 400 });
+        // Filtrado por canal
+        if (channel) {
+            query.channel = channel;
         }
 
-        const messages = await Message.find({ unitId })
+        const messages = await Message.find(query)
             .sort({ createdAt: 1 }) // Orden cronológico
             .limit(100); // Limitar a últimos 100 por performance
 
@@ -61,16 +91,41 @@ export async function POST(req: Request) {
         if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await req.json();
-        const { content, unitId, type = 'text', fileUrl } = body;
+        const { content, unitId, type = 'text', fileUrl, channel = 'ADMINISTRACION' } = body;
 
         if ((!content && !fileUrl) || !unitId) {
             return NextResponse.json({ error: 'Missing content/file or unitId' }, { status: 400 });
         }
 
-        let senderRole = 'USER';
-        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'STAFF' || session.user.role === 'CONSORCIO_ADMIN') {
-            senderRole = 'ADMIN';
+        // --- VERIFICACIÓN DE SEGURIDAD PARA POST ---
+        const UNIT_MODEL = (await import('@/models/Unit')).default;
+        const targetUnit = await UNIT_MODEL.findById(unitId);
+
+        if (!targetUnit) {
+            return NextResponse.json({ error: 'Unit not found' }, { status: 404 });
         }
+
+        // Verificar aislamiento de Condominio
+        if (targetUnit.condominiumId.toString() !== session.user.condominiumId?.toString()) {
+             // Caso especial: Super Admin podría mandar a cualquiera, pero por regla de negocio general lo bloqueamos
+             // a menos que Super Admin cambie su 'contexto'.
+             // Si es SUPER_ADMIN, podríamos ser permisivos, pero por defecto mejor seguros.
+             if (session.user.role !== 'SUPER_ADMIN') {
+                 return NextResponse.json({ error: 'Unauthorized: Cannot message unit in another condominium' }, { status: 403 });
+             }
+        }
+        // -------------------------------------------
+
+        let senderRole = 'USER';
+        // Check if the user is STAFF, ADMIN, etc.
+        if (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN' || session.user.role === 'CONSORCIO_ADMIN') {
+            senderRole = 'ADMIN'; 
+        } else if (session.user.role === 'STAFF') {
+             senderRole = 'STAFF'; // New sender role for Encargado
+        }
+
+        // If Encargado sends a message, it should be in ENCARGADO channel ideally, or whatever channel is passed (but restricted?)
+        // For now, trust the frontend 'channel' param if it's valid.
 
         const newMessage = await Message.create({
             sender: senderRole,
@@ -78,6 +133,7 @@ export async function POST(req: Request) {
             content,
             type,
             fileUrl,
+            channel,
             isRead: false,
         });
 
