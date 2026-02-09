@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import ChatInterface from '@/components/chat/ChatInterface';
-import { Search, MessageSquare, User } from 'lucide-react';
+import { Search, MessageSquare, User, Plus, X } from 'lucide-react';
 import clsx from 'clsx';
+import { getUnits } from '@/actions/units'; 
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -19,12 +20,34 @@ export default function AdminChatLayout() {
     // Si es Staff, empieza en ENCARGADO. Si es Admin, en ADMINISTRACION.
     const [activeChannel, setActiveChannel] = useState<'ADMINISTRACION' | 'ENCARGADO'>('ADMINISTRACION');
     
+    const [showNewChatModal, setShowNewChatModal] = useState(false);
+    const [allUnits, setAllUnits] = useState<any[]>([]);
+    const [unitSearchTerm, setUnitSearchTerm] = useState('');
+
     // Effect to set initial channel based on role
     useEffect(() => {
         if (isStaff) {
              setActiveChannel('ENCARGADO');
         }
     }, [isStaff]);
+
+    const handleNewChat = async () => {
+        setShowNewChatModal(true);
+        // Cargar todas las unidades si no estan cargadas
+        if (allUnits.length === 0) {
+            try {
+                const units = await getUnits();
+                setAllUnits(units);
+            } catch (e) {
+                console.error("Error loading units", e);
+            }
+        }
+    };
+
+    const filteredUnits = allUnits.filter(u => 
+        u.number.toLowerCase().includes(unitSearchTerm.toLowerCase()) || 
+        (u.contactName && u.contactName.toLowerCase().includes(unitSearchTerm.toLowerCase()))
+    );
 
     // Polling de conversaciones cada 5 segundos
     const { data: conversations, error } = useSWR(
@@ -60,9 +83,19 @@ export default function AdminChatLayout() {
                         </div>
                     )}
 
-                    <h2 className="text-xl font-bold text-white uppercase tracking-wide">
-                        {isStaff ? 'Mensajes de Residentes' : 'Mensajes'}
-                    </h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-white uppercase tracking-wide">
+                            {isStaff ? 'Mensajes de Residentes' : 'Mensajes'}
+                        </h2>
+                        <button 
+                            onClick={handleNewChat}
+                            className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-colors"
+                            title="Iniciar nueva conversación"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </div>
+
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                         <input
@@ -152,6 +185,71 @@ export default function AdminChatLayout() {
                     </div>
                 )}
             </div>
+            {showNewChatModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-gym-gray w-full max-w-md rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-200">
+                        <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/20">
+                            <div>
+                                <h3 className="text-lg font-bold text-white">Iniciar Conversación</h3>
+                                <p className="text-xs text-gray-400">Selecciona una unidad para chatear</p>
+                            </div>
+                            <button onClick={() => setShowNewChatModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="p-4">
+                            <div className="relative mb-4">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por número o nombre..."
+                                    value={unitSearchTerm}
+                                    onChange={(e) => setUnitSearchTerm(e.target.value)}
+                                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-gym-primary text-sm"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className="space-y-2 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                                {allUnits.length === 0 ? (
+                                    <div className="text-center py-8">
+                                        <div className="w-8 h-8 border-2 border-gym-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                                        <p className="text-xs text-gray-500">Cargando unidades...</p>
+                                    </div>
+                                ) : filteredUnits.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <p>No se encontraron unidades</p>
+                                    </div>
+                                ) : (
+                                    filteredUnits.map((u: any) => (
+                                        <button
+                                            key={u._id}
+                                            onClick={() => {
+                                                setSelectedUnit({
+                                                    id: u._id,
+                                                    name: `Unidad ${u.number} - ${u.contactName || 'Sin Nombre'}`
+                                                });
+                                                setShowNewChatModal(false);
+                                                setUnitSearchTerm('');
+                                            }}
+                                            className="w-full p-3 rounded-xl flex items-center gap-4 hover:bg-white/5 transition-all text-left group border border-transparent hover:border-white/5"
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-gray-400 group-hover:text-gym-primary group-hover:from-gym-primary/10 group-hover:to-gym-primary/5 transition-all font-bold text-xs ring-1 ring-white/10">
+                                                {u.number}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-white text-sm group-hover:text-gym-primary transition-colors">Unidad {u.number}</p>
+                                                <p className="text-xs text-gray-400 truncate max-w-[200px]">{u.contactName || 'Sin contacto registrado'}</p>
+                                            </div>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
